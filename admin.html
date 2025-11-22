@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة إدارة Argento - الطلبات الكاملة</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 95%;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+            position: relative;
+        }
+        .customer-link {
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 10px 15px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        .customer-link:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        .controls {
+            background: #f8f9fa;
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .btn {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4);
+        }
+        .btn-export {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        }
+        .btn-clear {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        }
+        .btn-refresh {
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+        }
+        .stats {
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            color: white;
+            padding: 20px;
+            margin: 0;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            text-align: center;
+        }
+        .stat-card {
+            background: rgba(255,255,255,0.2);
+            padding: 15px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .table-container {
+            overflow-x: auto;
+            max-height: 70vh;
+            position: relative;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            min-width: 2000px;
+        }
+        th, td {
+            padding: 10px 12px;
+            text-align: right;
+            border: 1px solid #e9ecef;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        th {
+            background: #2c3e50;
+            color: white;
+            position: sticky;
+            top: 0;
+            font-weight: 600;
+            z-index: 10;
+        }
+        th:first-child {
+            position: sticky;
+            left: 0;
+            z-index: 20;
+            background: #34495e;
+        }
+        td:first-child {
+            position: sticky;
+            left: 0;
+            background: #f8f9fa;
+            z-index: 5;
+        }
+        tr:hover {
+            background: #f8f9fa;
+        }
+        .no-orders {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-size: 18px;
+        }
+        .last-update {
+            text-align: center;
+            padding: 10px;
+            background: #f8f9fa;
+            color: #666;
+            font-size: 14px;
+            border-top: 1px solid #e9ecef;
+        }
+        .column-group {
+            background: #34495e !important;
+            color: white;
+            text-align: center;
+            font-weight: bold;
+        }
+        .auto-field {
+            background: #e8f5e8;
+        }
+        .customer-field {
+            background: #fff3cd;
+        }
+        .sender-field {
+            background: #d1ecf1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="index.html" class="customer-link">🛍️ واجهة العملاء</a>
+            <h1>📊 لوحة إدارة Argento - البيانات الكاملة</h1>
+            <p>عرض وتصدير جميع بيانات الطلبات حسب قالب سبيداف</p>
+        </div>
+
+        <div class="stats" id="statsContainer">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalOrders">0</div>
+                    <div>إجمالي الطلبات</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="todayOrders">0</div>
+                    <div>طلبات اليوم</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="totalRevenue">0</div>
+                    <div>إجمالي الإيرادات</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="lastUpdate">--:--</div>
+                    <div>آخر تحديث</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-export" onclick="exportToExcel()">
+                📥 تصدير Excel كامل
+            </button>
+            <button class="btn btn-export" onclick="exportToCSV()">
+                📥 تصدير CSV لسبيداف
+            </button>
+            <button class="btn btn-refresh" onclick="loadOrders()">
+                🔄 تحديث البيانات
+            </button>
+            <button class="btn btn-clear" onclick="clearOrders()">
+                🗑️ مسح الكل
+            </button>
+            <button class="btn" onclick="addTestOrder()" style="background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);">
+                🧪 إضافة طلب تجريبي
+            </button>
+        </div>
+
+        <div class="table-container">
+            <table id="ordersTable">
+                <thead>
+                    <tr>
+                        <th rowspan="2">#</th>
+                        <th colspan="8" class="column-group">معلومات الطلب الأساسية</th>
+                        <th colspan="6" class="column-group">معلومات المرسل</th>
+                        <th colspan="6" class="column-group">معلومات المستلم</th>
+                        <th rowspan="2">نوع التوصيل</th>
+                    </tr>
+                    <tr>
+                        <!-- معلومات الطلب الأساسية -->
+                        <th title="S.O.">S.O.</th>
+                        <th title="Goods type">Goods type</th>
+                        <th title="Goods name">Goods name</th>
+                        <th title="Quantity">Quantity</th>
+                        <th title="Weight">Weight</th>
+                        <th title="COD">COD</th>
+                        <th title="Insure price">Insure price</th>
+                        <th title="Whether to allow the package to be opened">افتح الطرد؟</th>
+                        <th title="Remark">ملاحظات</th>
+                        
+                        <!-- معلومات المرسل -->
+                        <th title="Name">اسم المرسل</th>
+                        <th title="Telephone">تلفون المرسل</th>
+                        <th title="City">مدينة المرسل</th>
+                        <th title="Area">منطقة المرسل</th>
+                        <th title="Senders address">عنوان المرسل</th>
+                        <th title="Sender Email">بريد المرسل</th>
+                        
+                        <!-- معلومات المستلم -->
+                        <th title="Name">اسم المستلم</th>
+                        <th title="Telephone">تلفون المستلم</th>
+                        <th title="City">مدينة المستلم</th>
+                        <th title="Area">منطقة المستلم</th>
+                        <th title="Receivers address">عنوان المستلم</th>
+                        <th title="Receiver Email">بريد المستلم</th>
+                        
+                        <!-- نوع التوصيل -->
+                    </tr>
+                </thead>
+                <tbody id="ordersBody">
+                    <tr>
+                        <td colspan="23" class="no-orders">
+                            🔍 جاري تحميل البيانات...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="last-update" id="lastUpdateText">
+            آخر تحديث: -- | إجمالي الأعمدة: 22 عمود حسب قالب سبيداف
+        </div>
+    </div>
+
+    <script src="data.js"></script>
+    <script>
+        // دالة تحميل الطلبات
+        function loadOrders() {
+            try {
+                const orders = JSON.parse(localStorage.getItem('argentoOrders')) || [];
+                updateStats(orders);
+                displayOrders(orders);
+                updateLastUpdateTime();
+                
+            } catch (error) {
+                console.error('Error loading orders:', error);
+                document.getElementById('ordersBody').innerHTML = `
+                    <tr>
+                        <td colspan="23" class="no-orders" style="color: #e74c3c;">
+                            ❌ خطأ في تحميل البيانات: ${error.message}
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        // تحديث الإحصائيات
+        function updateStats(orders) {
+            const today = new Date().toDateString();
+            const todayOrders = orders.filter(order => 
+                new Date(order.timestamp).toDateString() === today
+            ).length;
+            
+            const totalRevenue = orders.reduce((sum, order) => sum + (parseInt(order.cod) || 0), 0);
+
+            document.getElementById('totalOrders').textContent = orders.length;
+            document.getElementById('todayOrders').textContent = todayOrders;
+            document.getElementById('totalRevenue').textContent = totalRevenue + ' ج.م';
+        }
+
+        // عرض الطلبات في الجدول
+        function displayOrders(orders) {
+            const tbody = document.getElementById('ordersBody');
+            
+            if (orders.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="23" class="no-orders">
+                            📝 لا توجد طلبات مسجلة حتى الآن
+                            <br><small>استخدم زر "إضافة طلب تجريبي" لاختبار النظام</small>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = orders.map((order, index) => `
+                <tr>
+                    <td><strong>${index + 1}</strong></td>
+                    
+                    <!-- معلومات الطلب الأساسية -->
+                    <td class="auto-field">${order.so || ''}</td>
+                    <td class="auto-field"><strong>${order.goodsType}</strong></td>
+                    <td class="auto-field"><strong>${order.goodsName}</strong></td>
+                    <td class="auto-field">${order.quantity}</td>
+                    <td class="auto-field">${order.weight}</td>
+                    <td class="auto-field" style="color: #27ae60; font-weight: bold;">${order.cod} ج.م</td>
+                    <td class="auto-field">${order.insurePrice || ''}</td>
+                    <td class="auto-field">${order.allowOpen}</td>
+                    <td class="auto-field"><small>${order.remark || '-'}</small></td>
+                    
+                    <!-- معلومات المرسل -->
+                    <td class="sender-field"><strong>${order.senderName}</strong></td>
+                    <td class="sender-field" dir="ltr">${order.senderTelephone}</td>
+                    <td class="sender-field">${order.senderCity}</td>
+                    <td class="sender-field">${order.senderArea}</td>
+                    <td class="sender-field"><small>${order.senderAddress}</small></td>
+                    <td class="sender-field">${order.senderEmail || '-'}</td>
+                    
+                    <!-- معلومات المستلم -->
+                    <td class="customer-field"><strong>${order.receiverName}</strong></td>
+                    <td class="customer-field" dir="ltr">${order.receiverTelephone}</td>
+                    <td class="customer-field">${order.receiverCity}</td>
+                    <td class="customer-field">${order.receiverArea}</td>
+                    <td class="customer-field"><small>${order.receiverAddress}</small></td>
+                    <td class="customer-field">${order.receiverEmail || '-'}</td>
+                    
+                    <!-- نوع التوصيل -->
+                    <td class="auto-field"><strong>${order.deliveryType}</strong></td>
+                </tr>
+            `).join('');
+        }
+
+        // تحديث وقت آخر تحديث
+        function updateLastUpdateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('ar-EG');
+            const dateString = now.toLocaleDateString('ar-EG');
+            
+            document.getElementById('lastUpdate').textContent = timeString;
+            document.getElementById('lastUpdateText').textContent = 
+                `آخر تحديث: ${dateString} - ${timeString} | إجمالي الأعمدة: 22 عمود حسب قالب سبيداف`;
+        }
+
+        // إضافة طلب تجريبي
+        function addTestOrder() {
+            const testOrder = {
+                so: "",
+                goodsType: "Normal",
+                goodsName: "ساعة ذكية تجريبية",
+                quantity: "1",
+                weight: "1",
+                cod: "350",
+                insurePrice: "",
+                allowOpen: "No",
+                remark: "هذا طلب تجريبي لاختبار النظام",
+                
+                senderName: "argento",
+                senderTelephone: "10556881360",
+                senderCity: "Sharqia",
+                senderArea: "Zagazig",
+                senderAddress: "الزقازيق الشرقية",
+                senderEmail: "",
+                
+                receiverName: "عميل تجريبي",
+                receiverTelephone: "01012345678",
+                receiverCity: "Cairo",
+                receiverArea: "Nasr City",
+                receiverAddress: "شارع النصر - عمارة 25 - شقة 10",
+                receiverEmail: "test@example.com",
+                
+                deliveryType: "Deliver",
+                timestamp: new Date().toISOString(),
+                productPrice: "300",
+                shippingPrice: "50"
+            };
+
+            let orders = JSON.parse(localStorage.getItem('argentoOrders')) || [];
+            orders.push(testOrder);
+            localStorage.setItem('argentoOrders', JSON.stringify(orders));
+            
+            console.log('✅ تم إضافة طلب تجريبي:', testOrder);
+            loadOrders();
+            
+            alert('✅ تم إضافة طلب تجريبي بنجاح!\nتم تعبئة جميع الأعمدة الـ 22 تلقائياً.');
+        }
+
+        // تصدير لـ Excel
+        function exportToExcel() {
+            const orders = JSON.parse(localStorage.getItem('argentoOrders')) || [];
+
+            if (orders.length === 0) {
+                alert('❌ لا توجد طلبات لتصديرها');
+                return;
+            }
+
+            let csv = 'S.O.,Goods type,Goods name,Quantity,Weight,COD,Insure price,Whether to allow the package to be opened,Remark,Name,Telephone,City,Area,Senders address,Sender Email,Name,Telephone,City,Area,Receivers address,Receiver Email,Delivery Type\n';
+            
+            orders.forEach(order => {
+                csv += `"${order.so}","${order.goodsType}","${order.goodsName}","${order.quantity}","${order.weight}","${order.cod}","${order.insurePrice}","${order.allowOpen}","${order.remark}","${order.senderName}","${order.senderTelephone}","${order.senderCity}","${order.senderArea}","${order.senderAddress}","${order.senderEmail}","${order.receiverName}","${order.receiverTelephone}","${order.receiverCity}","${order.receiverArea}","${order.receiverAddress}","${order.receiverEmail}","${order.deliveryType}"\n`;
+            });
+
+            const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv; charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `طلبات-argento-كاملة-${new Date().toLocaleDateString('ar-EG')}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            
+            alert(`✅ تم تصدير ${orders.length} طلب بنسخة Excel كاملة`);
+        }
+
+        // تصدير CSV جاهز لسبيداف
+        function exportToCSV() {
+            const orders = JSON.parse(localStorage.getItem('argentoOrders')) || [];
+
+            if (orders.length === 0) {
+                alert('❌ لا توجد طلبات لتصديرها');
+                return;
+            }
+
+            // ترويسة الملف حسب قالب سبيداف
+            let csv = 'S.O.,Goods type,Goods name,Quantity,Weight,COD,Insure price,Whether to allow the package to be opened,Remark,Name,Telephone,City,Area,Senders address,Sender Email,Name,Telephone,City,Area,Receivers address,Receiver Email,Delivery Type\n';
+            
+            orders.forEach(order => {
+                csv += `"${order.so}","${order.goodsType}","${order.goodsName}","${order.quantity}","${order.weight}","${order.cod}","${order.insurePrice}","${order.allowOpen}","${order.remark || ''}","${order.senderName}","${order.senderTelephone}","${order.senderCity}","${order.senderArea}","${order.senderAddress}","${order.senderEmail}","${order.receiverName}","${order.receiverTelephone}","${order.receiverCity}","${order.receiverArea}","${order.receiverAddress}","${order.receiverEmail || ''}","${order.deliveryType}"\n`;
+            });
+
+            const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv; charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `speedaf-orders-${new Date().toLocaleDateString('ar-EG')}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            
+            alert(`✅ تم تصدير ${orders.length} طلب جاهز لرفع سبيداف`);
+        }
+
+        // مسح الطلبات
+        function clearOrders() {
+            const orders = JSON.parse(localStorage.getItem('argentoOrders')) || [];
+
+            if (orders.length === 0) {
+                alert('ℹ️ لا توجد طلبات للمسح');
+                return;
+            }
+
+            if (confirm(`⚠️ هل أنت متأكد من مسح جميع الطلبات؟\n\nسيتم حذف ${orders.length} طلب ولا يمكن استعادتهم!`)) {
+                localStorage.removeItem('argentoOrders');
+                loadOrders();
+                alert('✅ تم مسح جميع الطلبات بنجاح');
+            }
+        }
+
+        // التحميل التلقائي
+        window.addEventListener('load', function() {
+            console.log('🚀 بدء تحميل لوحة الإدارة...');
+            loadOrders();
+        });
+
+        // تحديث تلقائي كل 10 ثواني
+        setInterval(loadOrders, 10000);
+
+        // إضافة طلب تجريبي تلقائي إذا لا توجد طلبات
+        setTimeout(() => {
+            const orders = JSON.parse(localStorage.getItem('argentoOrders')) || [];
+            if (orders.length === 0) {
+                console.log('🔄 لا توجد طلبات، يمكن إضافة طلب تجريبي');
+            }
+        }, 2000);
+    </script>
+</body>
+</html>

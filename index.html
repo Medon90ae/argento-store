@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Argento Store - تسوق بثقة</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+        .admin-link {
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 10px 15px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        .admin-link:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        .product-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .form-section {
+            padding: 30px;
+        }
+        .form-group {
+            margin-bottom: 25px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #27ae60;
+            box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.1);
+        }
+        .btn-submit {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4);
+        }
+        .required {
+            color: #e74c3c;
+        }
+        .success-message {
+            display: none;
+            background: #d4edda;
+            color: #155724;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="admin.html" class="admin-link">🛠️ الإدارة</a>
+            <h1>🛍️ Argento Store</h1>
+            <p>تسوق بثقة - توصيل سريع لكل مصر</p>
+        </div>
+
+        <div class="product-info">
+            <h3>📦 معلومات المنتج المختار</h3>
+            <p id="productName">[اسم المنتج سيظهر هنا]</p>
+            <p id="productPrice" style="color: #27ae60; font-weight: bold; margin-top: 5px;"></p>
+        </div>
+
+        <div class="form-section">
+            <form id="orderForm">
+                <div class="form-group">
+                    <label for="customerName">👤 اسم المستلم <span class="required">*</span></label>
+                    <input type="text" id="customerName" name="customerName" required placeholder="أدخل اسمك بالكامل">
+                </div>
+
+                <div class="form-group">
+                    <label for="customerPhone">📞 هاتف المستلم <span class="required">*</span></label>
+                    <input type="tel" id="customerPhone" name="customerPhone" required 
+                           pattern="[0-9]{11}" placeholder="11 رقم (مثال: 01012345678)">
+                </div>
+
+                <div class="form-group">
+                    <label for="customerCity">🏙️ المدينة <span class="required">*</span></label>
+                    <select id="customerCity" name="customerCity" required>
+                        <option value="">اختر المدينة</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="customerArea">📍 المنطقة <span class="required">*</span></label>
+                    <select id="customerArea" name="customerArea" required disabled>
+                        <option value="">اختر المدينة أولاً</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="customerAddress">🏠 العنوان التفصيلي <span class="required">*</span></label>
+                    <textarea id="customerAddress" name="customerAddress" required 
+                              placeholder="أدخل عنوانك بالتفصيل (الشارع، الحي، رقم العمارة...)" rows="3"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="customerEmail">📧 البريد الإلكتروني (اختياري)</label>
+                    <input type="email" id="customerEmail" name="customerEmail" placeholder="example@gmail.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="remarks">💬 ملاحظات لشركة الشحن (اختياري)</label>
+                    <textarea id="remarks" name="remarks" 
+                              placeholder="أي ملاحظات إضافية لشركة الشحن..." rows="2"></textarea>
+                </div>
+
+                <button type="submit" class="btn-submit">
+                    ✅ تأكيد الطلب والتوصيل
+                </button>
+            </form>
+
+            <div class="success-message" id="successMessage">
+                <h3>🎉 تم استلام طلبك بنجاح!</h3>
+                <p>سيتم توصيل طلبك خلال 2-3 أيام عمل</p>
+                <p>رقم التتبع سيصلك على الواتساب</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="data.js"></script>
+    <script>
+        // تحميل المدن في القائمة
+        const citySelect = document.getElementById('customerCity');
+        const areaSelect = document.getElementById('customerArea');
+
+        Object.keys(citiesData).forEach(city => {
+            const option = document.createElement('option');
+            option.value = city;
+            option.textContent = city;
+            citySelect.appendChild(option);
+        });
+
+        // تحديث المناطق عند اختيار المدينة
+        citySelect.addEventListener('change', function() {
+            const selectedCity = this.value;
+            areaSelect.innerHTML = '<option value="">اختر المنطقة</option>';
+            areaSelect.disabled = !selectedCity;
+
+            if (selectedCity && citiesData[selectedCity]) {
+                citiesData[selectedCity].forEach(area => {
+                    const option = document.createElement('option');
+                    option.value = area;
+                    option.textContent = area;
+                    areaSelect.appendChild(option);
+                });
+            }
+        });
+
+        // معالجة إرسال النموذج
+        document.getElementById('orderForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // جمع بيانات العميل
+            const customerData = {
+                customerName: document.getElementById('customerName').value,
+                customerPhone: document.getElementById('customerPhone').value,
+                customerCity: document.getElementById('customerCity').value,
+                customerArea: document.getElementById('customerArea').value,
+                customerAddress: document.getElementById('customerAddress').value,
+                customerEmail: document.getElementById('customerEmail').value,
+                remarks: document.getElementById('remarks').value
+            };
+
+            // حفظ الطلب
+            saveOrder(customerData);
+            
+            const successMessage = document.getElementById('successMessage');
+            successMessage.style.display = 'block';
+            successMessage.scrollIntoView({ behavior: 'smooth' });
+            
+            setTimeout(() => {
+                this.reset();
+                successMessage.style.display = 'none';
+            }, 5000);
+        });
+
+        // دالة حفظ الطلب بكل الأعمدة المطلوبة
+        function saveOrder(customerData) {
+            const urlParams = new URLSearchParams(window.location.search);
+            const productName = urlParams.get('product') || 'منتج Argento';
+            const productPrice = urlParams.get('price') || '0';
+            
+            // حساب سعر الشحن (يمكن تعديله)
+            const shippingPrice = 50; // جنيه
+            const totalCOD = parseInt(productPrice) + shippingPrice;
+
+            // إنشاء الطلب بكامل الأعمدة الـ 22
+            const fullOrder = {
+                // الأعمدة المخفية (يتم تعبئتها تلقائياً)
+                so: "", // S.O. - فارغ
+                goodsType: "Normal", // Goods type - ثابت
+                goodsName: productName, // Goods name - من المنتج
+                quantity: "1", // Quantity - ثابت
+                weight: "1", // Weight - ثابت
+                cod: totalCOD.toString(), // COD - سعر المنتج + شحن
+                insurePrice: "", // Insure price - فارغ
+                allowOpen: "No", // Whether to allow the package to be opened - ثابت
+                remark: customerData.remarks || "", // Remark - من العميل
+                
+                // بيانات المرسل (ثابتة)
+                senderName: "argento", // Name - ثابت
+                senderTelephone: "10556881360", // Telephone - ثابت
+                senderCity: "Sharqia", // City - ثابت
+                senderArea: "Zagazig", // Area - ثابت
+                senderAddress: "الزقازيق الشرقية", // Senders address - ثابت
+                senderEmail: "", // Sender Email - فارغ
+                
+                // بيانات المستلم (من العميل)
+                receiverName: customerData.customerName, // Name - من العميل
+                receiverTelephone: customerData.customerPhone, // Telephone - من العميل
+                receiverCity: customerData.customerCity, // City - من العميل
+                receiverArea: customerData.customerArea, // Area - من العميل
+                receiverAddress: customerData.customerAddress, // Receivers address - من العميل
+                receiverEmail: customerData.customerEmail || "", // Receiver Email - من العميل
+                
+                // معلومات إضافية
+                deliveryType: "Deliver", // Delivery Type - ثابت
+                timestamp: new Date().toISOString(),
+                productPrice: productPrice,
+                shippingPrice: shippingPrice.toString()
+            };
+
+            // حفظ في localStorage
+            let orders = JSON.parse(localStorage.getItem('argentoOrders')) || [];
+            orders.push(fullOrder);
+            localStorage.setItem('argentoOrders', JSON.stringify(orders));
+            
+            console.log('✅ تم حفظ الطلب بكامل الأعمدة:', fullOrder);
+        }
+
+        // استخراج بيانات المنتج من الرابط
+        function getProductFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const productName = urlParams.get('product') || 'منتج Argento';
+            const productPrice = urlParams.get('price') || '0';
+            
+            document.getElementById('productName').textContent = productName;
+            if(productPrice !== '0') {
+                document.getElementById('productPrice').textContent = `السعر: ${productPrice} جنيه`;
+            }
+        }
+
+        // تشغيل عند تحميل الصفحة
+        window.addEventListener('load', getProductFromURL);
+    </script>
+</body>
+</html>
