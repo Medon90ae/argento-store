@@ -283,6 +283,30 @@
 
     <script src="data.js"></script>
     <script>
+        // تحقق أمني - يمنع الدخول المباشر
+function checkAdminAccess() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const secret = urlParams.get('secret');
+    
+    // إذا كان الرابط من غير كلمة سر، امنع الدخول
+    if (secret !== 'argento2024') {
+        document.body.innerHTML = `
+            <div style="text-align: center; padding: 50px; font-family: Arial;">
+                <h1 style="color: #e74c3c;">🚫 غير مصرح بالدخول</h1>
+                <p>هذه الصفحة للإدارة فقط</p>
+                <a href="index.html" style="color: #3498db;">العودة للصفحة الرئيسية</a>
+            </div>
+        `;
+        return false;
+    }
+    return true;
+}
+
+// في بداية التحميل
+if (!checkAdminAccess()) {
+    // stop execution if not authorized
+    throw new Error('Unauthorized access');
+}
         // دالة تحميل الطلبات
         function loadOrders() {
             try {
@@ -513,4 +537,5 @@
         }, 2000);
     </script>
 </body>
+
 </html>
