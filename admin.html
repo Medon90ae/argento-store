@@ -216,17 +216,21 @@
 
         // دالة ذكية لقراءة بيانات المنتج والراسل من الرابط
         function getProductAndSenderFromURL() {
-            const urlParams = new URLSearchParams(window.location.search);
-            
-            const productData = {
-                productName: decodeURIComponent(urlParams.get('product') || 'منتج Argento'),
-                productPrice: urlParams.get('price') || '0',
-                senderCity: urlParams.get('sender') || 'Sharqia',
-                senderArea: urlParams.get('area') || 'Zagazig',
-                senderAddress: decodeURIComponent(urlParams.get('address') || 'الزقازيق الشرقية'),
-                senderPhone: urlParams.get('phone') || '10556881360',
-                senderName: "argento"
-            };
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    const productData = {
+        productName: decodeURIComponent(urlParams.get('product') || 'منتج Argento'),
+        productPrice: urlParams.get('price') || '0',
+        senderCity: urlParams.get('sender') || 'Sharqia',
+        senderArea: urlParams.get('area') || 'Zagazig',
+        senderAddress: decodeURIComponent(urlParams.get('address') || 'الزقازيق الشرقية'),
+        senderPhone: urlParams.get('phone') || '10556881360',
+        senderName: decodeURIComponent(urlParams.get('senderName') || 'argento') // هنا التعديل
+    };
+    
+    console.log('📦 بيانات المنتج من الرابط:', productData);
+    return productData;
+}
             
             console.log('📦 بيانات المنتج من الرابط:', productData);
             return productData;
@@ -234,20 +238,64 @@
 
         // دالة حساب الشحن حسب المدن
         function calculateShipping(senderCity, receiverCity) {
-            const shippingRates = {
-                'Cairo': { 'Cairo': 65, 'Giza': 65, 'Alexandria': 75, 'default': 65 },
-                'Giza': { 'Cairo': 65, 'Giza': 65, 'Alexandria': 75, 'default': 65 },
-                'Alexandria': { 'Cairo': 75, 'Giza': 75, 'Alexandria': 75, 'default': 75 },
-                'Sharqia': { 'Cairo': 65, 'Giza': 65, 'Alexandria': 75, 'Sharqia': 75, 'default': 75 },
-                'default': 80
-            };
-            
-            const rate = shippingRates[senderCity]?.[receiverCity] || 
-                         shippingRates[senderCity]?.default || 
-                         shippingRates.default;
-            
-            return rate;
-        }
+    const shippingRates = {
+        // القاهرة والجيزة: 65 جنيه
+        'Cairo': { 
+            'Cairo': 65, 'Giza': 65, 
+            'default': 65 
+        },
+        'Giza': { 
+            'Cairo': 65, 'Giza': 65, 
+            'default': 65 
+        },
+        
+        // الإسكندرية: 75 جنيه
+        'Alexandria': { 
+            'Alexandria': 75,
+            'default': 75 
+        },
+        
+        // الدلتا والقنال: 85 جنيه
+        'Beheira': { 'default': 85 },
+        'Gharbia': { 'default': 85 },
+        'Dakahlia': { 'default': 85 },
+        'Sharqia': { 'default': 85 },
+        'Qalyubia': { 'default': 85 },
+        'Menoufia': { 'default': 85 },
+        'Damietta': { 'default': 85 },
+        'Port Said': { 'default': 85 },
+        'Ismailia': { 'default': 85 },
+        'Suez': { 'default': 85 },
+        'Kafr El Sheikh': { 'default': 85 },
+        
+        // الصعيد: 95 جنيه
+        'Beni Suef': { 'default': 95 },
+        'Fayoum': { 'default': 95 },
+        'Minya': { 'default': 95 },
+        'Assiut': { 'default': 95 },
+        'Sohag': { 'default': 95 },
+        'Qena': { 'default': 95 },
+        
+        // قنا والأقصر وغردقة وشرم والساحل: 105 جنيه
+        'Luxor': { 'default': 105 },
+        'Aswan': { 'default': 105 },
+        'Red Sea': { 'default': 105 },
+        'New Valley': { 'default': 105 },
+        'South Sinai': { 'default': 105 },
+        'North Sinai': { 'default': 105 },
+        'Matrouh': { 'default': 105 },
+        
+        // افتراضي: 80 جنيه
+        'default': 80
+    };
+    
+    // البحث عن السعر المناسب
+    const senderRates = shippingRates[senderCity] || shippingRates.default;
+    const rate = senderRates[receiverCity] || senderRates.default || shippingRates.default;
+    
+    console.log(`🚚 الشحن من ${senderCity} إلى ${receiverCity}: ${rate} جنيه`);
+    return rate;
+}
 
         // تحميل المدن في القائمة
         const citySelect = document.getElementById('customerCity');
@@ -428,3 +476,4 @@
     </script>
 </body>
 </html>
+
