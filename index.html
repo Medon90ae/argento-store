@@ -29,28 +29,18 @@
             color: white;
             padding: 30px;
             text-align: center;
-            position: relative;
-        }
-        .admin-link {
-            position: absolute;
-            left: 20px;
-            top: 20px;
-            background: rgba(255,255,255,0.2);
-            color: white;
-            border: 1px solid rgba(255,255,255,0.3);
-            padding: 10px 15px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-        .admin-link:hover {
-            background: rgba(255,255,255,0.3);
         }
         .product-info {
             background: #f8f9fa;
             padding: 20px;
             border-bottom: 1px solid #e9ecef;
+        }
+        .shipping-info {
+            background: #e8f5e8;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            border-right: 4px solid #27ae60;
         }
         .form-section {
             padding: 30px;
@@ -105,22 +95,34 @@
             text-align: center;
             margin-top: 20px;
         }
+        .hidden-admin {
+            position: absolute;
+            left: 10px;
+            top: 10px;
+            opacity: 0.02;
+            color: transparent;
+            font-size: 4px;
+            text-decoration: none;
+        }
     </style>
 </head>
 <body>
+    <!-- رابط سري للإدارة -->
+    <a href="admin.html?secret=argento2024" class="hidden-admin">.</a>
+
     <div class="container">
         <div class="header">
-    <!-- رابط سري للادمن فقط -->
-    <a href="admin.html?secret=argento2024" class="admin-link" style="opacity: 0.05; color: transparent; font-size: 8px;">.</a>
-    
-    <h1>🛍️ Argento Store</h1>
-    <p>تسوق بثقة - توصيل سريع لكل مصر</p>
-</div>
+            <h1>🛍️ Argento Store</h1>
+            <p>تسوق بثقة - توصيل سريع لكل مصر</p>
+        </div>
 
         <div class="product-info">
             <h3>📦 معلومات المنتج المختار</h3>
-            <p id="productName">[اسم المنتج سيظهر هنا]</p>
+            <p id="productName">[جاري تحميل معلومات المنتج...]</p>
             <p id="productPrice" style="color: #27ae60; font-weight: bold; margin-top: 5px;"></p>
+            <div id="shippingEstimate" class="shipping-info">
+                <small>🚚 جاري حساب تكلفة الشحن...</small>
+            </div>
         </div>
 
         <div class="form-section">
@@ -212,6 +214,89 @@
             "North Sinai": ["North Sinai"]
         };
 
+        // دالة ذكية لقراءة بيانات المنتج والراسل من الرابط
+        function getProductAndSenderFromURL() {
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    const productData = {
+        productName: decodeURIComponent(urlParams.get('product') || 'منتج Argento'),
+        productPrice: urlParams.get('price') || '0',
+        senderCity: urlParams.get('sender') || 'Sharqia',
+        senderArea: urlParams.get('area') || 'Zagazig',
+        senderAddress: decodeURIComponent(urlParams.get('address') || 'الزقازيق الشرقية'),
+        senderPhone: urlParams.get('phone') || '10556881360',
+        senderName: decodeURIComponent(urlParams.get('senderName') || 'argento') // هنا التعديل
+    };
+    
+    console.log('📦 بيانات المنتج من الرابط:', productData);
+    return productData;
+}
+            
+            console.log('📦 بيانات المنتج من الرابط:', productData);
+            return productData;
+        }
+
+        // دالة حساب الشحن حسب المدن
+        function calculateShipping(senderCity, receiverCity) {
+    const shippingRates = {
+        // القاهرة والجيزة: 65 جنيه
+        'Cairo': { 
+            'Cairo': 65, 'Giza': 65, 
+            'default': 65 
+        },
+        'Giza': { 
+            'Cairo': 65, 'Giza': 65, 
+            'default': 65 
+        },
+        
+        // الإسكندرية: 75 جنيه
+        'Alexandria': { 
+            'Alexandria': 75,
+            'default': 75 
+        },
+        
+        // الدلتا والقنال: 85 جنيه
+        'Beheira': { 'default': 85 },
+        'Gharbia': { 'default': 85 },
+        'Dakahlia': { 'default': 85 },
+        'Sharqia': { 'default': 85 },
+        'Qalyubia': { 'default': 85 },
+        'Menoufia': { 'default': 85 },
+        'Damietta': { 'default': 85 },
+        'Port Said': { 'default': 85 },
+        'Ismailia': { 'default': 85 },
+        'Suez': { 'default': 85 },
+        'Kafr El Sheikh': { 'default': 85 },
+        
+        // الصعيد: 95 جنيه
+        'Beni Suef': { 'default': 95 },
+        'Fayoum': { 'default': 95 },
+        'Minya': { 'default': 95 },
+        'Assiut': { 'default': 95 },
+        'Sohag': { 'default': 95 },
+        'Qena': { 'default': 95 },
+        
+        // قنا والأقصر وغردقة وشرم والساحل: 105 جنيه
+        'Luxor': { 'default': 105 },
+        'Aswan': { 'default': 105 },
+        'Red Sea': { 'default': 105 },
+        'New Valley': { 'default': 105 },
+        'South Sinai': { 'default': 105 },
+        'North Sinai': { 'default': 105 },
+        'Matrouh': { 'default': 105 },
+        
+        // افتراضي: 80 جنيه
+        'default': 80
+    };
+    
+    // البحث عن السعر المناسب
+    const senderRates = shippingRates[senderCity] || shippingRates.default;
+    const rate = senderRates[receiverCity] || senderRates.default || shippingRates.default;
+    
+    console.log(`🚚 الشحن من ${senderCity} إلى ${receiverCity}: ${rate} جنيه`);
+    return rate;
+}
+
         // تحميل المدن في القائمة
         const citySelect = document.getElementById('customerCity');
         const areaSelect = document.getElementById('customerArea');
@@ -242,8 +327,46 @@
                     option.textContent = area;
                     areaSelect.appendChild(option);
                 });
+                
+                // تحديث تقدير الشحن عند تغيير المدينة
+                updateShippingEstimate();
             }
         });
+
+        // تحديث تقدير الشحن
+        function updateShippingEstimate() {
+            const productData = getProductAndSenderFromURL();
+            const customerCity = document.getElementById('customerCity').value;
+            
+            if (customerCity) {
+                const shippingCost = calculateShipping(productData.senderCity, customerCity);
+                const totalPrice = parseInt(productData.productPrice) + shippingCost;
+                
+                document.getElementById('shippingEstimate').innerHTML = `
+                    <strong>🚚 معلومات الشحن:</strong><br>
+                    • الشحن من: <strong>${productData.senderCity}</strong><br>
+                    • توصيل إلى: <strong>${customerCity}</strong><br>
+                    • سعر الشحن: <strong>${shippingCost} جنيه</strong><br>
+                    • الإجمالي: <strong style="color: #27ae60;">${totalPrice} جنيه</strong>
+                `;
+            }
+        }
+
+        // استخراج بيانات المنتج والراسل من الرابط وعرضها
+        function getProductFromURL() {
+            const productData = getProductAndSenderFromURL();
+            
+            document.getElementById('productName').textContent = productData.productName;
+            
+            if(productData.productPrice !== '0') {
+                document.getElementById('productPrice').textContent = `السعر: ${productData.productPrice} جنيه`;
+            }
+            
+            // عرض معلومات الشحن الأولية
+            document.getElementById('shippingEstimate').innerHTML = `
+                <strong>🚚 الشحن من:</strong> ${productData.senderCity} - ${productData.senderArea}
+            `;
+        }
 
         // معالجة إرسال النموذج
         document.getElementById('orderForm').addEventListener('submit', function(e) {
@@ -273,50 +396,53 @@
             }, 5000);
         });
 
-        // دالة حفظ الطلب بكل الأعمدة المطلوبة
+        // دالة حفظ الطلب بكل الأعمدة المطلوبة - بيانات ديناميكية
         function saveOrder(customerData) {
-            const urlParams = new URLSearchParams(window.location.search);
-            const productName = urlParams.get('product') || 'منتج Argento';
-            const productPrice = urlParams.get('price') || '0';
+            const productData = getProductAndSenderFromURL();
             
-            // حساب سعر الشحن (يمكن تعديله)
-            const shippingPrice = 50; // جنيه
-            const totalCOD = parseInt(productPrice) + shippingPrice;
+            // حساب سعر الشحن
+            const shippingPrice = calculateShipping(productData.senderCity, customerData.customerCity);
+            const totalCOD = parseInt(productData.productPrice) + shippingPrice;
 
-            // إنشاء الطلب بكامل الأعمدة الـ 22
+            // إنشاء الطلب بكامل الأعمدة الـ 22 - بيانات ديناميكية
             const fullOrder = {
                 // الأعمدة المخفية (يتم تعبئتها تلقائياً)
                 so: "", // S.O. - فارغ
-                goodsType: "Normal", // Goods type - ثابت
-                goodsName: productName, // Goods name - من المنتج
-                quantity: "1", // Quantity - ثابت
-                weight: "1", // Weight - ثابت
-                cod: totalCOD.toString(), // COD - سعر المنتج + شحن
-                insurePrice: "", // Insure price - فارغ
-                allowOpen: "No", // Whether to allow the package to be opened - ثابت
-                remark: customerData.remarks || "", // Remark - من العميل
+                goodsType: "Normal", 
+                goodsName: productData.productName, // من الرابط
+                quantity: "1", 
+                weight: "1", 
+                cod: totalCOD.toString(), 
+                insurePrice: "", 
+                allowOpen: "No", 
+                remark: customerData.remarks || "", 
                 
-                // بيانات المرسل (ثابتة)
-                senderName: "argento", // Name - ثابت
-                senderTelephone: "10556881360", // Telephone - ثابت
-                senderCity: "Sharqia", // City - ثابت
-                senderArea: "Zagazig", // Area - ثابت
-                senderAddress: "الزقازيق الشرقية", // Senders address - ثابت
-                senderEmail: "", // Sender Email - فارغ
+                // بيانات المرسل (ديناميكية من الرابط)
+                senderName: productData.senderName, 
+                senderTelephone: productData.senderPhone, // من الرابط
+                senderCity: productData.senderCity, // من الرابط
+                senderArea: productData.senderArea, // من الرابط
+                senderAddress: productData.senderAddress, // من الرابط
+                senderEmail: "", 
                 
                 // بيانات المستلم (من العميل)
-                receiverName: customerData.customerName, // Name - من العميل
-                receiverTelephone: customerData.customerPhone, // Telephone - من العميل
-                receiverCity: customerData.customerCity, // City - من العميل
-                receiverArea: customerData.customerArea, // Area - من العميل
-                receiverAddress: customerData.customerAddress, // Receivers address - من العميل
-                receiverEmail: customerData.customerEmail || "", // Receiver Email - من العميل
+                receiverName: customerData.customerName,
+                receiverTelephone: customerData.customerPhone,
+                receiverCity: customerData.customerCity,
+                receiverArea: customerData.customerArea,
+                receiverAddress: customerData.customerAddress,
+                receiverEmail: customerData.customerEmail || "",
                 
                 // معلومات إضافية
-                deliveryType: "Deliver", // Delivery Type - ثابت
+                deliveryType: "Deliver",
                 timestamp: new Date().toISOString(),
-                productPrice: productPrice,
-                shippingPrice: shippingPrice.toString()
+                productPrice: productData.productPrice,
+                shippingPrice: shippingPrice.toString(),
+                
+                // بيانات إضافية للتتبع
+                productURL: window.location.href,
+                source: 'facebook_catalog',
+                senderFromURL: productData.senderCity
             };
 
             // حفظ في localStorage
@@ -324,24 +450,31 @@
             orders.push(fullOrder);
             localStorage.setItem('argentoOrders', JSON.stringify(orders));
             
-            console.log('✅ تم حفظ الطلب بكامل الأعمدة:', fullOrder);
+            console.log('✅ تم حفظ الطلب ببيانات ديناميكية:', fullOrder);
+            
+            // إرسال إشعار (اختياري)
+            sendOrderNotification(fullOrder);
         }
 
-        // استخراج بيانات المنتج من الرابط
-        function getProductFromURL() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const productName = urlParams.get('product') || 'منتج Argento';
-            const productPrice = urlParams.get('price') || '0';
-            
-            document.getElementById('productName').textContent = productName;
-            if(productPrice !== '0') {
-                document.getElementById('productPrice').textContent = `السعر: ${productPrice} جنيه`;
-            }
+        // إرسال إشعار (يمكن تطويره لاحقاً)
+        function sendOrderNotification(order) {
+            console.log('📢 إشعار طلب جديد:', {
+                product: order.goodsName,
+                customer: order.receiverName,
+                city: order.receiverCity,
+                total: order.cod
+            });
         }
 
         // تشغيل عند تحميل الصفحة
-        window.addEventListener('load', getProductFromURL);
+        window.addEventListener('load', function() {
+            getProductFromURL();
+            
+            // تحديث تقدير الشحن عند تغيير المدينة
+            citySelect.addEventListener('change', updateShippingEstimate);
+        });
     </script>
 </body>
 </html>
+
 
