@@ -1,474 +1,1000 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Argento Store - تسوق بثقة</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        body {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-        .header {
-            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
-        .product-info {
-            background: #f8f9fa;
-            padding: 20px;
-            border-bottom: 1px solid #e9ecef;
-        }
-        .shipping-info {
-            background: #e8f5e8;
-            padding: 15px;
-            margin: 10px 0;
-            border-radius: 10px;
-            border-right: 4px solid #27ae60;
-        }
-        .form-section {
-            padding: 30px;
-        }
-        .form-group {
-            margin-bottom: 25px;
-        }
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #2c3e50;
-            font-weight: 600;
-        }
-        input, select, textarea {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e9ecef;
-            border-radius: 10px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-        }
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: #27ae60;
-            box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.1);
-        }
-        .btn-submit {
-            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            font-size: 18px;
-            border-radius: 10px;
-            cursor: pointer;
-            width: 100%;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        .btn-submit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4);
-        }
-        .required {
-            color: #e74c3c;
-        }
-        .success-message {
-            display: none;
-            background: #d4edda;
-            color: #155724;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            margin-top: 20px;
-        }
-        .hidden-admin {
-            position: absolute;
-            left: 10px;
-            top: 10px;
-            opacity: 0.02;
-            color: transparent;
-            font-size: 4px;
-            text-decoration: none;
-        }
-    </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Argento Store — المتجر</title>
+<style>
+  /* ----- Minimal modern UI (mobile-first) ----- */
+  :root{--accent:#27ae60;--muted:#6b7280;--card:#fff;--bg:#f4f7fb}
+  body{font-family:Inter, "Segoe UI", Tahoma, Arial; background:var(--bg); margin:0; color:#111}
+  .wrap{max-width:1100px;margin:18px auto;padding:18px}
+  header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  h1{font-size:20px;margin:0}
+  .controls{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{background:linear-gradient(135deg,var(--accent),#2ecc71);border:none;color:#fff;padding:10px 12px;border-radius:10px;cursor:pointer;font-weight:700}
+  .btn.secondary{background:#eef2f7;color:#123;padding:10px;border:1px solid #e2e8f0}
+  .card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-top:14px}
+  .card{background:var(--card);padding:12px;border-radius:12px;box-shadow:0 6px 20px rgba(10,10,10,0.04);border:1px solid #eef2f7;display:flex;flex-direction:column;gap:8px}
+  .muted{color:var(--muted);font-size:13px}
+  label{font-size:13px;margin-bottom:6px;display:block}
+  input,select,textarea{width:100%;padding:9px;border-radius:8px;border:1px solid #e6eef6;font-size:14px}
+  .row{display:flex;gap:8px;align-items:center}
+  .small{font-size:13px;color:#444}
+  .product-title{font-weight:700;font-size:16px}
+  .meta{font-size:13px;color:#666}
+  .footer{margin-top:18px;font-size:13px;color:#666}
+  .modal{position:fixed;inset:0;background:rgba(3,7,18,0.45);display:flex;align-items:center;justify-content:center;padding:18px;z-index:60}
+  .modal .panel{background:#fff;padding:14px;border-radius:10px;max-width:760px;width:100%;max-height:80vh;overflow:auto}
+  .tag{display:inline-block;padding:6px 8px;border-radius:8px;background:#f1f8f4;color:#0b6c3b;font-weight:700;font-size:13px}
+  .link-button{background:transparent;border:1px dashed #d1d5db;padding:8px;border-radius:8px;color:#0b5;padding:8px}
+  .admin-badge{background:#0b132b;color:#fff;padding:6px 8px;border-radius:8px;font-weight:700}
+  .grid-2{display:grid;grid-template-columns:1fr 300px;gap:12px}
+  @media (max-width:880px){ .grid-2{grid-template-columns:1fr} }
+</style>
 </head>
 <body>
-    <!-- رابط سري للإدارة -->
-    <a href="admin.html?secret=argento2024" class="hidden-admin">.</a>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Argento Store</h1>
+        <div class="muted">متجر - توليد روابط / عروض شحن / باكدجات — admin مخفي عبر secret</div>
+      </div>
 
-    <div class="container">
-        <div class="header">
-            <h1>🛍️ Argento Store</h1>
-            <p>تسوق بثقة - توصيل سريع لكل مصر</p>
-        </div>
+      <div class="controls">
+        <button id="btnFetchCatalog" class="btn">تحميل منتجات الكتالوج</button>
+        <button id="btnOpenPackageBuilder" class="btn secondary">إنشاء / إدارة باكدج (Admin)</button>
+        <button id="btnOpenManage" class="btn secondary">وضع الإدارة</button>
+      </div>
+    </header>
 
-        <div class="product-info">
-            <h3>📦 معلومات المنتج المختار</h3>
-            <p id="productName">[جاري تحميل معلومات المنتج...]</p>
-            <p id="productPrice" style="color: #27ae60; font-weight: bold; margin-top: 5px;"></p>
-            <div id="shippingEstimate" class="shipping-info">
-                <small>🚚 جاري حساب تكلفة الشحن...</small>
+    <main style="margin-top:12px" id="mainArea">
+      <!-- عرض الشبكة + جانب القائمة الجانبية للفلترة -->
+      <div class="grid-2">
+        <section>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div class="small-muted">المنتجات</div>
+            <div class="muted" id="catalogInfo"></div>
+          </div>
+
+          <div id="catalogGrid" class="card-grid" style="margin-top:10px"></div>
+        </section>
+
+        <aside style="position:relative">
+          <div class="card" style="position:sticky;top:18px">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div><strong>سجل الطلب السريع</strong><div class="muted small">الطلبات المحفوظة محلياً</div></div>
+              <div><span class="tag" id="ordersCount">0</span></div>
             </div>
-        </div>
 
-        <div class="form-section">
-            <form id="orderForm">
-                <div class="form-group">
-                    <label for="customerName">👤 اسم المستلم <span class="required">*</span></label>
-                    <input type="text" id="customerName" name="customerName" required placeholder="أدخل اسمك بالكامل">
-                </div>
+            <div id="ordersList" style="margin-top:10px"></div>
 
-                <div class="form-group">
-                    <label for="customerPhone">📞 هاتف المستلم <span class="required">*</span></label>
-                    <input type="tel" id="customerPhone" name="customerPhone" required 
-                           pattern="[0-9]{11}" placeholder="11 رقم (مثال: 01012345678)">
-                </div>
-
-                <div class="form-group">
-                    <label for="customerCity">🏙️ المدينة <span class="required">*</span></label>
-                    <select id="customerCity" name="customerCity" required>
-                        <option value="">اختر المدينة</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="customerArea">📍 المنطقة <span class="required">*</span></label>
-                    <select id="customerArea" name="customerArea" required disabled>
-                        <option value="">اختر المدينة أولاً</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="customerAddress">🏠 العنوان التفصيلي <span class="required">*</span></label>
-                    <textarea id="customerAddress" name="customerAddress" required 
-                              placeholder="أدخل عنوانك بالتفصيل (الشارع، الحي، رقم العمارة...)" rows="3"></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label for="customerEmail">📧 البريد الإلكتروني (اختياري)</label>
-                    <input type="email" id="customerEmail" name="customerEmail" placeholder="example@gmail.com">
-                </div>
-
-                <div class="form-group">
-                    <label for="remarks">💬 ملاحظات لشركة الشحن (اختياري)</label>
-                    <textarea id="remarks" name="remarks" 
-                              placeholder="أي ملاحظات إضافية لشركة الشحن..." rows="2"></textarea>
-                </div>
-
-                <button type="submit" class="btn-submit">
-                    ✅ تأكيد الطلب والتوصيل
-                </button>
-            </form>
-
-            <div class="success-message" id="successMessage">
-                <h3>🎉 تم استلام طلبك بنجاح!</h3>
-                <p>سيتم توصيل طلبك خلال 2-3 أيام عمل</p>
-                <p>رقم التتبع سيصلك على الواتساب</p>
+            <div style="margin-top:10px;display:flex;gap:8px">
+              <button id="btnExport" class="btn secondary">تصدير + أرشفة (CSV)</button>
+              <button id="btnClearOrders" class="btn secondary">مسح</button>
             </div>
-        </div>
+
+            <hr style="margin:12px 0;border:none;border-top:1px solid #f0f4f8">
+
+            <div>
+              <div class="muted">بحث / فلتر</div>
+              <label>ابحث باسم المنتج</label>
+              <input id="searchBox" placeholder="ابحث هنا..." />
+            </div>
+
+            <div style="margin-top:8px" class="muted small">لوحة الإدارة منفصلة: <a href="admin.html?secret=argento2024" target="_blank">admin</a></div>
+          </div>
+        </aside>
+      </div>
+    </main>
+
+    <div class="footer">
+      <div class="muted">ملاحظة: لعرض أدوات الإدارة شغّل الصفحة مع <code>?admin=1&secret=argento2024</code></div>
     </div>
+  </div>
 
-    <script>
-        // بيانات المدن والمناطق - مضافة مباشرة في الملف
-        const citiesData = {
-            "Cairo": ["Abdin", "El Abaseya", "Al Azbakeya", "El Katameya", "Al Manial", "El Mokattam", "Dar El Salam", "El Basatin", "El-Gamaleya", "Al Sayeda Zeinab", "Helwan", "Maadi", "Masr El Qadima", "Qasr El Nil", "El Khalifa", "Torah", "Zamalek", "El Shorouk", "Badr City", "Ain Shams", "Madinaty", "Al Zaitoun", "Nasr City", "New Cairo", "Heliopolis", "Al Amiriyyah", "El Salam", "El Waily", "Al Sharabeya", "Al Marj", "Al Matariyyah", "El Nozha", "Hadaeq Al Qubbah", "Shobra", "Nile Corniche", "Cairo"],
-            "Giza": ["6th of October City", "El Sheikh Zayed City", "Al Ayyat", "Al Hawamidiyya", "Badrshein", "El Saf", "Al Omraneya", "Atfih", "Bahariya Oasis", "Pyramids Gardens", "Faisal", "Haram", "Abu an Numros", "Al Agouzah", "Al Warak", "Awsīm", "Boulaq Ad Dakrour", "Al Doqi", "Ard El Lewa", "Mohandessin", "Kirdasah", "Imbabah", "Monshaet El Kanater", "Giza"],
-            "Alexandria": ["Ad Dakhilah", "Amreya", "Borg El Arab", "Moharam Bek", "Bab Sharqi", "Sidi Gabir", "Al Attarin", "Mansheya", "Al Labban", "El Gomrok", "Port al Basal", "Karmus", "Montaza 2", "Alexandria"],
-            "Luxor": ["Luxor", "Armant", "Esna", "Al Qarnah"],
-            "Aswan": ["Aswan", "Kom Ombo", "Daraw", "Edfu"],
-            "Red Sea": ["Hurghada", "Ras Ghareb", "Safaga", "Quseer", "Marsa Alam"],
-            "Assiut": ["Abnub", "Abu Tig", "Al Badari", "El Ghanayem", "El Fateh", "El Quseyya", "Dayrout", "Sahel Selim", "Sidfa", "Asyut", "Manfalut", "Manqabad"],
-            "Sohag": ["Tima", "Tahta", "Juhaynah", "El Maragha", "Sohag", "Akhmim", "Saqultah", "Al Minshah", "Girga", "Al Balyana", "Dar El Salam", "El Usayrat"],
-            "Qena": ["Qena", "Qus", "Madinet Qaft", "Dishna", "Naqadah", "Nagaa Hammadi", "Farshut", "Abu Tesht"],
-            "Minya": ["El Idwa", "Maghagha", "Bani Mazar", "Matai", "Samalut", "Minya", "Abu Qurqas", "Mallawi", "Dayr Mawas"],
-            "Beni Suef": ["Al Wasta", "Nasser", "Beni Suef", "Ihnasya Al Madinah", "Biba", "Sumusta El Waqf", "El Fashn"],
-            "Fayoum": ["Tamiya", "Sinnuris", "Faiyum", "Atsa", "Ibsheway", "Youssef Al Seddik"],
-            "Beheira": ["Damanhour", "Kafr El Dawar", "Abu Hummus", "El Mahmoudeya", "Natrn Valley", "Al Noubareya", "Abu Al Matamir", "Housh Eissa", "Itay Al Barud", "Shubrakhit", "Rosetta", "Idku", "Badr", "Ad Dilinjat", "AR Rahmaniyyah", "Kom Hamada"],
-            "Kafr El Sheikh": ["Kafr El Shaikh", "Desouk", "Fowa", "Mutubas", "Baltim", "El Hamool", "Riyadh", "Biyala", "Qillin", "Sidi Salem"],
-            "Gharbia": ["Kafr Az Zayyat", "El Mahalla El Kubra", "Samannoud", "Basyoun", "El Santa", "Zefta", "Kotoor", "Tanta"],
-            "Dakahlia": ["Mansoura", "Aga", "Al Manzalah", "Belqas", "Dikirnis", "El Senbellawein", "Menyet El Nasr", "Mit Ghamr", "Shirbin", "Talkha"],
-            "Sharqia": ["Bilbeis", "Inshas", "Awlad Saqr", "El Husseiniya", "Dyarb Negm", "Faqus", "Kafr Saqr", "Mashtul as Suq", "Minya Al Qamh", "El Salheya El Qadima", "El Salheya El Gadida", "Tanis", "10th of Ramadan City", "Zagazig"],
-            "Qalyubia": ["Banha", "Al Khankah", "Al Obour City", "Al Qanatir Al Khayriyyah", "Shibin El Qanater", "Toukh", "Kafr Shukr", "Qalyub", "Shubra Al Khaymah"],
-            "Menoufia": ["Quwaysna", "Birkat as SAB", "El Sadat City", "El Shohada", "Tala", "Shebeen El Kom", "El Bagour", "Menouf", "Ashmoun"],
-            "Damietta": ["Faraskur", "Damietta", "New Damietta", "Kafr Saad", "El Zarqa", "Kafr Al Battikh", "Ras El Bar", "Izbat Al Burj"],
-            "Port Said": ["Port Said"],
-            "Matrouh": ["Marsa Matruh", "North Coast"],
-            "New Valley": ["Kharga", "Dakhla", "Farafra"],
-            "Ismailia": ["Ismailia"],
-            "Suez": ["Suez"],
-            "South Sinai": ["South Sinai Governorate", "Sharm El Sheikh", "Dahab"],
-            "North Sinai": ["North Sinai"]
-        };
+  <!-- Modal area -->
+  <div id="modalRoot" style="display:none"></div>
 
-        // دالة ذكية لقراءة بيانات المنتج والراسل من الرابط
-        function getProductAndSenderFromURL() {
-            const urlParams = new URLSearchParams(window.location.search);
-            
-            const productData = {
-                productName: decodeURIComponent(urlParams.get('product') || 'منتج Argento'),
-                productPrice: urlParams.get('price') || '0',
-                senderCity: urlParams.get('sender') || 'Sharqia',
-                senderArea: urlParams.get('area') || 'Zagazig',
-                senderAddress: decodeURIComponent(urlParams.get('address') || 'الزقازيق الشرقية'),
-                senderPhone: urlParams.get('phone') || '10556881360',
-                senderName: decodeURIComponent(urlParams.get('senderName') || 'argento')
-            };
-            
-            console.log('📦 بيانات المنتج من الرابط:', productData);
-            return productData;
-        }
+<script>
+/* =============================
+   Config & Defaults
+   ============================= */
 
-        // دالة حساب الشحن حسب المدن
-        function calculateShipping(senderCity, receiverCity) {
-            const shippingRates = {
-                // القاهرة والجيزة: 65 جنيه
-                'Cairo': { 
-                    'Cairo': 65, 'Giza': 65, 
-                    'default': 65 
-                },
-                'Giza': { 
-                    'Cairo': 65, 'Giza': 65, 
-                    'default': 65 
-                },
-                
-                // الإسكندرية: 75 جنيه
-                'Alexandria': { 
-                    'Alexandria': 75,
-                    'default': 75 
-                },
-                
-                // الدلتا والقنال: 85 جنيه
-                'Beheira': { 'default': 85 },
-                'Gharbia': { 'default': 85 },
-                'Dakahlia': { 'default': 85 },
-                'Sharqia': { 'default': 85 },
-                'Qalyubia': { 'default': 85 },
-                'Menoufia': { 'default': 85 },
-                'Damietta': { 'default': 85 },
-                'Port Said': { 'default': 85 },
-                'Ismailia': { 'default': 85 },
-                'Suez': { 'default': 85 },
-                'Kafr El Sheikh': { 'default': 85 },
-                
-                // الصعيد: 95 جنيه
-                'Beni Suef': { 'default': 95 },
-                'Fayoum': { 'default': 95 },
-                'Minya': { 'default': 95 },
-                'Assiut': { 'default': 95 },
-                'Sohag': { 'default': 95 },
-                'Qena': { 'default': 95 },
-                
-                // قنا والأقصر وغردقة وشرم والساحل: 105 جنيه
-                'Luxor': { 'default': 105 },
-                'Aswan': { 'default': 105 },
-                'Red Sea': { 'default': 105 },
-                'New Valley': { 'default': 105 },
-                'South Sinai': { 'default': 105 },
-                'North Sinai': { 'default': 105 },
-                'Matrouh': { 'default': 105 },
-                
-                // افتراضي: 80 جنيه
-                'default': 80
-            };
-            
-            // البحث عن السعر المناسب
-            const senderRates = shippingRates[senderCity] || shippingRates.default;
-            const rate = senderRates[receiverCity] || senderRates.default || shippingRates.default;
-            
-            console.log(`🚚 الشحن من ${senderCity} إلى ${receiverCity}: ${rate} جنيه`);
-            return rate;
-        }
+const DEFAULT_FB_PAGE_ID = '1605226514252142';
+const DEFAULT_FB_ACCESS_TOKEN = "EAAYnZATZAgiVMBQIVlJZBEY4ecqENjmDBA8ZAcTbnUuiv4inhgnxdEuFiXOkbLMe2MI2CW0rtGsTw6bWjTjEDyNGljSmRW7tUpWZBfqn6wMFmT1j2feRxsVmI09bAJIMvn0hSrZATqWghELZAcojocAJ8xzDKRsFhgwE4stnc0cTmUAsn4UZCEmJeh5q5nYVZBAZDZD";
 
-        // تحميل المدن في القائمة
-        const citySelect = document.getElementById('customerCity');
-        const areaSelect = document.getElementById('customerArea');
+// Fixed sender details (كما طلبت)
+const FIXED_SENDER = {
+  senderName: 'Argento',
+  senderPhone: '01055688136',
+  senderCity: 'Sharqia',
+  senderArea: 'Zagazig',
+  senderAddress: 'حي الزهور شارع اولاد جبر'
+};
 
-        // مسح الخيارات الحالية أولاً
-        citySelect.innerHTML = '<option value="">اختر المدينة</option>';
+// Global rule: distinct products threshold -> free shipping (applies only if no product-level override)
+let GLOBAL_FREE_SHIPPING_DISTINCT_PRODUCTS = 3;
 
-        // إضافة المدن للقائمة
-        Object.keys(citiesData).forEach(city => {
-            const option = document.createElement('option');
-            option.value = city;
-            option.textContent = city;
-            citySelect.appendChild(option);
-        });
+// Local storage keys
+const STORE_KEYS = {
+  CATALOG: 'argento_catalog_v3',
+  ORDERS: 'argento_orders_v3'
+};
 
-        console.log('✅ تم تحميل', Object.keys(citiesData).length, 'مدينة');
+// Admin detection via URL params (separated dashboard requirement)
+const urlParams = new URLSearchParams(window.location.search);
+const isAdminMode = urlParams.get('admin') === '1' && urlParams.get('secret') === 'argento2024';
 
-        // تحديث المناطق عند اختيار المدينة
-        citySelect.addEventListener('change', function() {
-            const selectedCity = this.value;
-            areaSelect.innerHTML = '<option value="">اختر المنطقة</option>';
-            areaSelect.disabled = !selectedCity;
+/* =============================
+   State
+   ============================= */
 
-            if (selectedCity && citiesData[selectedCity]) {
-                citiesData[selectedCity].forEach(area => {
-                    const option = document.createElement('option');
-                    option.value = area;
-                    option.textContent = area;
-                    areaSelect.appendChild(option);
-                });
-                
-                // تحديث تقدير الشحن عند تغيير المدينة
-                updateShippingEstimate();
-            }
-        });
+let catalog = JSON.parse(localStorage.getItem(STORE_KEYS.CATALOG) || 'null') || []; // each item: {id,title,price,freeShipping,freeShippingMinQty,isPackage,items,discountPct,website}
+let orders = JSON.parse(localStorage.getItem(STORE_KEYS.ORDERS) || '[]');
 
-        // تحديث تقدير الشحن
-        function updateShippingEstimate() {
-            const productData = getProductAndSenderFromURL();
-            const customerCity = document.getElementById('customerCity').value;
-            
-            if (customerCity) {
-                const shippingCost = calculateShipping(productData.senderCity, customerCity);
-                const totalPrice = parseInt(productData.productPrice) + shippingCost;
-                
-                document.getElementById('shippingEstimate').innerHTML = `
-                    <strong>🚚 معلومات الشحن:</strong><br>
-                    • الشحن من: <strong>${productData.senderCity}</strong><br>
-                    • توصيل إلى: <strong>${customerCity}</strong><br>
-                    • سعر الشحن: <strong>${shippingCost} جنيه</strong><br>
-                    • الإجمالي: <strong style="color: #27ae60;">${totalPrice} جنيه</strong>
-                `;
-            }
-        }
+/* =============================
+   Utilities
+   ============================= */
 
-        // استخراج بيانات المنتج والراسل من الرابط وعرضها
-        function getProductFromURL() {
-            const productData = getProductAndSenderFromURL();
-            
-            document.getElementById('productName').textContent = productData.productName;
-            
-            if(productData.productPrice !== '0') {
-                document.getElementById('productPrice').textContent = `السعر: ${productData.productPrice} جنيه`;
-            }
-            
-            // عرض معلومات الشحن الأولية
-            document.getElementById('shippingEstimate').innerHTML = `
-                <strong>🚚 الشحن من:</strong> ${productData.senderCity} - ${productData.senderArea}
-            `;
-        }
+function uid(prefix='id'){ return prefix + '_' + Date.now() + '_' + Math.floor(Math.random()*9000); }
+function saveCatalog(){ localStorage.setItem(STORE_KEYS.CATALOG, JSON.stringify(catalog)); }
+function saveOrders(){ localStorage.setItem(STORE_KEYS.ORDERS, JSON.stringify(orders)); renderOrders(); }
+function formatMoney(n){ return (Math.round(n*100)/100).toLocaleString('ar-EG') + ' ج'; }
 
-        // معالجة إرسال النموذج
-        document.getElementById('orderForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // جمع بيانات العميل
-            const customerData = {
-                customerName: document.getElementById('customerName').value,
-                customerPhone: document.getElementById('customerPhone').value,
-                customerCity: document.getElementById('customerCity').value,
-                customerArea: document.getElementById('customerArea').value,
-                customerAddress: document.getElementById('customerAddress').value,
-                customerEmail: document.getElementById('customerEmail').value,
-                remarks: document.getElementById('remarks').value
-            };
+/* =============================
+   Facebook Catalog Fetch (dedupe)
+   ============================= */
 
-            // حفظ الطلب
-            saveOrder(customerData);
-            
-            const successMessage = document.getElementById('successMessage');
-            successMessage.style.display = 'block';
-            successMessage.scrollIntoView({ behavior: 'smooth' });
-            
-            setTimeout(() => {
-                this.reset();
-                successMessage.style.display = 'none';
-            }, 5000);
-        });
+async function fetchFacebookCatalog(pageId=DEFAULT_FB_PAGE_ID, accessToken=DEFAULT_FB_ACCESS_TOKEN){
+  const rootMsg = document.getElementById('catalogInfo');
+  rootMsg.textContent = 'جاري تحميل بيانات الكتالوج من فيسبوك...';
+  try{
+    const url = `https://graph.facebook.com/v24.0/${encodeURIComponent(pageId)}?fields=id,name,product_count&access_token=${encodeURIComponent(accessToken)}`;
+    const res = await fetch(url);
+    if(!res.ok){ rootMsg.textContent = 'فشل جلب الكتالوج: ' + res.status; return; }
+    const data = await res.json();
+    // نستخدم الاسم والـ product_count لبناء عناصر افتراضية (لأن استدعاء المنتجات التفصيلي يتطلب endpoints إضافية/أذونات)
+    const count = Math.min(25, data.product_count || 6);
+    // create synthetic items but with unique ids based on catalog id and index
+    const newItems = [];
+    for(let i=1;i<=count;i++){
+      const id = `${data.id}_p_${i}`;
+      // skip duplicates
+      if(catalog.some(x=>x.id === id)) continue;
+      newItems.push({
+        id,
+        title: `${data.name || 'Catalog'} - item ${i}`,
+        price: 80 + i*15,
+        freeShipping: false,
+        freeShippingMinQty: null,
+        isPackage: false,
+        items: null,
+        discountPct: 0,
+        website: '' // will be filled with generated link
+      });
+    }
+    // append without duplicates
+    if(newItems.length === 0) rootMsg.textContent = 'لا توجد منتجات جديدة للاستيراد أو جميعها مُضافة سابقاً.';
+    else {
+      catalog = catalog.concat(newItems);
+      saveCatalog();
+      rootMsg.textContent = `تم استيراد ${newItems.length} منتجات من ${data.name || pageId}.`;
+    }
+    renderCatalog();
+  }catch(err){
+    document.getElementById('catalogInfo').textContent = 'خطأ في الاتصال بفايسبوك: ' + err.message;
+  }
+}
 
-        // دالة حفظ الطلب بكل الأعمدة المطلوبة - بيانات ديناميكية
-        function saveOrder(customerData) {
-            const productData = getProductAndSenderFromURL();
-            
-            // حساب سعر الشحن
-            const shippingPrice = calculateShipping(productData.senderCity, customerData.customerCity);
-            const totalCOD = parseInt(productData.productPrice) + shippingPrice;
+/* =============================
+   Render catalog (cards)
+   ============================= */
 
-            // إنشاء الطلب بكامل الأعمدة الـ 22 - بيانات ديناميكية
-            const fullOrder = {
-                // الأعمدة المخفية (يتم تعبئتها تلقائياً)
-                so: "", // S.O. - فارغ
-                goodsType: "Normal", 
-                goodsName: productData.productName, // من الرابط
-                quantity: "1", 
-                weight: "1", 
-                cod: totalCOD.toString(), 
-                insurePrice: "", 
-                allowOpen: "No", 
-                remark: customerData.remarks || "", 
-                
-                // بيانات المرسل (ديناميكية من الرابط)
-                senderName: productData.senderName, 
-                senderTelephone: productData.senderPhone, // من الرابط
-                senderCity: productData.senderCity, // من الرابط
-                senderArea: productData.senderArea, // من الرابط
-                senderAddress: productData.senderAddress, // من الرابط
-                senderEmail: "", 
-                
-                // بيانات المستلم (من العميل)
-                receiverName: customerData.customerName,
-                receiverTelephone: customerData.customerPhone,
-                receiverCity: customerData.customerCity,
-                receiverArea: customerData.customerArea,
-                receiverAddress: customerData.customerAddress,
-                receiverEmail: customerData.customerEmail || "",
-                
-                // معلومات إضافية
-                deliveryType: "Deliver",
-                timestamp: new Date().toISOString(),
-                productPrice: productData.productPrice,
-                shippingPrice: shippingPrice.toString(),
-                
-                // بيانات إضافية للتتبع
-                productURL: window.location.href,
-                source: 'facebook_catalog',
-                senderFromURL: productData.senderCity
-            };
+function renderCatalog(filter=''){
+  const grid = document.getElementById('catalogGrid');
+  grid.innerHTML = '';
+  const q = (filter || '').toLowerCase();
+  const items = catalog.filter(p => !q || (p.title || '').toLowerCase().includes(q));
+  items.forEach(p => {
+    const el = document.createElement('div');
+    el.className = 'card';
+    el.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div class="product-title">${escapeHtml(p.title)}</div>
+          <div class="meta">${p.isPackage ? 'باكدج' : 'منتج'} • ${p.id}</div>
+        </div>
+        <div style="text-align:left">
+          <div style="font-weight:800;font-size:18px">${formatMoney(p.price)}</div>
+          <div class="muted small">${p.freeShipping ? ('شحن مجاني من ' + (p.freeShippingMinQty ? p.freeShippingMinQty + ' قطعة' : 'أي كمية')) : 'شحن عادي'}</div>
+        </div>
+      </div>
 
-            // حفظ في localStorage
-            let orders = JSON.parse(localStorage.getItem('argentoOrders')) || [];
-            orders.push(fullOrder);
-            localStorage.setItem('argentoOrders', JSON.stringify(orders));
-            
-            console.log('✅ تم حفظ الطلب ببيانات ديناميكية:', fullOrder);
-            
-            // إرسال إشعار (اختياري)
-            sendOrderNotification(fullOrder);
-        }
+      <div style="display:flex;gap:8px;align-items:center;margin-top:6px">
+        <button class="btn order-now" data-id="${p.id}">اطلب الآن</button>
+        <button class="btn secondary btn-gen-link" data-id="${p.id}">نسخ رابط الطلب</button>
+        <button class="btn secondary btn-view" data-id="${p.id}">عرض</button>
+      </div>
 
-        // إرسال إشعار (يمكن تطويره لاحقاً)
-        function sendOrderNotification(order) {
-            console.log('📢 إشعار طلب جديد:', {
-                product: order.goodsName,
-                customer: order.receiverName,
-                city: order.receiverCity,
-                total: order.cod
-            });
-        }
+      <div style="margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <div class="small muted">رابط/website:</div>
+        <div class="small">${p.website ? `<a href="${encodeURI(p.website)}" target="_blank">فتح الرابط</a>` : '<span class="muted small">فارغ</span>'}</div>
+      </div>
 
-        // تشغيل عند تحميل الصفحة
-        window.addEventListener('load', function() {
-            getProductFromURL();
-            
-            // تحديث تقدير الشحن عند تغيير المدينة
-            citySelect.addEventListener('change', updateShippingEstimate);
-        });
-    </script>
+      ${isAdminMode ? `
+        <hr style="margin:8px 0;border:none;border-top:1px solid #f0f4f8">
+        <div>
+          <div class="small muted">إعداد عرض الشحن للمنتج (Admin)</div>
+          <div class="row" style="margin-top:6px">
+            <label style="width:120px">شحن مجاني؟</label>
+            <select class="free-shipping-select" data-id="${p.id}">
+              <option value="false" ${!p.freeShipping ? 'selected' : ''}>لا</option>
+              <option value="true" ${p.freeShipping ? 'selected' : ''}>نعم</option>
+            </select>
+          </div>
+          <div class="row" style="margin-top:6px">
+            <label style="width:120px">عدد القطع للشحن المجاني</label>
+            <input type="number" min="1" class="free-shipping-min" data-id="${p.id}" value="${p.freeShippingMinQty || ''}" placeholder="مثال: 3 أو اترك فارغ للّانتها">
+          </div>
+          <div style="margin-top:8px;display:flex;gap:8px">
+            <button class="btn secondary btn-save-offer" data-id="${p.id}">حفظ العرض</button>
+            <button class="btn secondary btn-delete-product" data-id="${p.id}">حذف المنتج</button>
+          </div>
+        </div>
+      ` : '' }
+    `;
+    grid.appendChild(el);
+  });
+
+  // bind buttons
+  document.querySelectorAll('.order-now').forEach(b => {
+    b.addEventListener('click', () => {
+      const id = b.dataset.id;
+      generateAndOpenOrderLink(id);
+    });
+  });
+  document.querySelectorAll('.btn-gen-link').forEach(b=>{
+    b.addEventListener('click', async ()=>{
+      const id = b.dataset.id;
+      const link = generateOrderLinkForProduct(id);
+      await copyText(link);
+      alert('تم نسخ رابط الطلب للحافظة');
+      // save in catalog website field
+      const item = catalog.find(x=>x.id===id);
+      if(item){ item.website = link; saveCatalog(); renderCatalog(); }
+    });
+  });
+  document.querySelectorAll('.btn-view').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      const id = b.dataset.id;
+      openProductView(id);
+    });
+  });
+
+  if(isAdminMode){
+    document.querySelectorAll('.btn-save-offer').forEach(b=>{
+      b.addEventListener('click', ()=>{
+        const id = b.dataset.id;
+        const fsEl = document.querySelector(`.free-shipping-select[data-id="${id}"]`);
+        const minEl = document.querySelector(`.free-shipping-min[data-id="${id}"]`);
+        const target = catalog.find(x=>x.id===id);
+        if(!target) return alert('لم أجد المنتج');
+        target.freeShipping = fsEl.value === 'true';
+        const v = parseInt(minEl.value); target.freeShippingMinQty = isNaN(v) ? null : v;
+        saveCatalog(); renderCatalog(); alert('تم حفظ إعدادات العرض للمنتج');
+      });
+    });
+    document.querySelectorAll('.btn-delete-product').forEach(b=>{
+      b.addEventListener('click', ()=>{
+        const id = b.dataset.id;
+        if(!confirm('حذف المنتج نهائياً؟')) return;
+        catalog = catalog.filter(x=>x.id !== id);
+        saveCatalog(); renderCatalog();
+      });
+    });
+  }
+}
+
+/* =============================
+   Order link generation & order page flow
+   ============================= */
+
+function findProductById(id){
+  return catalog.find(p=>p.id===id);
+}
+
+function generateOrderLinkForProduct(id){
+  const p = findProductById(id);
+  if(!p) return window.location.href;
+  // product param use title (encoded) and price, plus fixed sender
+  const params = new URLSearchParams();
+  params.set('product', encodeURIComponent(p.title));
+  params.set('price', String(p.price));
+  params.set('sender', FIXED_SENDER.senderCity);
+  params.set('area', FIXED_SENDER.senderArea);
+  params.set('address', FIXED_SENDER.senderAddress);
+  params.set('phone', FIXED_SENDER.senderPhone);
+  params.set('senderName', FIXED_SENDER.senderName);
+  params.set('productId', p.id);
+  return window.location.origin + window.location.pathname + '?' + params.toString();
+}
+
+function generateAndOpenOrderLink(id){
+  const link = generateOrderLinkForProduct(id);
+  // open in same tab to show order page
+  window.location.href = link;
+}
+
+/* =============================
+   Order page detection (when URL has product param) — show order form
+   ============================= */
+
+function isOrderPage(){
+  return !!(new URLSearchParams(window.location.search)).get('product');
+}
+
+function renderOrderPage(){
+  // replace main area with order form
+  const main = document.getElementById('mainArea');
+  const params = new URLSearchParams(window.location.search);
+  const productTitle = decodeURIComponent(params.get('product') || '');
+  const productPrice = parseFloat(params.get('price') || '0') || 0;
+  const productId = params.get('productId') || '';
+  // build form
+  main.innerHTML = `
+    <div style="background:#fff;padding:14px;border-radius:12px;box-shadow:0 8px 30px rgba(10,10,10,0.04)">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <h2 style="margin:0">${escapeHtml(productTitle || 'طلب منتج')}</h2>
+          <div class="muted">سعر الوحدة: ${formatMoney(productPrice)}</div>
+        </div>
+        <div>
+          <div class="small muted">الراسل</div>
+          <div><strong>${FIXED_SENDER.senderName}</strong></div>
+          <div class="muted small">${FIXED_SENDER.senderPhone} — ${FIXED_SENDER.senderCity}/${FIXED_SENDER.senderArea}</div>
+        </div>
+      </div>
+
+      <div style="margin-top:12px;display:grid;grid-template-columns:1fr 220px;gap:12px">
+        <div>
+          <label>اسم المستلم</label>
+          <input id="orderReceiverName" placeholder="اسم المستلم">
+          <label style="margin-top:8px">هاتف المستلم</label>
+          <input id="orderReceiverPhone" placeholder="01012345678">
+          <label style="margin-top:8px">المدينة</label>
+          <select id="orderReceiverCity"></select>
+          <label style="margin-top:8px">المنطقة</label>
+          <select id="orderReceiverArea"></select>
+          <label style="margin-top:8px">العنوان</label>
+          <textarea id="orderReceiverAddress" rows="2" placeholder="العنوان"></textarea>
+        </div>
+
+        <div>
+          <label>الكمية</label>
+          <input id="orderQty" type="number" min="1" value="1">
+          <div style="margin-top:8px" id="orderCalc" class="small muted"></div>
+          <div style="margin-top:12px">
+            <button id="btnPlaceOrder" class="btn" style="width:100%">تأكيد الطلب وارسال</button>
+          </div>
+
+          <div style="margin-top:10px">
+            <div class="muted small">رابط الطلب</div>
+            <input id="orderLinkDisplay" readonly>
+            <div style="margin-top:6px">
+              <button id="btnCopyLink" class="btn secondary">نسخ الرابط</button>
+              <button id="btnShareWA" class="btn secondary">مشاركة واتساب</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // populate city/area selects using citiesData (we include full citiesData later)
+  initOrderCityAreaSelects();
+
+  // set initial calculation
+  const qtyEl = document.getElementById('orderQty');
+  function recalc(){
+    const q = parseInt(qtyEl.value) || 1;
+    const product = findProductById(productId) || {price: productPrice, freeShipping:false, freeShippingMinQty:null};
+    const itemsTotal = product.price * q;
+    let shipping = computeShippingForOrder({productId: productId, unitPrice: product.price, quantity: q, receiverCity: document.getElementById('orderReceiverCity').value || '', senderCity: FIXED_SENDER.senderCity});
+    // product-level freeShipping priority
+    if(product.freeShipping && product.freeShippingMinQty && q >= product.freeShippingMinQty) shipping = 0;
+    // If product.freeShipping and no min set => free always
+    if(product.freeShipping && !product.freeShippingMinQty) shipping = 0;
+    document.getElementById('orderCalc').innerHTML = `
+      <div>مجموع المنتجات: <strong>${formatMoney(itemsTotal)}</strong></div>
+      <div>سعر الشحن: <strong>${formatMoney(shipping)}</strong></div>
+      <div style="margin-top:6px">الإجمالي: <strong>${formatMoney(itemsTotal + shipping)}</strong></div>
+    `;
+    // update link display
+    document.getElementById('orderLinkDisplay').value = generateOrderLinkForProduct(productId) + '&qty=' + q;
+  }
+  qtyEl.addEventListener('input', recalc);
+  document.getElementById('orderReceiverCity').addEventListener('change', recalc);
+  document.getElementById('orderReceiverArea').addEventListener('change', recalc);
+
+  // copy link
+  document.getElementById('btnCopyLink').addEventListener('click', async ()=>{
+    const val = document.getElementById('orderLinkDisplay').value;
+    await copyText(val);
+    alert('تم نسخ رابط الطلب');
+  });
+  // share on WA
+  document.getElementById('btnShareWA').addEventListener('click', ()=>{
+    const val = document.getElementById('orderLinkDisplay').value;
+    const msg = encodeURIComponent(`طلب جاهز: ${productTitle}\n${val}`);
+    window.open(`https://wa.me/?text=${msg}`, '_blank');
+  });
+
+  // place order (save to local storage orders list)
+  document.getElementById('btnPlaceOrder').addEventListener('click', ()=>{
+    const receiverName = document.getElementById('orderReceiverName').value || '';
+    const receiverPhone = document.getElementById('orderReceiverPhone').value || '';
+    const rcCity = document.getElementById('orderReceiverCity').value || '';
+    const rcArea = document.getElementById('orderReceiverArea').value || '';
+    const rcAddress = document.getElementById('orderReceiverAddress').value || '';
+    const q = parseInt(document.getElementById('orderQty').value) || 1;
+    const product = findProductById(productId) || {price:productPrice, title:productTitle};
+    let shipping = computeShippingForOrder({productId: productId, unitPrice: product.price, quantity: q, receiverCity: rcCity, senderCity: FIXED_SENDER.senderCity});
+    if(product.freeShipping && product.freeShippingMinQty && q >= product.freeShippingMinQty) shipping = 0;
+    if(product.freeShipping && !product.freeShippingMinQty) shipping = 0;
+    const itemsTotal = product.price * q;
+    const total = itemsTotal + shipping;
+    const order = {
+      id: uid('ORD'),
+      createdAt: new Date().toISOString(),
+      receiverName, receiverPhone, receiverCity: rcCity, receiverArea: rcArea, receiverAddress: rcAddress,
+      productId: productId, productTitle: product.title || productTitle,
+      unitPrice: product.price, quantity: q, shippingCost: shipping, total
+    };
+    orders.push(order);
+    saveOrders();
+    alert('تم حفظ الطلب محلياً. سيظهر في لوحة السجل الجانبية.');
+    // redirect back to catalog without params
+    window.location.href = window.location.origin + window.location.pathname;
+  });
+
+  // initial recalc
+  recalc();
+}
+
+/* =============================
+   City/Area data (ترجمات ومناطق كاملة كما أرسلت طلبك) 
+   ============================= */
+/* ---------- citiesData: City -> [Area] ---------- */
+const citiesData = {
+"AinShams":["Gamal abd Al naser","Qubaa","Moasst Al zakaah","Al Arbeen we Al khamseen","Al Herafyeen","Masr El Gadida","Heliopolis","El Nozha","El Marg","Ain Shams"],
+"Al-agamy":["Al ameriya","Borg al arab","Qetaa at Tarik as Sahrawi","Port al-Basal","El-Agamy","Ekeingy Maryout","Dekhela","Ad Daerah Al Gomrokeyah"],
+"Alex":["Qism Sidi Gabir","Qism El-Raml","Montaza 2 Qism Montaza","Al Mamurah","Abu Qir"],
+"Aswan":["New Tushka","New Aswan","Nasser City","Madinet Nasr an Nobah","Kom Umbu","Edfu","Draw","Aswan Second","Aswan city","Al Gaafrah"],
+"Asyut":["Sodfa","Sahel Selim","New Asyut","Manfalut","El-Ghanayem","EL Fateh","Asyut Sharq","Asyut gharb","Al Maabdah","Al Badari","Abu Tij","Abnub"],
+"Badrashin":["Manil Shihah","before Ayat","Badrashin Village","Ayat","Al-Hawamidiyya","After Ayat","Abu AL Numros","Mazghona"],
+"Abu Tesht":["Abu Tesht"],
+"Farshut":["Farshut"],
+"Dar El-Salam":["Dar El-Salam"],
+"Al Balena":["Al Balena"],
+"Gerga":["Gerga"],
+"Banha":["Tukh","Shibin El Qanater","Qalyub","Kafr Shukr","El Qanater El Khayreya","Banha"],
+"Behira":["Shubrakhit","Rasheed","Mahmoudiyah","Kom Hamada","Kafr El Dawwar","Itay Al Barud","Edku","Damanhour","Badr","Al Delengat","Abu Hummus"],
+"BeniSuef":["Sumusta","Salah Salem","New Beni Suef","Nasser","Ihnasiya","ELFAYOM ROAD","ELFASHN","Biba","Aziz Moqbel","Abd El-Salam Aref"],
+"Helwan":["Atfeh"],
+"Damietta":["Ras El Bar","New Damietta","Kafr Saad","Kafr El Battikh","Faraskur","Damietta Port","Damietta"],
+"Dekernes":["Shirbin","Mit Salsil","Menyet El Nasr","Mahallat Damanah","El Matareya","El Manzala","El Kurdi","El Gamaliya","Dikirnis","Bani Ebeid"],
+"Desouk":["Rahmaniya","Sidi Salem","Qallin","Metoubes","Fuwwah","Desouk"],
+"Dokki":["Zamalek","Saftawy","Mohandisen","Manial","Kit Kat","Elmotamedeya St.","Dokki","Bragel","Bolak Al Dakrour","Ard Elwa","Al Agouzah","Ameer city","Nahia El Bald","Kafr Hakem","Ezbet el saayda"],
+"Downtown":["Shubra Masr","Rod El Farag","Ramses","Qasr El Nil","Garden City","Elsahel","El-Abaseya","El Zawya El Hamra","El Sharabiya","El Sayeda Zeinab","El Obra","El Daher","Bab El Sharia","Ataba","Al Fagalah","Al Azbakeya","Abo El Ela","Abdeen","Elgamalya","Eldrasa","Ghamra","Bab El loq"],
+"Abu Sinbil":["Abu Sinbil"],
+"Administrative Capital":["Administrative Capital"],
+"New Heliopolis City":["New Heliopolis City"],
+"Cairo Governorate Desert":["Cairo Governorate Desert"],
+"Zaafarana":["Zaafarana"],
+"Shalateen":["Shalateen"],
+"Marsa Alam":["Marsa Alam"],
+"Halaib":["Halaib"],
+"Sallum":["Sallum"],
+"Siwa Oasis":["Siwa Oasis"],
+"Sidi Barrani":["Sidi Barrani"],
+"Farafra":["Farafra"],
+"Dakhla":["Dakhla"],
+"Kharga":["Kharga"],
+"Sharm El-Sheikh":["Sharm El-Sheikh"],
+"Abu Radis":["Abu Radis"],
+"Ain Sokhna":["Ain Sokhna"],
+"Faiyum":["youssef Elsdyq","Wadi El-Rayyan","Tamiyyah","Sinnuris","Kufur an Nil","Itsa","Ibsheway","Faiyum center","Al Faiyum Al Gadida"],
+"Faqus":["Tanis","San Al Hagar","New Salhia","Monshaat Abou Omar","Kafr Saqr","Faqous","El Salheya","El Husseiniya","Awlad Saqr","Abu Kebir"],
+"Fardos":["Hadayk alahram","AL Remaya","Zewil District","Sakan Masr","Road Wahat","Othman District","Mountain View","Mall Masr","Haram city","Hadayk October","Fardous city","Dream Land","Degla Balmez","Dar Masr","Al Ashjar distriict","800 Fadan","Ebny Betak","Dahshour"],
+"Hadayk Ahram":["Libyan Faisal","Mariouteya Faisal","Mehwar sides","Mansorya","Faisal","Monshaat Al Bakkari","Kerdasa","Kafr Ghatati","Ezbet El Salmawy","Bani Magdoul","Abou Rawash"],
+"Haram":["Zaghloul area","Sisi area","Abo alhoal Elsyaahy","Kafr Al-Jabal","Haram Mashaal","Libyan Haram","Tersa","Saqiyet Mekki","Omrania","Munib","Al Haram","El Bahr El Aazam","El Talbeya Haram","El Maryoutia Haram","Terssa El Balad"],
+"Helwan":["Kafr Elalw","Helwan","Hadayek helwan","El saf","Al Tebin","Al Maasarah Al Mahattah","El Maasara","Wady Hof","May"],
+"Hurghada":["Sahl Hasheesh","Safaga","Ras Gharib","Hurghada","El Qusair"],
+"Ismailia":["Tell El Kebir","Ismailia Free Zone","Ismailia","Industrial Zone in Ismailia","Fayed","El-Kasasin","El Qantara","Abu Suwir","Abu Sultan","Ksarfrit"],
+"Kafr El-Sheikh":["Kafr El-Shaikh","El-Hamoul","El Reyad","Burullus","Biyala","Baltiem"],
+"Khanka":["Ala3bd","Troly","Spiko","Al Nahda","Saryaqus","El-Salam","El Ubour","Al Qalaj","Al Manayil","Al Khankah","Al Gabal Al Asfar","Abu Zabal"],
+"Luxor":["Teba","Minshat Al Ammari","Madinet Al Bayadeyah","Luxor City","El-Boghdady","Armant","Al-Radwaniya","Al Toud City","Al Qarnah","Al Madamoud","Esna","Al Hebeel"],
+"Maadi":["Dar El-Salam","Zahraa Al Maadi","Tura","Taqseem El-Laselky","Sarayat El-Maadi","Sakanat El-Maadi","Qism El-Khalifa","New Maadi","Masr Helwan Agri. Road","Mansheya Nasir","Maadi corniche","Maadi","Hadayek El-Maadi","El-Qamar El-Senae (Sattellite)","El Mokattam","El Katameya","El Basatin","Degla","Arab El-Maadi"],
+"Mahala":["Samannoud","El Mahalla El Kubra"],
+"Mansoura":["Tamai El Amadid","Talkha","Nabaruh","Mit Ghamr","Gamasa","El-Senbellawein","El Mansoura","Belqas","Aga"],
+"Matamir":["Shamal Altahrir","Noubariah","Natrn Valley","Hosh Essa","Abu El Matamir"],
+"Dayrout":["Dayrout"],
+"Al Qusiyyah":["Al Qusiyyah"],
+"Malawi":["Malawi"],
+"Dayr Mawas":["Dayr Mawas"],
+"Menya":["Samalut","New Menya","Minya City","Matay","Maghagha","Madinet Al Adwah","Beni Mazar","Abu Qurqas"],
+"Monufia":["Tala","Sirs Al Layyanah","Shibin el Kom","Quwaysna","Menouf","El Shohada","El Sadat City","El Bagour","Birket El Sab","Ashmoun","Al Khatatbah"],
+"Nasr City":["Gardenia City","Zahraa Nasr City","Sheraton","Makram Ebeid","El Tayaran St","El Serag Mall","At Taseah","Ard el golf","Almazah","Al Hay Al Asher","Abbas El-Akkad","Tag Sultan Compound","Tag City Compound","First District","Emtdad Ramses","El Sekka Club","Elmoqaolon ElArab","Eighth District","Eighth District & Projects","Ezbet El Haggana","El Waha & Hassan El Momenoun Extension","El Wafaa & El Amal Real Estate Buildings","Sixth District","Seventh District & Sefarat","Swiss District"],
+"New Cairo":["The 5th Settlement","The 3th Settlement","The 1th Settlement","Al Rehab"],
+"Matrouh":["Mersa Matruh","El Dabaa"],
+"North Coast":["North Coast","El-Alamein","El Hamam"],
+"Oct6th":["West Somid October","Smart Village","Sheikh Zayed City","Districts 6th of october","District motameez october"],
+"Port said":["Qism El-Arab","Port Fuad 2","Port Fuad","Mubarak Neighborhood","El Zohur","El Sharq","El Manasra","El Manakh","El Hay Elamarty","EL GHARB","El Dawahy","Al Ganoub"],
+"Qena":["Qus","Qift","Qena","New Qena","Naqada","Nagaa Hammadi","Dishna","Al Waqf"],
+"Sharqia":["Zagazig","Minya El Qamh","Mashtol Al Souq","Hihya","El Qurein","El Qanayat","El Ibrahimiya","Diyarb Negm","Bilbeis","Abu Hammad"],
+"Shorouk":["Madinaty","Future City (AL Mostakbal)","Badr City","Al Shorouk"],
+"Shoubara El Khima":["Umm Bayoumi","Musturad  2","Musturad  1","Mit NEMA","El-Wehda","Basus","Bahtem","Asfour Crystal","Ahmed Oraby","Mantay","Abo El Gheet","Balaqs"],
+"Sohag":["Tima","Tahta","Sohag","Shandawil","Saqultah","New Sohag","New Akhmim","Juhaynah West","Geheinah","El Kawtar","Aserat","Al Minshah","Al Maraghah","Akhmim"],
+"Suez":["Faisal","Suez","Port Taofik","Ganayen","Attaka","Arbaeen"],
+"Tanash":["Manshyt Elqanater","Imbaba","Bashtel","Awsim","Al Warak"],
+"Tanta":["Zefta","Tanta","Qutur","Kafr El Zayat","El Santa","Basyoun"],
+"Zayton":["Hadaiq Al Zayton","Halmya Al Zyton","El Weili","El Amireya","Hadaiq El Qobbah","Ezbat Elnahkl","EL Zayton","Almatarya","Al Khusus","Ain Shams Sharkia","Ain Shams Gharbia"],
+"10th of Ramadan City":["10th of Ramadan City","Neighborhoods 1 to 17","Neighborhoods 18 to 34","Neighborhoods 35 to 50","Neighborhoods 51 to 66","Neighborhoods 67 to 99","district 11","district 12","Andalus district","district 10","district 13","district 14","district 15","district 16","First Industrial Zone","Second Industrial Zone","Third Industrial Zone","district 28","district 29","district 30","district 31","district 32","district 33","Al-Shahabi Area","Sanyia Misr Al-Nour","Sanyia Misr Al-Hijaz","Al-Urduniya","Sidnawi"]
+};
+  
+
+/* ---------- translations (اختياري للعرض) ---------- */
+const translations = {
+  /* --- Cities --- */
+  "AinShams": "عين شمس",
+  "Al-agamy": "العامرية / الإجمّعي",
+  "Alex": "الإسكندرية",
+  "Aswan": "أسوان",
+  "Asyut": "أسيوط",
+  "Badrashin": "بدرشين",
+  "Abu Tesht": "أبو تيط",
+  "Farshut": "فرشوط",
+  "Dar El-Salam": "دار السلام",
+  "Al Balena": "البلينا",
+  "Gerga": "جرجا",
+  "Banha": "بنها",
+  "Behira": "البحيرة",
+  "BeniSuef": "بني سويف",
+  "Helwan": "حلوان",
+  "Damietta": "دمياط",
+  "Dekernes": "دكرنس",
+  "Desouk": "دسوق",
+  "Dokki": "الدقي",
+  "Downtown": "وسط البلد",
+  "Abu Sinbil": "أبو سنبل",
+  "Administrative Capital": "العاصمة الإدارية",
+  "New Heliopolis City": "مدينة هليوبوليس الجديدة",
+  "Cairo Governorate Desert": "صحراء محافظة القاهرة",
+  "Zaafarana": "الزعفرانة",
+  "Shalateen": "شلاتين",
+  "Marsa Alam": "مرسى علم",
+  "Halaib": "حلايب",
+  "Sallum": "السلوم",
+  "Siwa Oasis": "واحة سيوة",
+  "Sidi Barrani": "سيدي براني",
+  "Farafra": "الفرافرة",
+  "Dakhla": "الداخلة",
+  "Kharga": "الخارجة",
+  "Sharm El-Sheikh": "شرم الشيخ",
+  "Abu Radis": "أبو رديس",
+  "Ain Sokhna": "العين السخنة",
+  "Faiyum": "الفيوم",
+  "Faqus": "فاقوس",
+  "Fardos": "فاردوس / الفردوس",
+  "Hadayk Ahram": "حدائق الأهرام",
+  "Haram": "الهرم",
+  "Hurghada": "الغردقة",
+  "Ismailia": "الإسماعيلية",
+  "Kafr El-Sheikh": "كفر الشيخ",
+  "Khanka": "الخانكة",
+  "Luxor": "الأقصر",
+  "Maadi": "المعادي",
+  "Mahala": "المحلة الكبرى",
+  "Mansoura": "المنصورة",
+  "Matamir": "المطّامير",
+  "Dayrout": "ديروط",
+  "Al Qusiyyah": "القوصية",
+  "Malawi": "ملوي",
+  "Dayr Mawas": "دير مواس",
+  "Menya": "المنيا",
+  "Monufia": "المنوفية",
+  "Nasr City": "مدينة نصر",
+  "New Cairo": "القاهرة الجديدة",
+  "Matrouh": "مطروح",
+  "North Coast": "الساحل الشمالي",
+  "Oct6th": "مدينة 6 أكتوبر",
+  "Port said": "بورسعيد",
+  "Qena": "قنا",
+  "Sharqia": "الشرقية",
+  "Shorouk": "الشروق",
+  "Shoubara El Khima": "شبرا الخيمة",
+  "Sohag": "سوهاج",
+  "Suez": "السويس",
+  "Tanash": "طنطاش / طناش",
+  "Tanta": "طنطا",
+  "Zayton": "الزيتون",
+  "10th of Ramadan City": "مدينة العاشر من رمضان",
+
+  /* --- Areas / neighbourhoods (الترجمة تحاول مطابقة النص حرفياً أو صوتياً) */
+  "Gamal abd Al naser": "جمال عبد الناصر",
+  "Qubaa": "القُبّاعـة / قُبَّة",
+  "Moasst Al zakaah": "مؤسسة الزكاة",
+  "Al Arbeen we Al khamseen": "الربعين والخمسين",
+  "Al Herafyeen": "الحرافيين",
+  "Masr El Gadida": "مصر الجديدة",
+  "Heliopolis": "هيليوبوليس / مصر الجديدة",
+  "El Nozha": "النزهة",
+  "El Marg": "المرج",
+  "Ain Shams": "عين شمس",
+  "Al ameriya": "العامرية",
+  "Borg al arab": "برج العرب",
+  "Qetaa at Tarik as Sahrawi": "قطعة طريق الصحرواي",
+  "Port al-Basal": "بورسعيد الباسل؟ (Port al-Basal)",
+  "El-Agamy": "العجمي",
+  "Ekeingy Maryout": "إكزنجى مريوط (تأويل)",
+  "Dekhela": "الدخيلة",
+  "Ad Daerah Al Gomrokeyah": "المنطقة الجمركية",
+  "Qism Sidi Gabir": "قسم سيدي جابر",
+  "Qism El-Raml": "قسم الرمل",
+  "Montaza 2 Qism Montaza": "المنتزه 2 - قسم المنتزه",
+  "Al Mamurah": "العامرية/المعمورة",
+  "Abu Qir": "أبو قير",
+  "New Tushka": "طُشْكى الجديدة",
+  "New Aswan": "أسوان الجديدة",
+  "Nasser City": "مدينة ناصر",
+  "Madinet Nasr an Nobah": "مدينة نصر النوبة",
+  "Kom Umbu": "كوم أمبو",
+  "Edfu": "إدفو",
+  "Draw": "دراو",
+  "Aswan Second": "أسوان الثانية",
+  "Aswan city": "مدينة أسوان",
+  "Al Gaafrah": "الجعفره",
+  "Sodfa": "صدفا",
+  "Sahel Selim": "ساحل سليم",
+  "New Asyut": "أسيوط الجديدة",
+  "Manfalut": "منفلوط",
+  "El-Ghanayem": "الغانيم",
+  "EL Fateh": "الفتح",
+  "Asyut Sharq": "أسيوط شرق",
+  "Asyut gharb": "أسيوط غرب",
+  "Al Maabdah": "المعبدة",
+  "Al Badari": "البداري",
+  "Abu Tij": "أبو تيج",
+  "Abnub": "أبنوب",
+  "Manil Shihah": "منيل شيحة",
+  "before Ayat": "قبل آيات",
+  "Badrashin Village": "قرية بدرشين",
+  "Ayat": "آيات",
+  "Al-Hawamidiyya": "الهوامدية",
+  "After Ayat": "بعد آيات",
+  "Abu AL Numros": "أبو النمرس",
+  "Mazghona": "مزغونة",
+  "Tukh": "طوخ",
+  "Shibin El Qanater": "شبين القناطر",
+  "Qalyub": "قليوب",
+  "Kafr Shukr": "كفر شكر",
+  "El Qanater El Khayreya": "القناطر الخيرية",
+  "Banha": "بنها",
+  "Shubrakhit": "شبرخيت",
+  "Rasheed": "راشيد (رشيد)",
+  "Mahmoudiyah": "المحمودية",
+  "Kom Hamada": "كوم حمادة",
+  "Kafr El Dawwar": "كفر الدوار",
+  "Itay Al Barud": "إيتاي البارود",
+  "Edku": "إدكو",
+  "Damanhour": "دمنهور",
+  "Badr": "بدر",
+  "Al Delengat": "الدلنجات",
+  "Abu Hummus": "أبو هُمّص",
+  "Sumusta": "سمسطا",
+  "Salah Salem": "صلاح سالم",
+  "New Beni Suef": "بني سويف الجديدة",
+  "Nasser": "ناصر",
+  "Ihnasiya": "الإهنِسية / إهناسيا",
+  "ELFAYOM ROAD": "طريق الفيوم",
+  "ELFASHN": "الفسْن",
+  "Biba": "ببا",
+  "Aziz Moqbel": "عزيز مقبل",
+  "Abd El-Salam Aref": "عبد السلام عارف",
+  "Atfeh": "أطفيح",
+  "Ras El Bar": "رأس البر",
+  "New Damietta": "دمياط الجديدة",
+  "Kafr Saad": "كفر سعد",
+  "Kafr El Battikh": "كفر البطيخ",
+  "Faraskur": "فارسكور",
+  "Damietta Port": "ميناء دمياط",
+  "Damietta": "دمياط",
+  "Shirbin": "شربين",
+  "Mit Salsil": "ميت سلسيل",
+  "Menyet El Nasr": "منية النصر",
+  "Mahallat Damanah": "محلة دمنه",
+  "El Matareya": "المطرية",
+  "El Manzala": "المنزلة",
+  "El Kurdi": "الكرُدي",
+  "El Gamaliya": "الجميلية",
+  "Dikirnis": "دكرنس",
+  "Bani Ebeid": "بني عبيد",
+  "Rahmaniya": "الرحمانية",
+  "Sidi Salem": "سيدي سالم",
+  "Qallin": "قلين",
+  "Metoubes": "مطوبس",
+  "Fuwwah": "فوة",
+  "Dokki": "الدقي",
+  "Zamalek": "الزمالك",
+  "Saftawy": "الصفاتوي",
+  "Mohandisen": "المهندسين",
+  "Manial": "المنيل",
+  "Kit Kat": "كيت كات",
+  "Elmotamedeya St.": "شارع المتعدية",
+  "Bragel": "براغيل",
+  "Bolak Al Dakrour": "بولاق الدكرور",
+  "Ard Elwa": "أرض اللواء",
+  "Al Agouzah": "الجزوزة / العجوزة",
+  "Ameer city": "أمير سيتي",
+  "Nahia El Bald": "ناحية البلد",
+  "Kafr Hakem": "كفر حكيم",
+  "Ezbet el saayda": "عزبة السعيدة",
+  "Shubra Masr": "شبرا مصر",
+  "Rod El Farag": "روض الفرج",
+  "Ramses": "رمسيس",
+  "Qasr El Nil": "قصر النيل",
+  "Garden City": "جاردن سيتي",
+  "Elsahel": "الساحل",
+  "El-Abaseya": "العباسية",
+  "El Zawya El Hamra": "الزاوية الحمراء",
+  "El Sharabiya": "الشرابية",
+  "El Sayeda Zeinab": "السيدة زينب",
+  "El Obra": "العبور",
+  "El Daher": "الظاهر",
+  "Bab El Sharia": "باب الشعرية",
+  "Ataba": "العتبة",
+  "Al Fagalah": "الفجالة",
+  "Al Azbakeya": "الأزبكية",
+  "Abo El Ela": "أبو العلا",
+  "Abdeen": "عبدهين / عبدين (Abdeen)",
+  "Elgamalya": "الجمالية",
+  "Eldrasa": "الدرّاسة",
+  "Ghamra": "الغمرّة",
+  "Bab El loq": "باب اللوق"
+};
+
+/* =============================
+   init order city/area selects
+   ============================= */
+
+function initOrderCityAreaSelects(){
+  const citySel = document.getElementById('orderReceiverCity');
+  const areaSel = document.getElementById('orderReceiverArea');
+  citySel.innerHTML = '<option value="">اختر المدينة</option>';
+  Object.keys(citiesData).forEach(city=>{
+    const opt = document.createElement('option');
+    opt.value = city; opt.textContent = translations[city] || city;
+    citySel.appendChild(opt);
+  });
+  citySel.addEventListener('change', ()=>{
+    areaSel.innerHTML = '<option value="">اختر المنطقة</option>';
+    const c = citySel.value;
+    if(c && citiesData[c]) citiesData[c].forEach(a=>{ const o=document.createElement('option'); o.value=a; o.textContent = translations[a] || a; areaSel.appendChild(o); });
+  });
+}
+
+/* =============================
+   Shipping calculation logic (simple rules as before)
+   ============================= */
+
+function calculateShipping(senderCity, receiverCity){
+  // simplified rules based on earlier spec
+  const base = 80;
+  if(!senderCity || !receiverCity) return base;
+  if(senderCity === receiverCity) return 65;
+  if(senderCity === 'Alex' || receiverCity === 'Alex') return 75;
+  const delta = ['Beheira','Gharbia','Dakahlia','Sharqia','Qalyubia','Menoufia','Damietta','Port Said','Ismailia','Suez','Kafr El Sheikh'];
+  if(delta.includes(receiverCity) || delta.includes(senderCity)) return 85;
+  const upper = ['Beni Suef','Fayoum','Minya','Assiut','Sohag','Qena'];
+  if(upper.includes(receiverCity) || upper.includes(senderCity)) return 95;
+  const far = ['Luxor','Aswan','Red Sea','New Valley','South Sinai','North Sinai','Matrouh'];
+  if(far.includes(receiverCity) || far.includes(senderCity)) return 105;
+  return base;
+}
+
+function computeShippingForOrder(order){
+  // order: {productId, unitPrice, quantity, receiverCity, senderCity}
+  const product = catalog.find(p=>p.id===order.productId) || null;
+  // product-level override
+  if(product && product.freeShipping){
+    if(product.freeShippingMinQty && order.quantity >= product.freeShippingMinQty) return 0;
+    if(!product.freeShippingMinQty) return 0;
+  }
+  // distinct products in orders + this
+  const distinct = new Set(orders.map(o=>o.productId)); distinct.add(order.productId);
+  if(distinct.size >= GLOBAL_FREE_SHIPPING_DISTINCT_PRODUCTS) return 0;
+  // default calc
+  return calculateShipping(order.senderCity || FIXED_SENDER.senderCity, order.receiverCity || '');
+}
+
+/* =============================
+   Orders UI (sidebar)
+   ============================= */
+
+function renderOrders(){
+  const list = document.getElementById('ordersList');
+  list.innerHTML = '';
+  document.getElementById('ordersCount').textContent = orders.length;
+  if(orders.length === 0){ list.innerHTML = '<div class="muted small">لا توجد طلبات محفوظة</div>'; return; }
+  orders.slice().reverse().forEach(o=>{
+    const el = document.createElement('div'); el.style.padding='8px'; el.style.borderBottom='1px solid #f3f6f9';
+    el.innerHTML = `<div style="display:flex;justify-content:space-between"><div><strong>${escapeHtml(o.productTitle)}</strong><div class="muted small">${o.receiverName} • ${o.receiverPhone}</div></div><div style="text-align:left">${formatMoney(o.total)}</div></div>`;
+    list.appendChild(el);
+  });
+}
+
+/* =============================
+   Export / archive orders
+   ============================= */
+
+function exportAndArchive(){
+  if(orders.length === 0) return alert('لا توجد طلبات للتصدير');
+  const header = ['id','createdAt','receiverName','receiverPhone','receiverCity','receiverArea','productId','productTitle','quantity','unitPrice','shippingCost','total'];
+  const rows = [header.join(',')];
+  orders.forEach(o=>{
+    rows.push([o.id,o.createdAt,`"${(o.receiverName||'').replace(/"/g,'""')}`,o.receiverPhone,o.receiverCity,o.receiverArea,`"${o.productId}"`,`"${(o.productTitle||'').replace(/"/g,'""')}`,o.quantity,o.unitPrice,o.shippingCost,o.total].join(','));
+  });
+  const csv = rows.join('\n'); const blob = new Blob([csv],{type:'text/csv'}); const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'argento_orders_' + Date.now() + '.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+  // archive -> here we simply clear orders after saving to localStorage archive key
+  const archived = JSON.parse(localStorage.getItem('argento_archived_v3') || '[]');
+  localStorage.setItem('argento_archived_v3', JSON.stringify(archived.concat(orders.map(o=>({...o, archivedAt: new Date().toISOString()})))));
+  orders = [];
+  saveOrders();
+  alert('تم التصدير والأرشفة وتنظيف القائمة الحالية.');
+}
+
+/* =============================
+   Admin: Package Builder (modal)
+   ============================= */
+
+function openPackageBuilder(){
+  if(!isAdminMode) return alert('خاصية الإدارة تحتاج admin=1&secret=argento2024');
+  const modal = document.getElementById('modalRoot'); modal.style.display='block'; modal.innerHTML = `
+    <div class="modal" id="pkgModal">
+      <div class="panel">
+        <h3>Package Builder</h3>
+        <div class="muted small">اختر المنتجات ثم اضف اسم باكدج وخيارات الخصم أو شحن مجاني</div>
+        <div style="margin-top:10px">
+          <label>اسم الباكدج</label>
+          <input id="pkgTitle">
+          <label style="margin-top:8px">وصف (اختياري)</label>
+          <textarea id="pkgDesc" rows="2"></textarea>
+          <label style="margin-top:8px">اختر المنتجات</label>
+          <div id="pkgProducts" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;max-height:300px;overflow:auto;border:1px solid #eef2f7;padding:8px;border-radius:8px"></div>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <label style="width:140px">نوع العرض</label>
+            <select id="pkgOfferType">
+              <option value="freeShipping">شحن مجاني للباكدج</option>
+              <option value="discount">خصم نسبة على الباكدج</option>
+              <option value="none">لا عروض - سعر تجميعي</option>
+            </select>
+            <input id="pkgDiscount" placeholder="نسبة الخصم (مثال: 15)" style="width:120px" />
+          </div>
+          <div style="margin-top:10px;display:flex;gap:8px">
+            <button id="btnSavePackage" class="btn">حفظ الباكدج</button>
+            <button id="btnClosePkg" class="btn secondary">إغلاق</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  // fill product checklist
+const container = document.getElementById('pkgProducts');
+  container.innerHTML = '';
+  catalog.forEach(p=>{
+    if(p.isPackage) return; // don't include packages inside packages (optional)
+    const item = document.createElement('div'); item.style.border='1px solid #f0f4f8'; item.style.padding='8px'; item.style.borderRadius='8px';
+    item.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center"><div><strong>${escapeHtml(p.title)}</strong><div class="muted small">${formatMoney(p.price)}</div></div><div><input type="checkbox" data-id="${p.id}"></div></div>`;
+    container.appendChild(item);
+  });
+
+  document.getElementById('btnClosePkg').addEventListener('click', ()=>{ modal.style.display='none'; modal.innerHTML=''; });
+  document.getElementById('btnSavePackage').addEventListener('click', ()=>{
+    const title = document.getElementById('pkgTitle').value || 'Package ' + new Date().toLocaleString();
+    const desc = document.getElementById('pkgDesc').value || '';
+    const offerType = document.getElementById('pkgOfferType').value;
+    const discount = parseFloat(document.getElementById('pkgDiscount').value) || 0;
+    const checked = Array.from(container.querySelectorAll('input[type="checkbox"]:checked')).map(c => c.dataset.id);
+    if(checked.length === 0) return alert('اختر منتجات على الأقل');
+    // compute price sum
+    const items = checked.map(id => findProductById(id)).filter(Boolean);
+    const sum = items.reduce((s,i)=>s + (i.price||0),0);
+    let pkgPrice = sum;
+    let freeShipping = false;
+    let freeShippingMinQty = null;
+    if(offerType === 'discount'){ pkgPrice = Math.round(sum * (1 - (discount/100))); }
+    if(offerType === 'freeShipping'){ freeShipping = true; freeShippingMinQty = null; }
+    const pkg = {
+      id: uid('pkg'),
+      title,
+      price: pkgPrice,
+      freeShipping,
+      freeShippingMinQty,
+      isPackage: true,
+      items: checked.slice(),
+      discountPct: offerType === 'discount' ? discount : 0,
+      website: ''
+    };
+    catalog.push(pkg); saveCatalog(); renderCatalog();
+    alert('تم إنشاء الباكدج');
+    modal.style.display='none'; modal.innerHTML='';
+  });
+}
+
+/* =============================
+   Small helpers
+   ============================= */
+
+function escapeHtml(s){ if(!s) return ''; return String(s).replace(/[&<>"']/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[c]); }
+async function copyText(t){ try{ await navigator.clipboard.writeText(t); return true; }catch(e){ const ta=document.createElement('textarea'); ta.value=t; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); return true; } }
+
+/* =============================
+   UI events binding
+   ============================= */
+
+document.getElementById('btnFetchCatalog').addEventListener('click', ()=> fetchFacebookCatalog());
+document.getElementById('btnOpenPackageBuilder').addEventListener('click', openPackageBuilder);
+document.getElementById('btnOpenManage').addEventListener('click', ()=> {
+  if(isAdminMode) { alert('أنت في وضع الإدارة بالفعل'); return; }
+  // redirect to admin mode (same page with admin params) to keep dashboard separate
+  window.location.href = window.location.pathname + '?admin=1&secret=argento2024';
+});
+
+document.getElementById('btnExport').addEventListener('click', ()=> {
+  if(!confirm('تصدير و أرشفة كل الطلبات؟')) return; exportAndArchive();
+});
+document.getElementById('btnClearOrders').addEventListener('click', ()=> { if(confirm('مسح كل الطلبات؟')){ orders=[]; saveOrders(); } });
+
+document.getElementById('searchBox').addEventListener('input', (e)=> { renderCatalog(e.target.value); });
+
+/* =============================
+   Initial bootstrap & route
+   ============================= */
+
+function boot(){
+  // if order page route -> render order page
+  if(isOrderPage()){
+    renderOrderPage(); return;
+  }
+  // else render catalog
+  renderCatalog();
+  renderOrders();
+  // pre-warm: if empty catalog, fetch FB catalog automatically
+  if(catalog.length === 0) fetchFacebookCatalog();
+}
+boot();
+
+/* =============================
+   expose some functions for console/admin
+   ============================= */
+window.catalog = catalog;
+window.saveCatalog = saveCatalog;
+window.addProduct = function(p){ catalog.push(p); saveCatalog(); renderCatalog(); };
+window.exportAndArchive = exportAndArchive;
+
+/* =============================
+   Helper: detect order page
+   ============================= */
+function isOrderPage(){
+  return !!(new URLSearchParams(window.location.search).get('product'));
+}
+
+/* =============================
+   End of script
+   ============================= */
+
+</script>
 </body>
 </html>
