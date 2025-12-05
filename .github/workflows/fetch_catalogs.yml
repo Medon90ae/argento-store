@@ -1,4 +1,4 @@
-name: Fetch Facebook Catalogs (robust & push-ready)
+name: Fetch Facebook Catalogs - Robust MultiEdge
 
 on:
   workflow_dispatch:
@@ -12,141 +12,162 @@ jobs:
   fetch:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo (with credentials)
+      - name: Checkout (with credentials)
         uses: actions/checkout@v4
         with:
           persist-credentials: true
           fetch-depth: 0
 
-      - name: Setup tools
+      - name: Setup tooling
         run: |
           sudo apt-get update -y
           sudo apt-get install -y jq curl
 
-      - name: Debug secrets presence
+      - name: Debug secrets (lengths only)
         env:
           FB_TOKEN: ${{ secrets.FBACCSESSTOKEN }}
-          SUDIID: ${{ secrets.SUDIID }}
-          UNILEVERID: ${{ secrets.UNILEVERID }}
-          BUSSNISID: ${{ secrets.BUSSNISID }}
+          CATALOG1: ${{ secrets.SUDIID }}
+          CATALOG2: ${{ secrets.UNILEVERID }}
+          CATALOG3: ${{ secrets.BUSSNISID }}
         run: |
           echo "FB token present? $( [ -n "$FB_TOKEN" ] && echo YES || echo NO )"
-          echo "SUDIID length: ${#SUDIID}"
-          echo "UNILEVERID length: ${#UNILEVERID}"
-          echo "BUSSNISID length: ${#BUSSNISID}"
+          echo "SUDIID len: ${#CATALOG1}"
+          echo "UNILEVERID len: ${#CATALOG2}"
+          echo "BUSSNISID len: ${#CATALOG3}"
 
-      - name: Fetch catalog helper (SUDI)
+      - name: Fetch single catalog robustly (runs for each catalog id)
         env:
           FB_TOKEN: ${{ secrets.FBACCSESSTOKEN }}
-          CATALOG_ID: ${{ secrets.SUDIID }}
+          CATALOGS: "${{ secrets.SUDIID }},${{ secrets.UNILEVERID }},${{ secrets.BUSSNISID }}"
         run: |
-          set -e
-          OUT="sudi_products.json"
-          echo "Fetching catalog: $CATALOG_ID"
-          cursor=""
-          rm -f response_tmp.json "$OUT"
-          # pagination loop
-          while true; do
-            url="https://graph.facebook.com/v24.0/$CATALOG_ID/products?limit=100&access_token=$FB_TOKEN"
-            if [ -n "$cursor" ]; then url="$url&after=$cursor"; fi
-            http_code=$(curl -s -w "%{http_code}" -o response_tmp.json "$url")
-            if [ "$http_code" != "200" ]; then
-              echo "ERROR HTTP $http_code for SUDIID"
-              cat response_tmp.json || true
-              echo "Creating empty $OUT"
-              echo "[]" > "$OUT"
-              break
-            fi
-            jq -c '.data[]' response_tmp.json 2>/dev/null >> tmp_sudi_lines || true
-            cursor=$(jq -r '.paging.cursors.after // empty' response_tmp.json)
-            if [ -z "$cursor" ]; then break; fi
-            sleep 1
-          done
-          if [ -f tmp_sudi_lines ]; then jq -s 'map(fromjson)' tmp_sudi_lines > "$OUT" || echo "[]" > "$OUT"; fi
-          ls -lh "$OUT"
-          jq '.[0:3]' "$OUT" || true
+          set -euo pipefail
+          mkdir -p tmp_catalogs
+          echo "Catalog list: $CATALOGS"
+          IFS=',' read -ra IDS <<< "$CATALOGS"
+          export CAND_EDGES="products product_items items"
+          all_items_file="tmp_catalogs/all_items_raw.jsonl"
+          : > "$all_items_file"
 
-      - name: Fetch catalog helper (UNILEVER)
-        env:
-          FB_TOKEN: ${{ secrets.FBACCSESSTOKEN }}
-          CATALOG_ID: ${{ secrets.UNILEVERID }}
-        run: |
-          set -e
-          OUT="uni_products.json"
-          echo "Fetching catalog: $CATALOG_ID"
-          cursor=""
-          rm -f response_tmp.json "$OUT"
-          while true; do
-            url="https://graph.facebook.com/v24.0/$CATALOG_ID/products?limit=100&access_token=$FB_TOKEN"
-            if [ -n "$cursor" ]; then url="$url&after=$cursor"; fi
-            http_code=$(curl -s -w "%{http_code}" -o response_tmp.json "$url")
-            if [ "$http_code" != "200" ]; then
-              echo "ERROR HTTP $http_code for UNILEVERID"
-              cat response_tmp.json || true
-              echo "[]" > "$OUT"
-              break
+          for CID in "${IDS[@]}"; do
+            CID=$(echo "$CID" | xargs)  # trim
+            if [ -z "$CID" ]; then
+              echo "Skip empty CID"
+              continue
             fi
-            jq -c '.data[]' response_tmp.json 2>/dev/null >> tmp_uni_lines || true
-            cursor=$(jq -r '.paging.cursors.after // empty' response_tmp.json)
-            if [ -z "$cursor" ]; then break; fi
-            sleep 1
-          done
-          if [ -f tmp_uni_lines ]; then jq -s 'map(fromjson)' tmp_uni_lines > "$OUT" || echo "[]" > "$OUT"; fi
-          ls -lh "$OUT"
-          jq '.[0:3]' "$OUT" || true
 
-      - name: Fetch catalog helper (BUSS)
-        env:
-          FB_TOKEN: ${{ secrets.FBACCSESSTOKEN }}
-          CATALOG_ID: ${{ secrets.BUSSNISID }}
-        run: |
-          set -e
-          OUT="buss_products.json"
-          echo "Fetching catalog: $CATALOG_ID"
-          cursor=""
-          rm -f response_tmp.json "$OUT"
-          while true; do
-            url="https://graph.facebook.com/v24.0/$CATALOG_ID/products?limit=100&access_token=$FB_TOKEN"
-            if [ -n "$cursor" ]; then url="$url&after=$cursor"; fi
-            http_code=$(curl -s -w "%{http_code}" -o response_tmp.json "$url")
-            if [ "$http_code" != "200" ]; then
-              echo "ERROR HTTP $http_code for BUSSNISID"
-              cat response_tmp.json || true
-              echo "[]" > "$OUT"
-              break
+            echo "---- Processing catalog: $CID ----"
+            # retrieve metadata connections
+            meta=$(curl -s "https://graph.facebook.com/v24.0/$CID?metadata=1&access_token=$FB_TOKEN")
+            echo "metadata fetched for $CID"
+            echo "$meta" | jq '.metadata.connections' > tmp_catalogs/meta_${CID}.json || true
+            echo "Edges present:"
+            jq -r 'keys[]' tmp_catalogs/meta_${CID}.json || true
+
+            # try candidate edges in order
+            chosen=""
+            for e in $CAND_EDGES; do
+              has=$(jq -r "has(\"$e\")" tmp_catalogs/meta_${CID}.json 2>/dev/null || echo "false")
+              if [ "$has" = "true" ]; then
+                chosen="$e"
+                echo "Edge $e available for $CID"
+                break
+              fi
+            done
+
+            # if no candidate chosen but product_sets exist, handle sets
+            has_sets=$(jq -r 'has("product_sets")' tmp_catalogs/meta_${CID}.json 2>/dev/null || echo "false")
+            if [ -z "$chosen" ] && [ "$has_sets" = "true" ]; then
+              echo "No primary product edge found; will process product_sets for $CID"
+              chosen="product_sets"
             fi
-            jq -c '.data[]' response_tmp.json 2>/dev/null >> tmp_buss_lines || true
-            cursor=$(jq -r '.paging.cursors.after // empty' response_tmp.json)
-            if [ -z "$cursor" ]; then break; fi
-            sleep 1
-          done
-          if [ -f tmp_buss_lines ]; then jq -s 'map(fromjson)' tmp_buss_lines > "$OUT" || echo "[]" > "$OUT"; fi
-          ls -lh "$OUT"
-          jq '.[0:3]' "$OUT" || true
 
-      - name: Merge and produce catalog.json
-        run: |
-          set -e
-          # ensure files exist
-          for f in sudi_products.json uni_products.json buss_products.json; do
-            [ -f "$f" ] || echo "[]" > "$f"
+            if [ -z "$chosen" ]; then
+              echo "No known product edge on catalog $CID, saving metadata for inspection."
+              continue
+            fi
+
+            echo "Chosen edge for $CID: $chosen"
+
+            # If chosen is product_sets -> iterate sets then fetch products within each set
+            if [ "$chosen" = "product_sets" ]; then
+              # fetch sets
+              page_url="https://graph.facebook.com/v24.0/$CID/product_sets?limit=100&access_token=$FB_TOKEN"
+              while [ -n "$page_url" ]; do
+                echo "Requesting sets: $page_url"
+                http_code=$(curl -s -w "%{http_code}" -o tmp_catalogs/resp_sets.json "$page_url")
+                if [ "$http_code" != "200" ]; then
+                  echo "Failed fetching product_sets $CID HTTP $http_code"; cat tmp_catalogs/resp_sets.json || true; break
+                fi
+                jq -c '.data[]' tmp_catalogs/resp_sets.json 2>/dev/null > tmp_catalogs/sets_lines || true
+                # for each set id, fetch its products (try /products then /product_items)
+                if [ -f tmp_catalogs/sets_lines ]; then
+                  while read -r set_line; do
+                    set_id=$(echo "$set_line" | jq -r '.id')
+                    set_name=$(echo "$set_line" | jq -r '.name // empty')
+                    echo "Fetching products for set $set_id ($set_name)"
+                    # try products edge of the set
+                    page_url2="https://graph.facebook.com/v24.0/$set_id/products?limit=100&access_token=$FB_TOKEN"
+                    while [ -n "$page_url2" ]; do
+                      http_code2=$(curl -s -w "%{http_code}" -o tmp_catalogs/resp_set_products.json "$page_url2")
+                      if [ "$http_code2" != "200" ]; then
+                        echo "Set products HTTP $http_code2 for set $set_id"; cat tmp_catalogs/resp_set_products.json || true; break
+                      fi
+                      jq -c '.data[]' tmp_catalogs/resp_set_products.json 2>/dev/null >> "$all_items_file" || true
+                      page_url2=$(jq -r '.paging.cursors.after // empty' tmp_catalogs/resp_set_products.json)
+                      if [ -z "$page_url2" ]; then break; fi
+                      sleep 0.5
+                    done
+                  done < tmp_catalogs/sets_lines
+                fi
+                page_url=$(jq -r '.paging.next // empty' tmp_catalogs/resp_sets.json)
+                if [ -z "$page_url" ]; then break; fi
+                sleep 0.5
+              done
+              echo "Finished product_sets processing for $CID"
+              continue
+            fi
+
+            # For regular edges (products, product_items, items) fetch all pages
+            page_url="https://graph.facebook.com/v24.0/$CID/$chosen?limit=100&access_token=$FB_TOKEN&fields=id,name,title,retailer_id,price_amount,price_currency,retailer_price,image_url,images,availability,status"
+            while [ -n "$page_url" ]; do
+              echo "Requesting: $page_url"
+              http_code=$(curl -s -w "%{http_code}" -o tmp_catalogs/resp.json "$page_url")
+              if [ "$http_code" != "200" ]; then
+                echo "HTTP $http_code while fetching $chosen on $CID"
+                cat tmp_catalogs/resp.json || true
+                break
+              fi
+              # append each data item as jsonline
+              jq -c '.data[]' tmp_catalogs/resp.json 2>/dev/null >> "$all_items_file" || true
+              page_url=$(jq -r '.paging.next // empty' tmp_catalogs/resp.json)
+              if [ -z "$page_url" ]; then break; fi
+              sleep 0.5
+            done
+            echo "Completed fetching edge $chosen for catalog $CID"
           done
-          jq -s '([.[0]//[], .[1]//[], .[2]//[]] | add) as $items |
-            $items | map({
+
+          # build catalog.json normalised
+          echo "Normalizing items into catalog.json..."
+          if [ -f "$all_items_file" ]; then
+            jq -s 'map({
               id: (.id // .retailer_id // ""),
-              title: (.name // ""),
+              title: (.name // .title // .retailer_title // ""),
               price: ((.price_amount // .retailer_price // .price // 0) | tonumber),
               currency: (.price_currency // "EGP"),
-              image: (.image_urls[0] // .image_url // .image // .thumbnail_url // ""),
+              image: (.image_urls[0] // .image_url // .images[0].uri // .images[0] // ""),
               raw: .
-            })' sudi_products.json uni_products.json buss_products.json > catalog_merged.json || echo '[]' > catalog_merged.json
-          # dedupe by title (case-insensitive)
-          jq 'reduce .[] as $item ({}; .[($item.title|ascii_downcase)]=$item) | to_entries | map(.value)' catalog_merged.json > catalog.json
-          echo "Final count: $(jq 'length' catalog.json)"
-          ls -lh catalog.json
+            })' "$all_items_file" > tmp_catalogs/catalog_merged.json || echo "[]" > tmp_catalogs/catalog_merged.json
+          else
+            echo "[]" > tmp_catalogs/catalog_merged.json
+          fi
+
+          # dedupe by lowercased title
+          jq 'reduce .[] as $item ({}; .[($item.title|ascii_downcase)]=$item) | to_entries | map(.value)' tmp_catalogs/catalog_merged.json > catalog.json || echo "[]" > catalog.json
+          echo "Final catalog.json items: $(jq 'length' catalog.json)"
+          ls -lh catalog.json || true
           jq '.[0:10]' catalog.json || true
 
-      - name: Upload artifact (catalog.json)
+      - name: Upload catalog.json artifact
         uses: actions/upload-artifact@v4
         with:
           name: catalog-json
@@ -168,5 +189,5 @@ jobs:
             git commit -m "chore: update catalog.json (auto) [skip ci]" || true
             BRANCH="${GITHUB_REF#refs/heads/}"
             echo "Pushing to $BRANCH"
-            git push origin "HEAD:$BRANCH"
+            git push origin "HEAD:$BRANCH" || echo "Push failed - maybe branch protection or token permissions"
           fi
