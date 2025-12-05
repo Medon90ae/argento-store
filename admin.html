@@ -1,565 +1,164 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة إدارة Argento - الطلبات الكاملة</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-        .container {
-            max-width: 95%;
-            margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-        .header {
-            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-            color: white;
-            padding: 25px;
-            text-align: center;
-            position: relative;
-        }
-        .customer-link {
-            position: absolute;
-            left: 20px;
-            top: 20px;
-            background: rgba(255,255,255,0.2);
-            color: white;
-            border: 1px solid rgba(255,255,255,0.3);
-            padding: 10px 15px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-        .customer-link:hover {
-            background: rgba(255,255,255,0.3);
-        }
-        .controls {
-            background: #f8f9fa;
-            padding: 20px;
-            border-bottom: 1px solid #e9ecef;
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-        .btn {
-            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-        }
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4);
-        }
-        .btn-export {
-            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-        }
-        .btn-clear {
-            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-        }
-        .btn-refresh {
-            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
-        }
-        .stats {
-            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
-            color: white;
-            padding: 20px;
-            margin: 0;
-        }
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            text-align: center;
-        }
-        .stat-card {
-            background: rgba(255,255,255,0.2);
-            padding: 15px;
-            border-radius: 10px;
-            backdrop-filter: blur(10px);
-        }
-        .stat-number {
-            font-size: 2em;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        .table-container {
-            overflow-x: auto;
-            max-height: 70vh;
-            position: relative;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            min-width: 2000px;
-        }
-        th, td {
-            padding: 10px 12px;
-            text-align: right;
-            border: 1px solid #e9ecef;
-            font-size: 12px;
-            white-space: nowrap;
-        }
-        th {
-            background: #2c3e50;
-            color: white;
-            position: sticky;
-            top: 0;
-            font-weight: 600;
-            z-index: 10;
-        }
-        th:first-child {
-            position: sticky;
-            left: 0;
-            z-index: 20;
-            background: #34495e;
-        }
-        td:first-child {
-            position: sticky;
-            left: 0;
-            background: #f8f9fa;
-            z-index: 5;
-        }
-        tr:hover {
-            background: #f8f9fa;
-        }
-        .no-orders {
-            text-align: center;
-            padding: 40px;
-            color: #666;
-            font-size: 18px;
-        }
-        .last-update {
-            text-align: center;
-            padding: 10px;
-            background: #f8f9fa;
-            color: #666;
-            font-size: 14px;
-            border-top: 1px solid #e9ecef;
-        }
-        .column-group {
-            background: #34495e !important;
-            color: white;
-            text-align: center;
-            font-weight: bold;
-        }
-        .auto-field {
-            background: #e8f5e8;
-        }
-        .customer-field {
-            background: #fff3cd;
-        }
-        .sender-field {
-            background: #d1ecf1;
-        }
-        .security-check {
-            background: #ffeaa7;
-            padding: 10px;
-            text-align: center;
-            border-bottom: 1px solid #fdcb6e;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة إدارة Argento</title>
+<style>
+ body { font-family: sans-serif; background:#f7f7f7; margin:0; padding:20px; }
+ .card { background:#fff; padding:20px; margin-bottom:20px; border-radius:12px; box-shadow:0 2px 6px #0001; }
+ label { display:block; margin:6px 0 2px; }
+ input, select, textarea { width:100%; padding:10px; border:1px solid #ccc; border-radius:8px; }
+ button { padding:10px 18px; border:none; border-radius:8px; cursor:pointer; background:#0a7; color:#fff; margin-top:10px; }
+ .danger { background:#c00; }
+ table { width:100%; border-collapse:collapse; margin-top:10px; }
+ th, td { border:1px solid #ddd; padding:8px; text-align:center; }
+ th { background:#eee; }
+</style>
 </head>
 <body>
-    <!-- تحقق أمني بسيط -->
-    <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('secret') !== 'argento2024') {
-            window.location.href = 'index.html';
-        }
-    </script>
+<div class="card" id="authBox">
+ <h2>تسجيل دخول لوحة الإدارة</h2>
+ <label>ادخل السر</label>
+ <input id="secretInput" type="text" placeholder="argento2024">
+ <button onclick="checkSecret()">دخول</button>
+</div>
 
-    <div class="container">
-        <div class="header">
-            <a href="index.html" class="customer-link">🛍️ واجهة العملاء</a>
-            <h1>📊 لوحة إدارة Argento - البيانات الكاملة</h1>
-            <p>عرض وتصدير جميع بيانات الطلبات حسب قالب سبيداف</p>
-        </div>
+<div id="app" style="display:none;">
+ <div class="card">
+   <h2>المنتجات</h2>
+   <button onclick="openAddProduct()">إضافة منتج</button>
+   <table id="productsTable"></table>
+ </div>
 
-        <div class="security-check">
-            🔒 الوصول آمن - لوحة الإدارة | 
-            <a href="index.html" style="color: #2c3e50; margin-right: 15px;">العودة للعملاء</a>
-        </div>
+ <div class="card">
+   <h2>استيراد من كتالوج فيسبوك</h2>
+   <label>Access Token</label>
+   <input id="fbToken" type="text">
+   <label>ID الكتالوج أو الصفحة</label>
+   <input id="fbCatalogId" type="text">
+   <button onclick="importFacebookCatalog()">استيراد</button>
+   <div id="fbImportResult"></div>
+ </div>
 
-        <div class="stats" id="statsContainer">
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-number" id="totalOrders">0</div>
-                    <div>إجمالي الطلبات</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="todayOrders">0</div>
-                    <div>طلبات اليوم</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="totalRevenue">0</div>
-                    <div>إجمالي الإيرادات</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="lastUpdate">--:--</div>
-                    <div>آخر تحديث</div>
-                </div>
-            </div>
-        </div>
+ <div class="card">
+   <h2>الطلبات</h2>
+   <button onclick="exportOrdersCSV()">تصدير CSV</button>
+   <table id="ordersTable"></table>
+ </div>
+</div>
 
-        <div class="controls">
-            <button class="btn btn-export" onclick="exportToExcel()">
-                📥 تصدير Excel كامل
-            </button>
-            <button class="btn btn-export" onclick="exportToCSV()">
-                📥 تصدير CSV لسبيداف
-            </button>
-            <button class="btn btn-refresh" onclick="loadOrders()">
-                🔄 تحديث البيانات
-            </button>
-            <button class="btn btn-clear" onclick="clearOrders()">
-                🗑️ مسح الكل
-            </button>
-            <button class="btn" onclick="addTestOrder()" style="background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);">
-                🧪 إضافة طلب تجريبي
-            </button>
-        </div>
+<script>
+/* حماية الدخول */
+function checkSecret(){
+  const v = document.getElementById('secretInput').value.trim();
+  if(v === 'argento2024'){ localStorage.setItem('argento_admin','1'); startApp(); }
+  else alert('السر غير صحيح');
+}
+if(localStorage.getItem('argento_admin')==='1'){ startApp(); }
+function startApp(){ document.getElementById('authBox').style.display='none'; document.getElementById('app').style.display='block'; loadProducts(); loadOrders(); }
 
-        <div class="table-container">
-            <table id="ordersTable">
-                <thead>
-                    <tr>
-                        <th rowspan="2">#</th>
-                        <th colspan="8" class="column-group">معلومات الطلب الأساسية</th>
-                        <th colspan="6" class="column-group">معلومات المرسل</th>
-                        <th colspan="6" class="column-group">معلومات المستلم</th>
-                        <th rowspan="2">نوع التوصيل</th>
-                    </tr>
-                    <tr>
-                        <!-- معلومات الطلب الأساسية -->
-                        <th title="S.O.">S.O.</th>
-                        <th title="Goods type">Goods type</th>
-                        <th title="Goods name">Goods name</th>
-                        <th title="Quantity">Quantity</th>
-                        <th title="Weight">Weight</th>
-                        <th title="COD">COD</th>
-                        <th title="Insure price">Insure price</th>
-                        <th title="Whether to allow the package to be opened">افتح الطرد؟</th>
-                        <th title="Remark">ملاحظات</th>
-                        
-                        <!-- معلومات المرسل -->
-                        <th title="Name">اسم المرسل</th>
-                        <th title="Telephone">تلفون المرسل</th>
-                        <th title="City">مدينة المرسل</th>
-                        <th title="Area">منطقة المرسل</th>
-                        <th title="Senders address">عنوان المرسل</th>
-                        <th title="Sender Email">بريد المرسل</th>
-                        
-                        <!-- معلومات المستلم -->
-                        <th title="Name">اسم المستلم</th>
-                        <th title="Telephone">تلفون المستلم</th>
-                        <th title="City">مدينة المستلم</th>
-                        <th title="Area">منطقة المستلم</th>
-                        <th title="Receivers address">عنوان المستلم</th>
-                        <th title="Receiver Email">بريد المستلم</th>
-                        
-                        <!-- نوع التوصيل -->
-                    </tr>
-                </thead>
-                <tbody id="ordersBody">
-                    <tr>
-                        <td colspan="23" class="no-orders">
-                            🔍 جاري تحميل البيانات...
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+/* إدارة الكتالوج */
+let catalog = JSON.parse(localStorage.getItem('argento_catalog_v3')||'[]');
+let orders = JSON.parse(localStorage.getItem('argento_orders_v3')||'[]');
 
-        <div class="last-update" id="lastUpdateText">
-            آخر تحديث: -- | إجمالي الأعمدة: 22 عمود حسب قالب سبيداف
-        </div>
-    </div>
+function saveCatalog(){ localStorage.setItem('argento_catalog_v3', JSON.stringify(catalog)); loadProducts(); }
 
-    <script>
-        // بيانات المدن والمناطق - مضافة مباشرة في الملف
-        const citiesData = {
-            "Cairo": ["Abdin", "El Abaseya", "Al Azbakeya", "El Katameya", "Al Manial", "El Mokattam", "Dar El Salam", "El Basatin", "El-Gamaleya", "Al Sayeda Zeinab", "Helwan", "Maadi", "Masr El Qadima", "Qasr El Nil", "El Khalifa", "Torah", "Zamalek", "El Shorouk", "Badr City", "Ain Shams", "Madinaty", "Al Zaitoun", "Nasr City", "New Cairo", "Heliopolis", "Al Amiriyyah", "El Salam", "El Waily", "Al Sharabeya", "Al Marj", "Al Matariyyah", "El Nozha", "Hadaeq Al Qubbah", "Shobra", "Nile Corniche", "Cairo"],
-            "Giza": ["6th of October City", "El Sheikh Zayed City", "Al Ayyat", "Al Hawamidiyya", "Badrshein", "El Saf", "Al Omraneya", "Atfih", "Bahariya Oasis", "Pyramids Gardens", "Faisal", "Haram", "Abu an Numros", "Al Agouzah", "Al Warak", "Awsīm", "Boulaq Ad Dakrour", "Al Doqi", "Ard El Lewa", "Mohandessin", "Kirdasah", "Imbabah", "Monshaet El Kanater", "Giza"],
-            "Alexandria": ["Ad Dakhilah", "Amreya", "Borg El Arab", "Moharam Bek", "Bab Sharqi", "Sidi Gabir", "Al Attarin", "Mansheya", "Al Labban", "El Gomrok", "Port al Basal", "Karmus", "Montaza 2", "Alexandria"],
-            "Luxor": ["Luxor", "Armant", "Esna", "Al Qarnah"],
-            "Aswan": ["Aswan", "Kom Ombo", "Daraw", "Edfu"],
-            "Red Sea": ["Hurghada", "Ras Ghareb", "Safaga", "Quseer", "Marsa Alam"],
-            "Assiut": ["Abnub", "Abu Tig", "Al Badari", "El Ghanayem", "El Fateh", "El Quseyya", "Dayrout", "Sahel Selim", "Sidfa", "Asyut", "Manfalut", "Manqabad"],
-            "Sohag": ["Tima", "Tahta", "Juhaynah", "El Maragha", "Sohag", "Akhmim", "Saqultah", "Al Minshah", "Girga", "Al Balyana", "Dar El Salam", "El Usayrat"],
-            "Qena": ["Qena", "Qus", "Madinet Qaft", "Dishna", "Naqadah", "Nagaa Hammadi", "Farshut", "Abu Tesht"],
-            "Minya": ["El Idwa", "Maghagha", "Bani Mazar", "Matai", "Samalut", "Minya", "Abu Qurqas", "Mallawi", "Dayr Mawas"],
-            "Beni Suef": ["Al Wasta", "Nasser", "Beni Suef", "Ihnasya Al Madinah", "Biba", "Sumusta El Waqf", "El Fashn"],
-            "Fayoum": ["Tamiya", "Sinnuris", "Faiyum", "Atsa", "Ibsheway", "Youssef Al Seddik"],
-            "Beheira": ["Damanhour", "Kafr El Dawar", "Abu Hummus", "El Mahmoudeya", "Natrn Valley", "Al Noubareya", "Abu Al Matamir", "Housh Eissa", "Itay Al Barud", "Shubrakhit", "Rosetta", "Idku", "Badr", "Ad Dilinjat", "AR Rahmaniyyah", "Kom Hamada"],
-            "Kafr El Sheikh": ["Kafr El Shaikh", "Desouk", "Fowa", "Mutubas", "Baltim", "El Hamool", "Riyadh", "Biyala", "Qillin", "Sidi Salem"],
-            "Gharbia": ["Kafr Az Zayyat", "El Mahalla El Kubra", "Samannoud", "Basyoun", "El Santa", "Zefta", "Kotoor", "Tanta"],
-            "Dakahlia": ["Mansoura", "Aga", "Al Manzalah", "Belqas", "Dikirnis", "El Senbellawein", "Menyet El Nasr", "Mit Ghamr", "Shirbin", "Talkha"],
-            "Sharqia": ["Bilbeis", "Inshas", "Awlad Saqr", "El Husseiniya", "Dyarb Negm", "Faqus", "Kafr Saqr", "Mashtul as Suq", "Minya Al Qamh", "El Salheya El Qadima", "El Salheya El Gadida", "Tanis", "10th of Ramadan City", "Zagazig"],
-            "Qalyubia": ["Banha", "Al Khankah", "Al Obour City", "Al Qanatir Al Khayriyyah", "Shibin El Qanater", "Toukh", "Kafr Shukr", "Qalyub", "Shubra Al Khaymah"],
-            "Menoufia": ["Quwaysna", "Birkat as SAB", "El Sadat City", "El Shohada", "Tala", "Shebeen El Kom", "El Bagour", "Menouf", "Ashmoun"],
-            "Damietta": ["Faraskur", "Damietta", "New Damietta", "Kafr Saad", "El Zarqa", "Kafr Al Battikh", "Ras El Bar", "Izbat Al Burj"],
-            "Port Said": ["Port Said"],
-            "Matrouh": ["Marsa Matruh", "North Coast"],
-            "New Valley": ["Kharga", "Dakhla", "Farafra"],
-            "Ismailia": ["Ismailia"],
-            "Suez": ["Suez"],
-            "South Sinai": ["South Sinai Governorate", "Sharm El Sheikh", "Dahab"],
-            "North Sinai": ["North Sinai"]
-        };
+function loadProducts(){
+  const t = document.getElementById('productsTable');
+  t.innerHTML = '<tr><th>اسم</th><th>السعر</th><th>رابط</th><th>تعديل</th><th>حذف</th></tr>';
+  catalog.forEach(p=>{
+    t.innerHTML += `<tr>
+      <td>${p.title}</td>
+      <td>${p.price}</td>
+      <td><a href="${p.website||'#'}" target="_blank">فتح</a></td>
+      <td><button onclick="editProduct('${p.id}')">تعديل</button></td>
+      <td><button class='danger' onclick="delProduct('${p.id}')">حذف</button></td>
+    </tr>`
+  });
+}
 
-        // دالة تحميل الطلبات
-        function loadOrders() {
-            try {
-                const orders = JSON.parse(localStorage.getItem('argentoOrders')) || [];
-                updateStats(orders);
-                displayOrders(orders);
-                updateLastUpdateTime();
-                
-            } catch (error) {
-                console.error('Error loading orders:', error);
-                document.getElementById('ordersBody').innerHTML = `
-                    <tr>
-                        <td colspan="23" class="no-orders" style="color: #e74c3c;">
-                            ❌ خطأ في تحميل البيانات: ${error.message}
-                        </td>
-                    </tr>
-                `;
-            }
-        }
+function openAddProduct(){
+  const title = prompt('اسم المنتج'); if(!title) return;
+  const price = prompt('السعر'); if(!price) return;
+  const id = 'p'+Date.now();
+  const product = { id, title, price, website:'', salesCount:0, freeShipping:false, freeShippingMinQty:null };
+  catalog.push(product);
+  generateProductLink(product);
+  saveCatalog();
+}
 
-        // تحديث الإحصائيات
-        function updateStats(orders) {
-            const today = new Date().toDateString();
-            const todayOrders = orders.filter(order => 
-                new Date(order.timestamp).toDateString() === today
-            ).length;
-            
-            const totalRevenue = orders.reduce((sum, order) => sum + (parseInt(order.cod) || 0), 0);
+function editProduct(id){
+  const p = catalog.find(x=>x.id===id);
+  if(!p) return;
+  const title = prompt('اسم المنتج', p.title); if(!title) return;
+  const price = prompt('السعر', p.price); if(!price) return;
+  p.title = title;
+  p.price = price;
+  generateProductLink(p);
+  saveCatalog();
+}
 
-            document.getElementById('totalOrders').textContent = orders.length;
-            document.getElementById('todayOrders').textContent = todayOrders;
-            document.getElementById('totalRevenue').textContent = totalRevenue + ' ج.م';
-        }
+function delProduct(id){
+  if(!confirm('حذف المنتج؟')) return;
+  catalog = catalog.filter(x=>x.id!==id);
+  saveCatalog();
+}
 
-        // عرض الطلبات في الجدول
-        function displayOrders(orders) {
-            const tbody = document.getElementById('ordersBody');
-            
-            if (orders.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="23" class="no-orders">
-                            📝 لا توجد طلبات مسجلة حتى الآن
-                            <br><small>استخدم زر "إضافة طلب تجريبي" لاختبار النظام</small>
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
+/* توليد رابط المنتج */
+function generateProductLink(p){
+  p.website = `https://medon90ae.github.io/argento-store/?product=${encodeURIComponent(p.title)}&price=${p.price}&sender=Sharqia&area=Zagazig&address=الزقازيق&phone=01055688136&senderName=Argento`;
+}
 
-            tbody.innerHTML = orders.map((order, index) => `
-                <tr>
-                    <td><strong>${index + 1}</strong></td>
-                    
-                    <!-- معلومات الطلب الأساسية -->
-                    <td class="auto-field">${order.so || ''}</td>
-                    <td class="auto-field"><strong>${order.goodsType}</strong></td>
-                    <td class="auto-field"><strong>${order.goodsName}</strong></td>
-                    <td class="auto-field">${order.quantity}</td>
-                    <td class="auto-field">${order.weight}</td>
-                    <td class="auto-field" style="color: #27ae60; font-weight: bold;">${order.cod} ج.م</td>
-                    <td class="auto-field">${order.insurePrice || ''}</td>
-                    <td class="auto-field">${order.allowOpen}</td>
-                    <td class="auto-field"><small>${order.remark || '-'}</small></td>
-                    
-                    <!-- معلومات المرسل -->
-                    <td class="sender-field"><strong>${order.senderName}</strong></td>
-                    <td class="sender-field" dir="ltr">${order.senderTelephone}</td>
-                    <td class="sender-field">${order.senderCity}</td>
-                    <td class="sender-field">${order.senderArea}</td>
-                    <td class="sender-field"><small>${order.senderAddress}</small></td>
-                    <td class="sender-field">${order.senderEmail || '-'}</td>
-                    
-                    <!-- معلومات المستلم -->
-                    <td class="customer-field"><strong>${order.receiverName}</strong></td>
-                    <td class="customer-field" dir="ltr">${order.receiverTelephone}</td>
-                    <td class="customer-field">${order.receiverCity}</td>
-                    <td class="customer-field">${order.receiverArea}</td>
-                    <td class="customer-field"><small>${order.receiverAddress}</small></td>
-                    <td class="customer-field">${order.receiverEmail || '-'}</td>
-                    
-                    <!-- نوع التوصيل -->
-                    <td class="auto-field"><strong>${order.deliveryType}</strong></td>
-                </tr>
-            `).join('');
-        }
+/* الطلبات */
+function loadOrders(){
+  const t = document.getElementById('ordersTable');
+  t.innerHTML = '<tr><th>اسم</th><th>هاتف</th><th>منتج</th><th>سعر</th></tr>';
+  orders.forEach(o=>{
+    t.innerHTML += `<tr>
+      <td>${o.name}</td>
+      <td>${o.phone}</td>
+      <td>${o.product}</td>
+      <td>${o.total}</td>
+    </tr>`
+  });
+}
 
-        // تحديث وقت آخر تحديث
-        function updateLastUpdateTime() {
-            const now = new Date();
-            const timeString = now.toLocaleTimeString('ar-EG');
-            const dateString = now.toLocaleDateString('ar-EG');
-            
-            document.getElementById('lastUpdate').textContent = timeString;
-            document.getElementById('lastUpdateText').textContent = 
-                `آخر تحديث: ${dateString} - ${timeString} | إجمالي الأعمدة: 22 عمود حسب قالب سبيداف`;
-        }
+function exportOrdersCSV(){
+  let csv = 'name,phone,product,total\n';
+  orders.forEach(o=>{ csv += `${o.name},${o.phone},${o.product},${o.total}\n`; });
+  const blob = new Blob([csv],{type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download='orders.csv'; a.click();
+}
 
-        // إضافة طلب تجريبي
-        function addTestOrder() {
-            const testOrder = {
-                so: "",
-                goodsType: "Normal",
-                goodsName: "ساعة ذكية تجريبية",
-                quantity: "1",
-                weight: "1",
-                cod: "350",
-                insurePrice: "",
-                allowOpen: "No",
-                remark: "هذا طلب تجريبي لاختبار النظام",
-                
-                senderName: "argento",
-                senderTelephone: "10556881360",
-                senderCity: "Sharqia",
-                senderArea: "Zagazig",
-                senderAddress: "الزقازيق الشرقية",
-                senderEmail: "",
-                
-                receiverName: "عميل تجريبي",
-                receiverTelephone: "01012345678",
-                receiverCity: "Cairo",
-                receiverArea: "Nasr City",
-                receiverAddress: "شارع النصر - عمارة 25 - شقة 10",
-                receiverEmail: "test@example.com",
-                
-                deliveryType: "Deliver",
-                timestamp: new Date().toISOString(),
-                productPrice: "300",
-                shippingPrice: "50"
-            };
+/* استيراد كتالوج فيسبوك */
+async function importFacebookCatalog(){
+  document.getElementById('fbImportResult').innerText = 'جاري الاتصال...';
+  const token = document.getElementById('fbToken').value.trim();
+  const id = document.getElementById('fbCatalogId').value.trim();
+  if(!token || !id){ alert('ادخل البيانات'); return; }
+  try{
+    const r = await fetch(`https://graph.facebook.com/v24.0/${id}/products?access_token=${token}`);
+    const j = await r.json();
+    if(j.data){ mergeFacebook(j.data); document.getElementById('fbImportResult').innerText='تم الاستيراد'; }
+    else document.getElementById('fbImportResult').innerText='فشل الاستيراد';
+  }catch(e){ document.getElementById('fbImportResult').innerText='خطأ بالاتصال'; }
+}
 
-            let orders = JSON.parse(localStorage.getItem('argentoOrders')) || [];
-            orders.push(testOrder);
-            localStorage.setItem('argentoOrders', JSON.stringify(orders));
-            
-            console.log('✅ تم إضافة طلب تجريبي:', testOrder);
-            loadOrders();
-            
-            alert('✅ تم إضافة طلب تجريبي بنجاح!\nتم تعبئة جميع الأعمدة الـ 22 تلقائياً.');
-        }
-
-        // تصدير لـ Excel
-        function exportToExcel() {
-            const orders = JSON.parse(localStorage.getItem('argentoOrders')) || [];
-
-            if (orders.length === 0) {
-                alert('❌ لا توجد طلبات لتصديرها');
-                return;
-            }
-
-            let csv = 'S.O.,Goods type,Goods name,Quantity,Weight,COD,Insure price,Whether to allow the package to be opened,Remark,Name,Telephone,City,Area,Senders address,Sender Email,Name,Telephone,City,Area,Receivers address,Receiver Email,Delivery Type\n';
-            
-            orders.forEach(order => {
-                csv += `"${order.so}","${order.goodsType}","${order.goodsName}","${order.quantity}","${order.weight}","${order.cod}","${order.insurePrice}","${order.allowOpen}","${order.remark}","${order.senderName}","${order.senderTelephone}","${order.senderCity}","${order.senderArea}","${order.senderAddress}","${order.senderEmail}","${order.receiverName}","${order.receiverTelephone}","${order.receiverCity}","${order.receiverArea}","${order.receiverAddress}","${order.receiverEmail}","${order.deliveryType}"\n`;
-            });
-
-            const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv; charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `طلبات-argento-كاملة-${new Date().toLocaleDateString('ar-EG')}.csv`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            
-            alert(`✅ تم تصدير ${orders.length} طلب بنسخة Excel كاملة`);
-        }
-
-        // تصدير CSV جاهز لسبيداف
-        function exportToCSV() {
-            const orders = JSON.parse(localStorage.getItem('argentoOrders')) || [];
-
-            if (orders.length === 0) {
-                alert('❌ لا توجد طلبات لتصديرها');
-                return;
-            }
-
-            // ترويسة الملف حسب قالب سبيداف
-            let csv = 'S.O.,Goods type,Goods name,Quantity,Weight,COD,Insure price,Whether to allow the package to be opened,Remark,Name,Telephone,City,Area,Senders address,Sender Email,Name,Telephone,City,Area,Receivers address,Receiver Email,Delivery Type\n';
-            
-            orders.forEach(order => {
-                csv += `"${order.so}","${order.goodsType}","${order.goodsName}","${order.quantity}","${order.weight}","${order.cod}","${order.insurePrice}","${order.allowOpen}","${order.remark || ''}","${order.senderName}","${order.senderTelephone}","${order.senderCity}","${order.senderArea}","${order.senderAddress}","${order.senderEmail}","${order.receiverName}","${order.receiverTelephone}","${order.receiverCity}","${order.receiverArea}","${order.receiverAddress}","${order.receiverEmail || ''}","${order.deliveryType}"\n`;
-            });
-
-            const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv; charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `speedaf-orders-${new Date().toLocaleDateString('ar-EG')}.csv`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            
-            alert(`✅ تم تصدير ${orders.length} طلب جاهز لرفع سبيداف`);
-        }
-
-        // مسح الطلبات
-        function clearOrders() {
-            const orders = JSON.parse(localStorage.getItem('argentoOrders')) || [];
-
-            if (orders.length === 0) {
-                alert('ℹ️ لا توجد طلبات للمسح');
-                return;
-            }
-
-            if (confirm(`⚠️ هل أنت متأكد من مسح جميع الطلبات؟\n\nسيتم حذف ${orders.length} طلب ولا يمكن استعادتهم!`)) {
-                localStorage.removeItem('argentoOrders');
-                loadOrders();
-                alert('✅ تم مسح جميع الطلبات بنجاح');
-            }
-        }
-
-        // التحميل التلقائي
-        window.addEventListener('load', function() {
-            console.log('🚀 بدء تحميل لوحة الإدارة...');
-            loadOrders();
-        });
-
-        // تحديث تلقائي كل 10 ثواني
-        setInterval(loadOrders, 10000);
-
-        // إضافة طلب تجريبي تلقائي إذا لا توجد طلبات
-        setTimeout(() => {
-            const orders = JSON.parse(localStorage.getItem('argentoOrders')) || [];
-            if (orders.length === 0) {
-                console.log('🔄 لا توجد طلبات، يمكن إضافة طلب تجريبي');
-            }
-        }, 2000);
-    </script>
+function mergeFacebook(arr){
+  arr.forEach(item=>{
+    const title = item.name;
+    if(!catalog.find(x=>x.title===title)){
+      const id = 'fb'+Date.now()+Math.random();
+      const price = (item.price_amount || 0)/100;
+      const p = { id, title, price, website:'', salesCount:0, freeShipping:false, freeShippingMinQty:null };
+      generateProductLink(p);
+      catalog.push(p);
+    }
+  });
+  saveCatalog();
+}
+</script>
 </body>
 </html>
