@@ -1,110 +1,150 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Argento Store — المتجر</title>
+<title>Argento Store — تسجيل الطلب</title>
 <style>
-  /* ----- Minimal modern UI (mobile-first) ----- */
-  :root{--accent:#27ae60;--muted:#6b7280;--card:#fff;--bg:#f4f7fb}
-  body{font-family:Inter, "Segoe UI", Tahoma, Arial; background:var(--bg); margin:0; color:#111}
-  .wrap{max-width:1100px;margin:18px auto;padding:18px}
-  header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  /* Modern, Shopify-like simple styling (mobile-first) */
+  :root{
+    --accent:#27ae60;
+    --muted:#6b7280;
+    --bg:#f7fafc;
+    --card:#ffffff;
+    --radius:12px;
+    --shadow: 0 8px 30px rgba(2,6,23,0.06);
+  }
+  body{margin:0;font-family:Inter, "Segoe UI", Tahoma, Arial;background:var(--bg);color:#111}
+  .container{max-width:1100px;margin:18px auto;padding:16px}
+  header{display:flex;justify-content:space-between;align-items:center;gap:12px}
   h1{font-size:20px;margin:0}
-  .controls{display:flex;gap:8px;flex-wrap:wrap}
-  .btn{background:linear-gradient(135deg,var(--accent),#2ecc71);border:none;color:#fff;padding:10px 12px;border-radius:10px;cursor:pointer;font-weight:700}
-  .btn.secondary{background:#eef2f7;color:#123;padding:10px;border:1px solid #e2e8f0}
-  .card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-top:14px}
-  .card{background:var(--card);padding:12px;border-radius:12px;box-shadow:0 6px 20px rgba(10,10,10,0.04);border:1px solid #eef2f7;display:flex;flex-direction:column;gap:8px}
   .muted{color:var(--muted);font-size:13px}
-  label{font-size:13px;margin-bottom:6px;display:block}
-  input,select,textarea{width:100%;padding:9px;border-radius:8px;border:1px solid #e6eef6;font-size:14px}
-  .row{display:flex;gap:8px;align-items:center}
-  .small{font-size:13px;color:#444}
-  .product-title{font-weight:700;font-size:16px}
-  .meta{font-size:13px;color:#666}
-  .footer{margin-top:18px;font-size:13px;color:#666}
-  .modal{position:fixed;inset:0;background:rgba(3,7,18,0.45);display:flex;align-items:center;justify-content:center;padding:18px;z-index:60}
-  .modal .panel{background:#fff;padding:14px;border-radius:10px;max-width:760px;width:100%;max-height:80vh;overflow:auto}
-  .tag{display:inline-block;padding:6px 8px;border-radius:8px;background:#f1f8f4;color:#0b6c3b;font-weight:700;font-size:13px}
-  .link-button{background:transparent;border:1px dashed #d1d5db;padding:8px;border-radius:8px;color:#0b5;padding:8px}
-  .admin-badge{background:#0b132b;color:#fff;padding:6px 8px;border-radius:8px;font-weight:700}
-  .grid-2{display:grid;grid-template-columns:1fr 300px;gap:12px}
-  @media (max-width:880px){ .grid-2{grid-template-columns:1fr} }
+  .layout{display:grid;grid-template-columns:1fr;gap:16px;margin-top:14px}
+  @media(min-width:980px){ .layout{grid-template-columns: 2fr 420px} }
+
+  /* product card / gallery */
+  .product-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;display:flex;flex-direction:column;gap:12px}
+  .gallery{display:flex;gap:10px;align-items:center}
+  .main-img{width:100%;height:320px;border-radius:10px;object-fit:cover;background:#f0f3f5;border:1px solid #eef2f6}
+  .thumbs{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  .thumb{width:72px;height:72px;border-radius:8px;object-fit:cover;border:1px solid #eef2f6;cursor:pointer}
+  .product-meta{display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .title{font-size:20px;font-weight:700}
+  .price{font-size:20px;color:var(--accent);font-weight:800}
+
+  /* form */
+  form{display:flex;flex-direction:column;gap:12px}
+  label{font-weight:700;margin-bottom:6px}
+  input[type="text"],input[type="tel"],select,textarea{padding:14px;border-radius:10px;border:1px solid #e6eef6;font-size:16px;width:100%;box-sizing:border-box}
+  textarea{min-height:96px;resize:vertical}
+  .row{display:flex;gap:10px;flex-wrap:wrap}
+  .col{flex:1;min-width:160px}
+  .btn{background:linear-gradient(135deg,var(--accent),#2ecc71);border:none;color:#fff;padding:12px 14px;border-radius:10px;cursor:pointer;font-weight:800}
+  .btn.secondary{background:#f3f6f9;color:#0b1220;border:1px solid #e6eef6}
+  .info-box{background:#fff;padding:12px;border-radius:10px;border:1px solid #eef2f6}
+  .summary{background:#fff;padding:14px;border-radius:12px;border:1px solid #eef2f6}
+  .small-muted{font-size:13px;color:var(--muted)}
+/* product grid (catalog) */
+  .catalog-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+  .catalog-card{background:var(--card);padding:12px;border-radius:12px;box-shadow:var(--shadow);border:1px solid #f0f4f8;display:flex;flex-direction:column;gap:8px}
+  .catalog-image{width:100%;height:140px;border-radius:8px;object-fit:cover;background:#f3f5f7}
+
+  footer{margin-top:16px;color:var(--muted);font-size:13px}
+
+  /* small helpers */
+  .tag{display:inline-block;padding:6px 8px;border-radius:8px;background:#ecfdf3;color:#065f46;font-weight:700;font-size:13px}
+  .danger{background:#fff6f6;color:#922; padding:6px;border-radius:8px;border:1px solid #f5d6d6}
+  .hidden{display:none}
 </style>
 </head>
 <body>
-  <div class="wrap">
+  <div class="container">
     <header>
       <div>
         <h1>Argento Store</h1>
-        <div class="muted">متجر - توليد روابط / عروض شحن / باكدجات — admin مخفي عبر secret</div>
+        <div class="muted">تسجيل الطلب — صفحة المشتري (Shopify-like)</div>
       </div>
-
-      <div class="controls">
-        <button id="btnFetchCatalog" class="btn">تحميل منتجات الكتالوج</button>
-        <button id="btnOpenPackageBuilder" class="btn secondary">إنشاء / إدارة باكدج (Admin)</button>
-        <button id="btnOpenManage" class="btn secondary">وضع الإدارة</button>
+      <div style="display:flex;gap:8px;align-items:center">
+        <a href="admin.html?secret=argento2024" target="_blank" class="muted small-muted">لوحة الإدارة</a>
+        <button id="btnFetchCatalog" class="btn secondary">استيراد الكتالوج</button>
       </div>
     </header>
 
-    <main style="margin-top:12px" id="mainArea">
-      <!-- عرض الشبكة + جانب القائمة الجانبية للفلترة -->
-      <div class="grid-2">
-        <section>
+    <main class="layout">
+      <!-- Left: Product / Order -->
+      <section>
+        <div id="productArea" class="product-card">
+          <!-- product info injected by JS -->
+        </div>
+
+        <!-- catalog suggestions below -->
+        <div style="margin-top:14px">
           <div style="display:flex;justify-content:space-between;align-items:center">
-            <div class="small-muted">المنتجات</div>
-            <div class="muted" id="catalogInfo"></div>
+            <div><strong>منتجات مقترحة</strong> <div class="small-muted">مرتبة حسب العروض و الأكثر مبيعًا</div></div>
+            <div id="catalogStats" class="small-muted"></div>
+          </div>
+          <div id="catalogGrid" class="catalog-grid" style="margin-top:10px"></div>
+        </div>
+      </section>
+
+      <!-- Right: Order form / summary -->
+      <aside>
+        <div class="summary">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div><strong>سلة سريعة</strong><div class="small-muted">مراجعة الطلب قبل الإرسال</div></div>
+            <div id="cartCount" class="tag">0</div>
           </div>
 
-          <div id="catalogGrid" class="card-grid" style="margin-top:10px"></div>
-        </section>
+          <div id="cartItems" style="margin-top:12px"></div>
 
-        <aside style="position:relative">
-          <div class="card" style="position:sticky;top:18px">
-            <div style="display:flex;justify-content:space-between;align-items:center">
-              <div><strong>سجل الطلب السريع</strong><div class="muted small">الطلبات المحفوظة محلياً</div></div>
-              <div><span class="tag" id="ordersCount">0</span></div>
+          <div style="margin-top:12px">
+            <label>اسم المستلم</label>
+            <input id="customerName" type="text" placeholder="أدخل اسم المستلم" />
+
+            <label style="margin-top:10px">هاتف المستلم</label>
+            <input id="customerPhone" type="tel" placeholder="مثال: 01012345678" />
+
+            <label style="margin-top:10px">المدينة</label>
+            <select id="customerCity"></select>
+
+            <label style="margin-top:10px">المنطقة</label>
+            <select id="customerArea"></select>
+
+            <label style="margin-top:10px">العنوان التفصيلي</label>
+            <textarea id="customerAddress" placeholder="شارع، عمارة، الدور"></textarea>
+
+            <div id="validationMsg" class="small-muted" style="margin-top:8px;color:#922"></div>
+
+            <div style="display:flex;gap:8px;margin-top:12px">
+              <button id="btnSubmitOrder" class="btn" style="flex:1">إرسال الطلب</button>
+              <button id="btnClearCart" class="btn secondary" style="width:120px">تفريغ</button>
             </div>
-
-            <div id="ordersList" style="margin-top:10px"></div>
-
-            <div style="margin-top:10px;display:flex;gap:8px">
-              <button id="btnExport" class="btn secondary">تصدير + أرشفة (CSV)</button>
-              <button id="btnClearOrders" class="btn secondary">مسح</button>
-            </div>
-
-            <hr style="margin:12px 0;border:none;border-top:1px solid #f0f4f8">
-
-            <div>
-              <div class="muted">بحث / فلتر</div>
-              <label>ابحث باسم المنتج</label>
-              <input id="searchBox" placeholder="ابحث هنا..." />
-            </div>
-
-            <div style="margin-top:8px" class="muted small">لوحة الإدارة منفصلة: <a href="admin.html?secret=argento2024" target="_blank">admin</a></div>
           </div>
-        </aside>
-      </div>
+        </div>
+
+        <div style="height:12px"></div>
+
+        <div class="info-box">
+          <div class="small-muted">ملاحظة: سعر الوحدة يتضاعف حسب الكمية. الشحن ثابت حتى الوصول لشروط عرض الشحن الخاص بالمنتج.</div>
+        </div>
+      </aside>
     </main>
 
-    <div class="footer">
-      <div class="muted">ملاحظة: لعرض أدوات الإدارة شغّل الصفحة مع <code>?admin=1&secret=argento2024</code></div>
-    </div>
+    <footer>
+      <div class="muted">الراسل الثابت: Argento — 01055688136 — Sharqia / Zagazig</div>
+    </footer>
   </div>
 
-  <!-- Modal area -->
-  <div id="modalRoot" style="display:none"></div>
-
 <script>
-/* =============================
-   Config & Defaults
-   ============================= */
 
-const DEFAULT_FB_PAGE_ID = '1605226514252142';
-const DEFAULT_FB_ACCESS_TOKEN = "EAAYnZATZAgiVMBQIVlJZBEY4ecqENjmDBA8ZAcTbnUuiv4inhgnxdEuFiXOkbLMe2MI2CW0rtGsTw6bWjTjEDyNGljSmRW7tUpWZBfqn6wMFmT1j2feRxsVmI09bAJIMvn0hSrZATqWghELZAcojocAJ8xzDKRsFhgwE4stnc0cTmUAsn4UZCEmJeh5q5nYVZBAZDZD";
+   Configuration & storage keys
+   ========================= */
+const STORE_KEYS = {
+  CATALOG: 'argento_catalog_v3',
+  ORDERS: 'argento_orders_v3'
+};
 
-// Fixed sender details (كما طلبت)
 const FIXED_SENDER = {
   senderName: 'Argento',
   senderPhone: '01055688136',
@@ -113,360 +153,355 @@ const FIXED_SENDER = {
   senderAddress: 'حي الزهور شارع اولاد جبر'
 };
 
-// Global rule: distinct products threshold -> free shipping (applies only if no product-level override)
-let GLOBAL_FREE_SHIPPING_DISTINCT_PRODUCTS = 3;
+const DEFAULT_FB_PAGE_ID = '1605226514252142';
+const DEFAULT_FB_ACCESS_TOKEN = "EAAYnZATZAgiVMBQIVlJZBEY4ecqENjmDBA8ZAcTbnUuiv4inhgnxdEuFiXOkbLMe2MI2CW0rtGsTw6bWjTjEDyNGljSmRW7tUpWZBfqn6wMFmT1j2feRxsVmI09bAJIMvn0hSrZATqWghELZAcojocAJ8xzDKRsFhgwE4stnc0cTmUAsn4UZCEmJeh5q5nYVZBAZDZD";
 
-// Local storage keys
-const STORE_KEYS = {
-  CATALOG: 'argento_catalog_v3',
-  ORDERS: 'argento_orders_v3'
-};
-
-// Admin detection via URL params (separated dashboard requirement)
-const urlParams = new URLSearchParams(window.location.search);
-const isAdminMode = urlParams.get('admin') === '1' && urlParams.get('secret') === 'argento2024';
-
-/* =============================
-   State
-   ============================= */
-
-let catalog = JSON.parse(localStorage.getItem(STORE_KEYS.CATALOG) || 'null') || []; // each item: {id,title,price,freeShipping,freeShippingMinQty,isPackage,items,discountPct,website}
+/* =========================
+   Data state
+   ========================= */
+let catalog = JSON.parse(localStorage.getItem(STORE_KEYS.CATALOG) || 'null') || [];
 let orders = JSON.parse(localStorage.getItem(STORE_KEYS.ORDERS) || '[]');
+let cart = []; // items to order before confirm (each {productId, title, unitPrice, qty, image})
 
-/* =============================
-   Utilities
-   ============================= */
+/* =========================
+   Example initial catalog if empty (you can import real from FB)
+   ========================= */
+if(!catalog || catalog.length === 0){
+  catalog = [
+    { id:'p_serum', title:'سيروم فيتامين سي', price:120, image:'https://via.placeholder.com/800x600?text=Serum', salesCount:120, freeShipping:false, freeShippingMinQty:null, website:'' },
+    { id:'p_oil', title:'زيت شعر طبيعي', price:160, image:'https://via.placeholder.com/800x600?text=Hair+Oil', salesCount:85, freeShipping:true, freeShippingMinQty:3, website:'' },
+    { id:'p_cleanser', title:'غسول للبشرة', price:95, image:'https://via.placeholder.com/800x600?text=Cleanser', salesCount:200, freeShipping:false, freeShippingMinQty:null, website:'' }
+  ];
+  localStorage.setItem(STORE_KEYS.CATALOG, JSON.stringify(catalog));
+}
 
+/* =========================
+   Utility helpers
+   ========================= */
 function uid(prefix='id'){ return prefix + '_' + Date.now() + '_' + Math.floor(Math.random()*9000); }
 function saveCatalog(){ localStorage.setItem(STORE_KEYS.CATALOG, JSON.stringify(catalog)); }
-function saveOrders(){ localStorage.setItem(STORE_KEYS.ORDERS, JSON.stringify(orders)); renderOrders(); }
+function saveOrders(){ localStorage.setItem(STORE_KEYS.ORDERS, JSON.stringify(orders)); }
+function saveCart(){ /* not persisted intentionally */ renderCart(); }
 function formatMoney(n){ return (Math.round(n*100)/100).toLocaleString('ar-EG') + ' ج'; }
+function findProduct(pid){ return catalog.find(p=>p.id === pid); }
 
-/* =============================
-   Facebook Catalog Fetch (dedupe)
-   ============================= */
+/* =========================
+   Render main product area (when visiting product link or default first product)
+   Behavior: if URL contains product param -> show that product page
+   ========================= */
 
-async function fetchFacebookCatalog(pageId=DEFAULT_FB_PAGE_ID, accessToken=DEFAULT_FB_ACCESS_TOKEN){
-  const rootMsg = document.getElementById('catalogInfo');
-  rootMsg.textContent = 'جاري تحميل بيانات الكتالوج من فيسبوك...';
-  try{
-    const url = `https://graph.facebook.com/v24.0/${encodeURIComponent(pageId)}?fields=id,name,product_count&access_token=${encodeURIComponent(accessToken)}`;
-    const res = await fetch(url);
-    if(!res.ok){ rootMsg.textContent = 'فشل جلب الكتالوج: ' + res.status; return; }
-    const data = await res.json();
-    // نستخدم الاسم والـ product_count لبناء عناصر افتراضية (لأن استدعاء المنتجات التفصيلي يتطلب endpoints إضافية/أذونات)
-    const count = Math.min(25, data.product_count || 6);
-    // create synthetic items but with unique ids based on catalog id and index
-    const newItems = [];
-    for(let i=1;i<=count;i++){
-      const id = `${data.id}_p_${i}`;
-      // skip duplicates
-      if(catalog.some(x=>x.id === id)) continue;
-      newItems.push({
-        id,
-        title: `${data.name || 'Catalog'} - item ${i}`,
-        price: 80 + i*15,
-        freeShipping: false,
-        freeShippingMinQty: null,
-        isPackage: false,
-        items: null,
-        discountPct: 0,
-        website: '' // will be filled with generated link
-      });
-    }
-    // append without duplicates
-    if(newItems.length === 0) rootMsg.textContent = 'لا توجد منتجات جديدة للاستيراد أو جميعها مُضافة سابقاً.';
-    else {
-      catalog = catalog.concat(newItems);
-      saveCatalog();
-      rootMsg.textContent = `تم استيراد ${newItems.length} منتجات من ${data.name || pageId}.`;
-    }
-    renderCatalog();
-  }catch(err){
-    document.getElementById('catalogInfo').textContent = 'خطأ في الاتصال بفايسبوك: ' + err.message;
-  }
+function getURLProductParam(){
+  const params = new URLSearchParams(window.location.search);
+  return params.get('productId') || params.get('product') || null;
 }
 
-/* =============================
-   Render catalog (cards)
-   ============================= */
+function renderProductArea(){
+  const prodParam = getURLProductParam();
+  let product = null;
+  if(prodParam){
+    product = findProduct(prodParam) || catalog.find(c=>encodeURIComponent(c.title) === prodParam) || null;
+  }
+  if(!product) product = catalog[0];
 
-function renderCatalog(filter=''){
-  const grid = document.getElementById('catalogGrid');
-  grid.innerHTML = '';
-  const q = (filter || '').toLowerCase();
-  const items = catalog.filter(p => !q || (p.title || '').toLowerCase().includes(q));
-  items.forEach(p => {
-    const el = document.createElement('div');
-    el.className = 'card';
-    el.innerHTML = `
-      <div style="display:flex;justify-content:space-between;align-items:center">
+  const area = document.getElementById('productArea');
+  area.innerHTML = ''; // build product view
+  const html = document.createElement('div');
+  html.innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;gap:12px;flex-direction:column">
+        <img id="mainImage" class="main-img" src="${product.image || ''}" alt="${escapeHtml(product.title)}" />
+        <div class="thumbs" id="thumbs"></div>
+      </div>
+
+      <div class="product-meta">
         <div>
-          <div class="product-title">${escapeHtml(p.title)}</div>
-          <div class="meta">${p.isPackage ? 'باكدج' : 'منتج'} • ${p.id}</div>
+          <div class="title">${escapeHtml(product.title)}</div>
+          <div class="small-muted">منتج — <span id="productIdBadge">${product.id}</span></div>
         </div>
         <div style="text-align:left">
-          <div style="font-weight:800;font-size:18px">${formatMoney(p.price)}</div>
-          <div class="muted small">${p.freeShipping ? ('شحن مجاني من ' + (p.freeShippingMinQty ? p.freeShippingMinQty + ' قطعة' : 'أي كمية')) : 'شحن عادي'}</div>
+          <div class="price">${formatMoney(product.price)}</div>
+          <div class="muted small-muted">${product.freeShipping ? ('شحن مجاني من ' + (product.freeShippingMinQty ? product.freeShippingMinQty + ' قطعة' : 'أي كمية')) : 'شحن عادي'}</div>
         </div>
       </div>
 
-      <div style="display:flex;gap:8px;align-items:center;margin-top:6px">
-        <button class="btn order-now" data-id="${p.id}">اطلب الآن</button>
-        <button class="btn secondary btn-gen-link" data-id="${p.id}">نسخ رابط الطلب</button>
-        <button class="btn secondary btn-view" data-id="${p.id}">عرض</button>
-      </div>
-
-      <div style="margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-        <div class="small muted">رابط/website:</div>
-        <div class="small">${p.website ? `<a href="${encodeURI(p.website)}" target="_blank">فتح الرابط</a>` : '<span class="muted small">فارغ</span>'}</div>
-      </div>
-
-      ${isAdminMode ? `
-        <hr style="margin:8px 0;border:none;border-top:1px solid #f0f4f8">
-        <div>
-          <div class="small muted">إعداد عرض الشحن للمنتج (Admin)</div>
-          <div class="row" style="margin-top:6px">
-            <label style="width:120px">شحن مجاني؟</label>
-            <select class="free-shipping-select" data-id="${p.id}">
-              <option value="false" ${!p.freeShipping ? 'selected' : ''}>لا</option>
-              <option value="true" ${p.freeShipping ? 'selected' : ''}>نعم</option>
-            </select>
-          </div>
-          <div class="row" style="margin-top:6px">
-            <label style="width:120px">عدد القطع للشحن المجاني</label>
-            <input type="number" min="1" class="free-shipping-min" data-id="${p.id}" value="${p.freeShippingMinQty || ''}" placeholder="مثال: 3 أو اترك فارغ للّانتها">
-          </div>
-          <div style="margin-top:8px;display:flex;gap:8px">
-            <button class="btn secondary btn-save-offer" data-id="${p.id}">حفظ العرض</button>
-            <button class="btn secondary btn-delete-product" data-id="${p.id}">حذف المنتج</button>
-          </div>
+      <div style="display:flex;gap:10px;align-items:center">
+        <div style="display:flex;gap:8px;align-items:center">
+          <label style="margin:0;font-weight:700">الكمية</label>
+          <input id="productQty" type="number" value="1" min="1" style="width:100px;padding:10px;border-radius:10px;border:1px solid #eef2f6" />
         </div>
-      ` : '' }
-    `;
-    grid.appendChild(el);
-  });
-
-  // bind buttons
-  document.querySelectorAll('.order-now').forEach(b => {
-    b.addEventListener('click', () => {
-      const id = b.dataset.id;
-      generateAndOpenOrderLink(id);
-    });
-  });
-  document.querySelectorAll('.btn-gen-link').forEach(b=>{
-    b.addEventListener('click', async ()=>{
-      const id = b.dataset.id;
-      const link = generateOrderLinkForProduct(id);
-      await copyText(link);
-      alert('تم نسخ رابط الطلب للحافظة');
-      // save in catalog website field
-      const item = catalog.find(x=>x.id===id);
-      if(item){ item.website = link; saveCatalog(); renderCatalog(); }
-    });
-  });
-  document.querySelectorAll('.btn-view').forEach(b=>{
-    b.addEventListener('click', ()=>{
-      const id = b.dataset.id;
-      openProductView(id);
-    });
-  });
-
-  if(isAdminMode){
-    document.querySelectorAll('.btn-save-offer').forEach(b=>{
-      b.addEventListener('click', ()=>{
-        const id = b.dataset.id;
-        const fsEl = document.querySelector(`.free-shipping-select[data-id="${id}"]`);
-        const minEl = document.querySelector(`.free-shipping-min[data-id="${id}"]`);
-        const target = catalog.find(x=>x.id===id);
-        if(!target) return alert('لم أجد المنتج');
-        target.freeShipping = fsEl.value === 'true';
-        const v = parseInt(minEl.value); target.freeShippingMinQty = isNaN(v) ? null : v;
-        saveCatalog(); renderCatalog(); alert('تم حفظ إعدادات العرض للمنتج');
-      });
-    });
-    document.querySelectorAll('.btn-delete-product').forEach(b=>{
-      b.addEventListener('click', ()=>{
-        const id = b.dataset.id;
-        if(!confirm('حذف المنتج نهائياً؟')) return;
-        catalog = catalog.filter(x=>x.id !== id);
-        saveCatalog(); renderCatalog();
-      });
-    });
-  }
-}
-
-/* =============================
-   Order link generation & order page flow
-   ============================= */
-
-function findProductById(id){
-  return catalog.find(p=>p.id===id);
-}
-
-function generateOrderLinkForProduct(id){
-  const p = findProductById(id);
-  if(!p) return window.location.href;
-  // product param use title (encoded) and price, plus fixed sender
-  const params = new URLSearchParams();
-  params.set('product', encodeURIComponent(p.title));
-  params.set('price', String(p.price));
-  params.set('sender', FIXED_SENDER.senderCity);
-  params.set('area', FIXED_SENDER.senderArea);
-  params.set('address', FIXED_SENDER.senderAddress);
-  params.set('phone', FIXED_SENDER.senderPhone);
-  params.set('senderName', FIXED_SENDER.senderName);
-  params.set('productId', p.id);
-  return window.location.origin + window.location.pathname + '?' + params.toString();
-}
-
-function generateAndOpenOrderLink(id){
-  const link = generateOrderLinkForProduct(id);
-  // open in same tab to show order page
-  window.location.href = link;
-}
-
-/* =============================
-   Order page detection (when URL has product param) — show order form
-   ============================= */
-
-function isOrderPage(){
-  return !!(new URLSearchParams(window.location.search)).get('product');
-}
-
-function renderOrderPage(){
-  // replace main area with order form
-  const main = document.getElementById('mainArea');
-  const params = new URLSearchParams(window.location.search);
-  const productTitle = decodeURIComponent(params.get('product') || '');
-  const productPrice = parseFloat(params.get('price') || '0') || 0;
-  const productId = params.get('productId') || '';
-  // build form
-  main.innerHTML = `
-    <div style="background:#fff;padding:14px;border-radius:12px;box-shadow:0 8px 30px rgba(10,10,10,0.04)">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div>
-          <h2 style="margin:0">${escapeHtml(productTitle || 'طلب منتج')}</h2>
-          <div class="muted">سعر الوحدة: ${formatMoney(productPrice)}</div>
-        </div>
-        <div>
-          <div class="small muted">الراسل</div>
-          <div><strong>${FIXED_SENDER.senderName}</strong></div>
-          <div class="muted small">${FIXED_SENDER.senderPhone} — ${FIXED_SENDER.senderCity}/${FIXED_SENDER.senderArea}</div>
+        <div style="margin-left:auto;display:flex;gap:8px">
+          <button id="btnAddCart" class="btn secondary">أضف إلى السلة</button>
+          <button id="btnBuyNow" class="btn">اطلب الآن</button>
         </div>
       </div>
 
-      <div style="margin-top:12px;display:grid;grid-template-columns:1fr 220px;gap:12px">
-        <div>
-          <label>اسم المستلم</label>
-          <input id="orderReceiverName" placeholder="اسم المستلم">
-          <label style="margin-top:8px">هاتف المستلم</label>
-          <input id="orderReceiverPhone" placeholder="01012345678">
-          <label style="margin-top:8px">المدينة</label>
-          <select id="orderReceiverCity"></select>
-          <label style="margin-top:8px">المنطقة</label>
-          <select id="orderReceiverArea"></select>
-          <label style="margin-top:8px">العنوان</label>
-          <textarea id="orderReceiverAddress" rows="2" placeholder="العنوان"></textarea>
-        </div>
-
-        <div>
-          <label>الكمية</label>
-          <input id="orderQty" type="number" min="1" value="1">
-          <div style="margin-top:8px" id="orderCalc" class="small muted"></div>
-          <div style="margin-top:12px">
-            <button id="btnPlaceOrder" class="btn" style="width:100%">تأكيد الطلب وارسال</button>
-          </div>
-
-          <div style="margin-top:10px">
-            <div class="muted small">رابط الطلب</div>
-            <input id="orderLinkDisplay" readonly>
-            <div style="margin-top:6px">
-              <button id="btnCopyLink" class="btn secondary">نسخ الرابط</button>
-              <button id="btnShareWA" class="btn secondary">مشاركة واتساب</button>
-            </div>
-          </div>
-        </div>
-      </div>
+      <div class="small-muted">وصف قصير للمنتج (يمكن تعديل الوصف في صفحة الإدارة)</div>
     </div>
   `;
+  area.appendChild(html);
 
-  // populate city/area selects using citiesData (we include full citiesData later)
-  initOrderCityAreaSelects();
-
-  // set initial calculation
-  const qtyEl = document.getElementById('orderQty');
-  function recalc(){
-    const q = parseInt(qtyEl.value) || 1;
-    const product = findProductById(productId) || {price: productPrice, freeShipping:false, freeShippingMinQty:null};
-    const itemsTotal = product.price * q;
-    let shipping = computeShippingForOrder({productId: productId, unitPrice: product.price, quantity: q, receiverCity: document.getElementById('orderReceiverCity').value || '', senderCity: FIXED_SENDER.senderCity});
-    // product-level freeShipping priority
-    if(product.freeShipping && product.freeShippingMinQty && q >= product.freeShippingMinQty) shipping = 0;
-    // If product.freeShipping and no min set => free always
-    if(product.freeShipping && !product.freeShippingMinQty) shipping = 0;
-    document.getElementById('orderCalc').innerHTML = `
-      <div>مجموع المنتجات: <strong>${formatMoney(itemsTotal)}</strong></div>
-      <div>سعر الشحن: <strong>${formatMoney(shipping)}</strong></div>
-      <div style="margin-top:6px">الإجمالي: <strong>${formatMoney(itemsTotal + shipping)}</strong></div>
-    `;
-    // update link display
-    document.getElementById('orderLinkDisplay').value = generateOrderLinkForProduct(productId) + '&qty=' + q;
-  }
-  qtyEl.addEventListener('input', recalc);
-  document.getElementById('orderReceiverCity').addEventListener('change', recalc);
-  document.getElementById('orderReceiverArea').addEventListener('change', recalc);
-
-  // copy link
-  document.getElementById('btnCopyLink').addEventListener('click', async ()=>{
-    const val = document.getElementById('orderLinkDisplay').value;
-    await copyText(val);
-    alert('تم نسخ رابط الطلب');
-  });
-  // share on WA
-  document.getElementById('btnShareWA').addEventListener('click', ()=>{
-    const val = document.getElementById('orderLinkDisplay').value;
-    const msg = encodeURIComponent(`طلب جاهز: ${productTitle}\n${val}`);
-    window.open(`https://wa.me/?text=${msg}`, '_blank');
+  // thumbs (if product.images array exists use it)
+  const thumbs = document.getElementById('thumbs');
+  const mainImg = document.getElementById('mainImage');
+  const images = product.images && product.images.length ? product.images : [product.image];
+  images.forEach(src=>{
+    if(!src) return;
+    const t = document.createElement('img');
+    t.src = src; t.className = 'thumb';
+    t.addEventListener('click', ()=> mainImg.src = src);
+    thumbs.appendChild(t);
   });
 
-  // place order (save to local storage orders list)
-  document.getElementById('btnPlaceOrder').addEventListener('click', ()=>{
-    const receiverName = document.getElementById('orderReceiverName').value || '';
-    const receiverPhone = document.getElementById('orderReceiverPhone').value || '';
-    const rcCity = document.getElementById('orderReceiverCity').value || '';
-    const rcArea = document.getElementById('orderReceiverArea').value || '';
-    const rcAddress = document.getElementById('orderReceiverAddress').value || '';
-    const q = parseInt(document.getElementById('orderQty').value) || 1;
-    const product = findProductById(productId) || {price:productPrice, title:productTitle};
-    let shipping = computeShippingForOrder({productId: productId, unitPrice: product.price, quantity: q, receiverCity: rcCity, senderCity: FIXED_SENDER.senderCity});
-    if(product.freeShipping && product.freeShippingMinQty && q >= product.freeShippingMinQty) shipping = 0;
-    if(product.freeShipping && !product.freeShippingMinQty) shipping = 0;
-    const itemsTotal = product.price * q;
-    const total = itemsTotal + shipping;
-    const order = {
-      id: uid('ORD'),
-      createdAt: new Date().toISOString(),
-      receiverName, receiverPhone, receiverCity: rcCity, receiverArea: rcArea, receiverAddress: rcAddress,
-      productId: productId, productTitle: product.title || productTitle,
-      unitPrice: product.price, quantity: q, shippingCost: shipping, total
-    };
-    orders.push(order);
-    saveOrders();
-    alert('تم حفظ الطلب محلياً. سيظهر في لوحة السجل الجانبية.');
-    // redirect back to catalog without params
-    window.location.href = window.location.origin + window.location.pathname;
+  // bind add to cart
+  document.getElementById('btnAddCart').addEventListener('click', ()=>{
+    const qty = Math.max(1, parseInt(document.getElementById('productQty').value) || 1);
+    addToCart(product.id, qty);
   });
 
-  // initial recalc
-  recalc();
+  // buy now: add and go to order form (scroll to form)
+  document.getElementById('btnBuyNow').addEventListener('click', ()=>{
+    const qty = Math.max(1, parseInt(document.getElementById('productQty').value) || 1);
+    addToCart(product.id, qty);
+    // scroll to order panel
+    document.querySelector('aside').scrollIntoView({behavior:'smooth'});
+  });
 }
 
-/* =============================
-   City/Area data (ترجمات ومناطق كاملة كما أرسلت طلبك) 
-   ============================= */
-/* ---------- citiesData: City -> [Area] ---------- */
-const citiesData = {
+   Catalog grid (suggestions) - sorted by free shipping then salesCount desc
+   ========================= */
+
+function renderCatalogGrid(){
+  const grid = document.getElementById('catalogGrid');
+  grid.innerHTML = '';
+  // sort: freeShipping first, then salesCount desc
+  const sorted = catalog.slice().sort((a,b)=>{
+    if((b.freeShipping?1:0) - (a.freeShipping?1:0) !== 0) return (b.freeShipping?1:0) - (a.freeShipping?1:0);
+    return (b.salesCount || 0) - (a.salesCount || 0);
+  });
+  sorted.forEach(p=>{
+    const card = document.createElement('div'); card.className='catalog-card';
+    card.innerHTML = `
+      <img class="catalog-image" src="${p.image || ''}" alt="${escapeHtml(p.title)}" />
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="flex:1">
+          <div style="font-weight:700">${escapeHtml(p.title)}</div>
+          <div class="small-muted">${p.salesCount || 0} مبيعاً</div>
+        </div>
+        <div style="text-align:left">
+          <div style="font-weight:800;color:var(--accent)">${formatMoney(p.price)}</div>
+          ${p.freeShipping ? '<div class="tag">عرض شحن</div>' : ''}
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="btn secondary btn-select-product" data-id="${p.id}">مشاهدة</button>
+        <button class="btn btn-generate-link" data-id="${p.id}">نسخ رابط</button>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+
+  // bindings
+  grid.querySelectorAll('.btn-select-product').forEach(b=> b.addEventListener('click', e=>{
+    const id = e.currentTarget.dataset.id;
+    const url = window.location.pathname + '?productId=' + encodeURIComponent(id);
+    window.history.pushState({}, '', url);
+    renderProductArea();
+    window.scrollTo({top:0,behavior:'smooth'});
+  }));
+
+  grid.querySelectorAll('.btn-generate-link').forEach(b=>{
+    b.addEventListener('click', async e=>{
+      const id = e.currentTarget.dataset.id;
+      const link = generateOrderLinkForProduct(id);
+      await copyText(link);
+      // save website in catalog entry
+      const item = findProduct(id);
+      if(item){ item.website = link; saveCatalog(); renderCatalogGrid(); }
+      alert('تم نسخ رابط الطلب');
+    });
+  });
+
+  document.getElementById('catalogStats').textContent = `${catalog.length} منتج`;
+}
+
+/* =========================
+   Cart logic & UI (right panel)
+   ========================= */
+function addToCart(productId, qty=1){
+  const p = findProduct(productId);
+  if(!p) return alert('المنتج غير موجود');
+  const existing = cart.find(c=>c.productId === productId);
+  if(existing){ existing.qty += qty; }
+  else { cart.push({ productId, title: p.title, unitPrice: p.price, qty: qty, image: p.image }); }
+  saveCart();
+}
+
+function removeFromCart(productId){
+  cart = cart.filter(c=>c.productId !== productId);
+  saveCart();
+}
+
+function changeQty(productId, newQty){
+  const it = cart.find(c=>c.productId===productId); if(!it) return;
+  it.qty = Math.max(1, newQty); saveCart();
+}
+
+function renderCart(){
+  const el = document.getElementById('cartItems');
+  el.innerHTML = '';
+  if(cart.length === 0){ el.innerHTML = '<div class="small-muted">السلة فارغة</div>'; document.getElementById('cartCount').textContent = '0'; return; }
+  document.getElementById('cartCount').textContent = String(cart.reduce((s,i)=>s+i.qty,0));
+  cart.forEach(item=>{
+    const row = document.createElement('div'); row.style.display='flex'; row.style.gap='8px'; row.style.alignItems='center'; row.style.marginBottom='8px';
+    row.innerHTML = `
+      <img src="${item.image || ''}" alt="" style="width:72px;height:72px;border-radius:8px;object-fit:cover;border:1px solid #eef2f6" />
+      <div style="flex:1">
+        <div style="font-weight:700">${escapeHtml(item.title)}</div>
+        <div class="small-muted">${formatMoney(item.unitPrice)}</div>
+        <div style="margin-top:6px;display:flex;gap:8px;align-items:center">
+          <input type="number" min="1" value="${item.qty}" data-pid="${item.productId}" style="width:84px;padding:8px;border-radius:8px;border:1px solid #eef2f6" />
+          <button class="btn secondary btn-remove" data-id="${item.productId}" style="padding:8px 10px">حذف</button>
+        </div>
+      </div>
+      <div style="text-align:left;font-weight:800">${formatMoney(item.unitPrice * item.qty)}</div>
+    `;
+    el.appendChild(row);
+  });
+
+  // bind qty inputs and remove buttons
+  el.querySelectorAll('input[type="number"]').forEach(inp=>{
+    inp.addEventListener('change', e=>{
+      const pid = e.target.dataset.pid; const v = parseInt(e.target.value) || 1; changeQty(pid, v);
+    });
+  });
+  el.querySelectorAll('.btn-remove').forEach(b=> b.addEventListener('click', e=>{
+    const id = e.currentTarget.dataset.id; removeFromCart(id);
+  }));
+}
+
+/* =========================
+   Validation: Address & Phone
+   - remove symbols from address (allow letters, numbers, space, comma, dot, dash, Arabic letters)
+   - phone must be exactly 11 digits (Egypt)
+   ========================= */
+const addressInput = document.getElementById('customerAddress');
+addressInput.addEventListener('input', ()=>{
+  // allow Arabic letters \u0600-\u06FF, basic Latin letters, numbers, space, comma, dot, hyphen, parentheses
+  const allowed = /[^\u0600-\u06FF\u0750-\u077F\w0-9\s\.,\-\(\)\u0621-\u064A]/g;
+  // remove forbidden characters
+  const val = addressInput.value;
+  const clean = val.replace(allowed, '');
+  if(clean !== val) addressInput.value = clean;
+});
+
+const phoneInput = document.getElementById('customerPhone');
+phoneInput.addEventListener('input', ()=>{
+  // remove non-digits
+  phoneInput.value = phoneInput.value.replace(/\D/g,'').slice(0,11);
+});
+
+   Submit order: validate and save to orders (same key as admin)
+   ========================= */
+document.getElementById('btnSubmitOrder').addEventListener('click', ()=>{
+  // validations
+  const name = document.getElementById('customerName').value.trim();
+  const phone = document.getElementById('customerPhone').value.trim();
+  const city = document.getElementById('customerCity').value;
+  const area = document.getElementById('customerArea').value;
+  const address = document.getElementById('customerAddress').value.trim();
+
+  if(!name){ showValidation('أدخل اسم المستلم'); return; }
+  if(!/^\d{11}$/.test(phone)){ showValidation('رقم الهاتف يجب أن يكون 11 رقم (مثال: 01012345678)'); return; }
+  if(!city){ showValidation('اختر المدينة'); return; }
+  if(!area){ showValidation('اختر المنطقة'); return; }
+  if(!address){ showValidation('أدخل العنوان بالتفصيل'); return; }
+  if(cart.length === 0) { showValidation('السلة فارغة — أضف منتجات'); return; }
+
+  // compute totals: consider product-level freeShipping min qty
+  const orderItems = cart.map(ci=>{
+    const p = findProduct(ci.productId);
+    return {
+      productId: ci.productId,
+      productTitle: p.title,
+      unitPrice: p.price,
+      qty: ci.qty,
+      image: p.image,
+      freeShipping: p.freeShipping || false,
+      freeShippingMinQty: p.freeShippingMinQty || null
+    };
+  });
+
+  // shipping: we treat shipping per order: default computeShipping based on sender+receiver and product offers
+  let shippingPerOrder = 0;
+  // choose highest priority: if any single product triggers its freeShipping by qty -> free shipping for whole order
+  const anyProductFree = orderItems.some(it => it.freeShipping && it.freeShippingMinQty && it.qty >= it.freeShippingMinQty);
+  const anyProductFreeAlways = orderItems.some(it => it.freeShipping && !it.freeShippingMinQty);
+  if(anyProductFreeAlways || anyProductFree){
+    shippingPerOrder = 0;
+  } else {
+    // default: compute shipping by sender city and receiver city using simplified rules
+    shippingPerOrder = calculateShipping(FIXED_SENDER.senderCity, city);
+  }
+
+  const itemsTotal = orderItems.reduce((s,it)=>s + (it.unitPrice * it.qty),0);
+  const total = itemsTotal + shippingPerOrder;
+
+  const newOrder = {
+    id: uid('ORD'),
+    createdAt: new Date().toISOString(),
+    receiverName: name,
+    receiverPhone: phone,
+    receiverCity: city,
+    receiverArea: area,
+    receiverAddress: address,
+    senderName: FIXED_SENDER.senderName,
+    senderPhone: FIXED_SENDER.senderPhone,
+    senderCity: FIXED_SENDER.senderCity,
+    senderArea: FIXED_SENDER.senderArea,
+    items: orderItems,
+    shippingCost: shippingPerOrder,
+    itemsTotal,
+    total
+  };
+
+  orders.push(newOrder);
+  saveOrders();
+  // clear cart and form
+  cart = [];
+  saveCart();
+  document.getElementById('customerName').value=''; document.getElementById('customerPhone').value=''; document.getElementById('customerAddress').value='';
+  document.getElementById('customerCity').selectedIndex = 0; document.getElementById('customerArea').innerHTML = '<option value="">اختر المنطقة</option>';
+  showValidation('', true);
+  alert('تم إرسال الطلب وحفظه بنجاح. سيتم عرضه في لوحة الإدارة.');
+});
+
+/* validation helper */
+function showValidation(msg='', ok=false){
+  const el = document.getElementById('validationMsg');
+  el.textContent = msg;
+  el.style.color = ok ? '#0b6623' : '#922';
+}
+
+   Shipping calculation (simple rules)
+   ========================= */
+function calculateShipping(senderCity, receiverCity){
+  const base = 80;
+  if(!senderCity || !receiverCity) return base;
+  if(senderCity === receiverCity) return 65;
+  if(senderCity === 'Alex' || receiverCity === 'Alex') return 75;
+  const delta = ['Beheira','Gharbia','Dakahlia','Sharqia','Qalyubia','Menoufia','Damietta','Port Said','Ismailia','Suez','Kafr El Sheikh'];
+  if(delta.includes(receiverCity) || delta.includes(senderCity)) return 85;
+  const upper = ['Beni Suef','Fayoum','Minya','Assiut','Sohag','Qena'];
+  if(upper.includes(receiverCity) || upper.includes(senderCity)) return 95;
+  const far = ['Luxor','Aswan','Red Sea','New Valley','South Sinai','North Sinai','Matrouh'];
+  if(far.includes(receiverCity) || far.includes(senderCity)) return 105;
+  return base;
+}
+
+/* =========================
+   City/Area selects initialization (uses your full dataset; here partial for brevity)
+   You asked previously to include full mapping — extend as needed or paste your full citiesData in localStorage
+ const citiesData = {
 "AinShams":["Gamal abd Al naser","Qubaa","Moasst Al zakaah","Al Arbeen we Al khamseen","Al Herafyeen","Masr El Gadida","Heliopolis","El Nozha","El Marg","Ain Shams"],
 "Al-agamy":["Al ameriya","Borg al arab","Qetaa at Tarik as Sahrawi","Port al-Basal","El-Agamy","Ekeingy Maryout","Dekhela","Ad Daerah Al Gomrokeyah"],
 "Alex":["Qism Sidi Gabir","Qism El-Raml","Montaza 2 Qism Montaza","Al Mamurah","Abu Qir"],
@@ -500,8 +535,7 @@ const citiesData = {
 "Sidi Barrani":["Sidi Barrani"],
 "Farafra":["Farafra"],
 "Dakhla":["Dakhla"],
-"Kharga":["Kharga"],
-"Sharm El-Sheikh":["Sharm El-Sheikh"],
+"Kharga":["Kharga"],"Sharm El-Sheikh":["Sharm El-Sheikh"],
 "Abu Radis":["Abu Radis"],
 "Ain Sokhna":["Ain Sokhna"],
 "Faiyum":["youssef Elsdyq","Wadi El-Rayyan","Tamiyyah","Sinnuris","Kufur an Nil","Itsa","Ibsheway","Faiyum center","Al Faiyum Al Gadida"],
@@ -534,466 +568,112 @@ const citiesData = {
 "Qena":["Qus","Qift","Qena","New Qena","Naqada","Nagaa Hammadi","Dishna","Al Waqf"],
 "Sharqia":["Zagazig","Minya El Qamh","Mashtol Al Souq","Hihya","El Qurein","El Qanayat","El Ibrahimiya","Diyarb Negm","Bilbeis","Abu Hammad"],
 "Shorouk":["Madinaty","Future City (AL Mostakbal)","Badr City","Al Shorouk"],
-"Shoubara El Khima":["Umm Bayoumi","Musturad  2","Musturad  1","Mit NEMA","El-Wehda","Basus","Bahtem","Asfour Crystal","Ahmed Oraby","Mantay","Abo El Gheet","Balaqs"],
+"Shoubara El Khima":["Umm Bayoumi","Musturad  2","Musturad  1","Mit NEMA","El-Wehda","Basus","Bahtem","Asfour Crystal","Ahmed Oraby","Mantay","Abo El Gheet","Balaqs"],
 "Sohag":["Tima","Tahta","Sohag","Shandawil","Saqultah","New Sohag","New Akhmim","Juhaynah West","Geheinah","El Kawtar","Aserat","Al Minshah","Al Maraghah","Akhmim"],
 "Suez":["Faisal","Suez","Port Taofik","Ganayen","Attaka","Arbaeen"],
 "Tanash":["Manshyt Elqanater","Imbaba","Bashtel","Awsim","Al Warak"],
 "Tanta":["Zefta","Tanta","Qutur","Kafr El Zayat","El Santa","Basyoun"],
 "Zayton":["Hadaiq Al Zayton","Halmya Al Zyton","El Weili","El Amireya","Hadaiq El Qobbah","Ezbat Elnahkl","EL Zayton","Almatarya","Al Khusus","Ain Shams Sharkia","Ain Shams Gharbia"],
 "10th of Ramadan City":["10th of Ramadan City","Neighborhoods 1 to 17","Neighborhoods 18 to 34","Neighborhoods 35 to 50","Neighborhoods 51 to 66","Neighborhoods 67 to 99","district 11","district 12","Andalus district","district 10","district 13","district 14","district 15","district 16","First Industrial Zone","Second Industrial Zone","Third Industrial Zone","district 28","district 29","district 30","district 31","district 32","district 33","Al-Shahabi Area","Sanyia Misr Al-Nour","Sanyia Misr Al-Hijaz","Al-Urduniya","Sidnawi"]
-};
-  
-
-/* ---------- translations (اختياري للعرض) ---------- */
-const translations = {
-  /* --- Cities --- */
-  "AinShams": "عين شمس",
-  "Al-agamy": "العامرية / الإجمّعي",
-  "Alex": "الإسكندرية",
-  "Aswan": "أسوان",
-  "Asyut": "أسيوط",
-  "Badrashin": "بدرشين",
-  "Abu Tesht": "أبو تيط",
-  "Farshut": "فرشوط",
-  "Dar El-Salam": "دار السلام",
-  "Al Balena": "البلينا",
-  "Gerga": "جرجا",
-  "Banha": "بنها",
-  "Behira": "البحيرة",
-  "BeniSuef": "بني سويف",
-  "Helwan": "حلوان",
-  "Damietta": "دمياط",
-  "Dekernes": "دكرنس",
-  "Desouk": "دسوق",
-  "Dokki": "الدقي",
-  "Downtown": "وسط البلد",
-  "Abu Sinbil": "أبو سنبل",
-  "Administrative Capital": "العاصمة الإدارية",
-  "New Heliopolis City": "مدينة هليوبوليس الجديدة",
-  "Cairo Governorate Desert": "صحراء محافظة القاهرة",
-  "Zaafarana": "الزعفرانة",
-  "Shalateen": "شلاتين",
-  "Marsa Alam": "مرسى علم",
-  "Halaib": "حلايب",
-  "Sallum": "السلوم",
-  "Siwa Oasis": "واحة سيوة",
-  "Sidi Barrani": "سيدي براني",
-  "Farafra": "الفرافرة",
-  "Dakhla": "الداخلة",
-  "Kharga": "الخارجة",
-  "Sharm El-Sheikh": "شرم الشيخ",
-  "Abu Radis": "أبو رديس",
-  "Ain Sokhna": "العين السخنة",
-  "Faiyum": "الفيوم",
-  "Faqus": "فاقوس",
-  "Fardos": "فاردوس / الفردوس",
-  "Hadayk Ahram": "حدائق الأهرام",
-  "Haram": "الهرم",
-  "Hurghada": "الغردقة",
-  "Ismailia": "الإسماعيلية",
-  "Kafr El-Sheikh": "كفر الشيخ",
-  "Khanka": "الخانكة",
-  "Luxor": "الأقصر",
-  "Maadi": "المعادي",
-  "Mahala": "المحلة الكبرى",
-  "Mansoura": "المنصورة",
-  "Matamir": "المطّامير",
-  "Dayrout": "ديروط",
-  "Al Qusiyyah": "القوصية",
-  "Malawi": "ملوي",
-  "Dayr Mawas": "دير مواس",
-  "Menya": "المنيا",
-  "Monufia": "المنوفية",
-  "Nasr City": "مدينة نصر",
-  "New Cairo": "القاهرة الجديدة",
-  "Matrouh": "مطروح",
-  "North Coast": "الساحل الشمالي",
-  "Oct6th": "مدينة 6 أكتوبر",
-  "Port said": "بورسعيد",
-  "Qena": "قنا",
-  "Sharqia": "الشرقية",
-  "Shorouk": "الشروق",
-  "Shoubara El Khima": "شبرا الخيمة",
-  "Sohag": "سوهاج",
-  "Suez": "السويس",
-  "Tanash": "طنطاش / طناش",
-  "Tanta": "طنطا",
-  "Zayton": "الزيتون",
-  "10th of Ramadan City": "مدينة العاشر من رمضان",
-
-  /* --- Areas / neighbourhoods (الترجمة تحاول مطابقة النص حرفياً أو صوتياً) */
-  "Gamal abd Al naser": "جمال عبد الناصر",
-  "Qubaa": "القُبّاعـة / قُبَّة",
-  "Moasst Al zakaah": "مؤسسة الزكاة",
-  "Al Arbeen we Al khamseen": "الربعين والخمسين",
-  "Al Herafyeen": "الحرافيين",
-  "Masr El Gadida": "مصر الجديدة",
-  "Heliopolis": "هيليوبوليس / مصر الجديدة",
-  "El Nozha": "النزهة",
-  "El Marg": "المرج",
-  "Ain Shams": "عين شمس",
-  "Al ameriya": "العامرية",
-  "Borg al arab": "برج العرب",
-  "Qetaa at Tarik as Sahrawi": "قطعة طريق الصحرواي",
-  "Port al-Basal": "بورسعيد الباسل؟ (Port al-Basal)",
-  "El-Agamy": "العجمي",
-  "Ekeingy Maryout": "إكزنجى مريوط (تأويل)",
-  "Dekhela": "الدخيلة",
-  "Ad Daerah Al Gomrokeyah": "المنطقة الجمركية",
-  "Qism Sidi Gabir": "قسم سيدي جابر",
-  "Qism El-Raml": "قسم الرمل",
-  "Montaza 2 Qism Montaza": "المنتزه 2 - قسم المنتزه",
-  "Al Mamurah": "العامرية/المعمورة",
-  "Abu Qir": "أبو قير",
-  "New Tushka": "طُشْكى الجديدة",
-  "New Aswan": "أسوان الجديدة",
-  "Nasser City": "مدينة ناصر",
-  "Madinet Nasr an Nobah": "مدينة نصر النوبة",
-  "Kom Umbu": "كوم أمبو",
-  "Edfu": "إدفو",
-  "Draw": "دراو",
-  "Aswan Second": "أسوان الثانية",
-  "Aswan city": "مدينة أسوان",
-  "Al Gaafrah": "الجعفره",
-  "Sodfa": "صدفا",
-  "Sahel Selim": "ساحل سليم",
-  "New Asyut": "أسيوط الجديدة",
-  "Manfalut": "منفلوط",
-  "El-Ghanayem": "الغانيم",
-  "EL Fateh": "الفتح",
-  "Asyut Sharq": "أسيوط شرق",
-  "Asyut gharb": "أسيوط غرب",
-  "Al Maabdah": "المعبدة",
-  "Al Badari": "البداري",
-  "Abu Tij": "أبو تيج",
-  "Abnub": "أبنوب",
-  "Manil Shihah": "منيل شيحة",
-  "before Ayat": "قبل آيات",
-  "Badrashin Village": "قرية بدرشين",
-  "Ayat": "آيات",
-  "Al-Hawamidiyya": "الهوامدية",
-  "After Ayat": "بعد آيات",
-  "Abu AL Numros": "أبو النمرس",
-  "Mazghona": "مزغونة",
-  "Tukh": "طوخ",
-  "Shibin El Qanater": "شبين القناطر",
-  "Qalyub": "قليوب",
-  "Kafr Shukr": "كفر شكر",
-  "El Qanater El Khayreya": "القناطر الخيرية",
-  "Banha": "بنها",
-  "Shubrakhit": "شبرخيت",
-  "Rasheed": "راشيد (رشيد)",
-  "Mahmoudiyah": "المحمودية",
-  "Kom Hamada": "كوم حمادة",
-  "Kafr El Dawwar": "كفر الدوار",
-  "Itay Al Barud": "إيتاي البارود",
-  "Edku": "إدكو",
-  "Damanhour": "دمنهور",
-  "Badr": "بدر",
-  "Al Delengat": "الدلنجات",
-  "Abu Hummus": "أبو هُمّص",
-  "Sumusta": "سمسطا",
-  "Salah Salem": "صلاح سالم",
-  "New Beni Suef": "بني سويف الجديدة",
-  "Nasser": "ناصر",
-  "Ihnasiya": "الإهنِسية / إهناسيا",
-  "ELFAYOM ROAD": "طريق الفيوم",
-  "ELFASHN": "الفسْن",
-  "Biba": "ببا",
-  "Aziz Moqbel": "عزيز مقبل",
-  "Abd El-Salam Aref": "عبد السلام عارف",
-  "Atfeh": "أطفيح",
-  "Ras El Bar": "رأس البر",
-  "New Damietta": "دمياط الجديدة",
-  "Kafr Saad": "كفر سعد",
-  "Kafr El Battikh": "كفر البطيخ",
-  "Faraskur": "فارسكور",
-  "Damietta Port": "ميناء دمياط",
-  "Damietta": "دمياط",
-  "Shirbin": "شربين",
-  "Mit Salsil": "ميت سلسيل",
-  "Menyet El Nasr": "منية النصر",
-  "Mahallat Damanah": "محلة دمنه",
-  "El Matareya": "المطرية",
-  "El Manzala": "المنزلة",
-  "El Kurdi": "الكرُدي",
-  "El Gamaliya": "الجميلية",
-  "Dikirnis": "دكرنس",
-  "Bani Ebeid": "بني عبيد",
-  "Rahmaniya": "الرحمانية",
-  "Sidi Salem": "سيدي سالم",
-  "Qallin": "قلين",
-  "Metoubes": "مطوبس",
-  "Fuwwah": "فوة",
-  "Dokki": "الدقي",
-  "Zamalek": "الزمالك",
-  "Saftawy": "الصفاتوي",
-  "Mohandisen": "المهندسين",
-  "Manial": "المنيل",
-  "Kit Kat": "كيت كات",
-  "Elmotamedeya St.": "شارع المتعدية",
-  "Bragel": "براغيل",
-  "Bolak Al Dakrour": "بولاق الدكرور",
-  "Ard Elwa": "أرض اللواء",
-  "Al Agouzah": "الجزوزة / العجوزة",
-  "Ameer city": "أمير سيتي",
-  "Nahia El Bald": "ناحية البلد",
-  "Kafr Hakem": "كفر حكيم",
-  "Ezbet el saayda": "عزبة السعيدة",
-  "Shubra Masr": "شبرا مصر",
-  "Rod El Farag": "روض الفرج",
-  "Ramses": "رمسيس",
-  "Qasr El Nil": "قصر النيل",
-  "Garden City": "جاردن سيتي",
-  "Elsahel": "الساحل",
-  "El-Abaseya": "العباسية",
-  "El Zawya El Hamra": "الزاوية الحمراء",
-  "El Sharabiya": "الشرابية",
-  "El Sayeda Zeinab": "السيدة زينب",
-  "El Obra": "العبور",
-  "El Daher": "الظاهر",
-  "Bab El Sharia": "باب الشعرية",
-  "Ataba": "العتبة",
-  "Al Fagalah": "الفجالة",
-  "Al Azbakeya": "الأزبكية",
-  "Abo El Ela": "أبو العلا",
-  "Abdeen": "عبدهين / عبدين (Abdeen)",
-  "Elgamalya": "الجمالية",
-  "Eldrasa": "الدرّاسة",
-  "Ghamra": "الغمرّة",
-  "Bab El loq": "باب اللوق"
-};
-
-/* =============================
-   init order city/area selects
-   ============================= */
-
-function initOrderCityAreaSelects(){
-  const citySel = document.getElementById('orderReceiverCity');
-  const areaSel = document.getElementById('orderReceiverArea');
+}
+function initCityAreaSelects(){
+  const citySel = document.getElementById('customerCity');
+  const areaSel = document.getElementById('customerArea');
   citySel.innerHTML = '<option value="">اختر المدينة</option>';
   Object.keys(citiesData).forEach(city=>{
-    const opt = document.createElement('option');
-    opt.value = city; opt.textContent = translations[city] || city;
-    citySel.appendChild(opt);
+    const opt = document.createElement('option'); opt.value = city; opt.textContent = city; citySel.appendChild(opt);
   });
   citySel.addEventListener('change', ()=>{
-    areaSel.innerHTML = '<option value="">اختر المنطقة</option>';
     const c = citySel.value;
-    if(c && citiesData[c]) citiesData[c].forEach(a=>{ const o=document.createElement('option'); o.value=a; o.textContent = translations[a] || a; areaSel.appendChild(o); });
+    areaSel.innerHTML = '<option value="">اختر المنطقة</option>';
+    if(c && citiesData[c]) citiesData[c].forEach(a=>{
+      const o = document.createElement('option'); o.value = a; o.textContent = a; areaSel.appendChild(o);
+    });
   });
 }
 
-/* =============================
-   Shipping calculation logic (simple rules as before)
-   ============================= */
-
-function calculateShipping(senderCity, receiverCity){
-  // simplified rules based on earlier spec
-  const base = 80;
-  if(!senderCity || !receiverCity) return base;
-  if(senderCity === receiverCity) return 65;
-  if(senderCity === 'Alex' || receiverCity === 'Alex') return 75;
-  const delta = ['Beheira','Gharbia','Dakahlia','Sharqia','Qalyubia','Menoufia','Damietta','Port Said','Ismailia','Suez','Kafr El Sheikh'];
-  if(delta.includes(receiverCity) || delta.includes(senderCity)) return 85;
-  const upper = ['Beni Suef','Fayoum','Minya','Assiut','Sohag','Qena'];
-  if(upper.includes(receiverCity) || upper.includes(senderCity)) return 95;
-  const far = ['Luxor','Aswan','Red Sea','New Valley','South Sinai','North Sinai','Matrouh'];
-  if(far.includes(receiverCity) || far.includes(senderCity)) return 105;
-  return base;
-}
-
-function computeShippingForOrder(order){
-  // order: {productId, unitPrice, quantity, receiverCity, senderCity}
-  const product = catalog.find(p=>p.id===order.productId) || null;
-  // product-level override
-  if(product && product.freeShipping){
-    if(product.freeShippingMinQty && order.quantity >= product.freeShippingMinQty) return 0;
-    if(!product.freeShippingMinQty) return 0;
+   Fetch Facebook catalog (dedupe) - minimal
+   - Will create synthetic items based on product_count (see note)
+   ========================= */
+async function fetchFacebookCatalog(pageId=DEFAULT_FB_PAGE_ID, accessToken=DEFAULT_FB_ACCESS_TOKEN){
+  const info = document.getElementById('btnFetchCatalog');
+  info.disabled = true; info.textContent = 'جاري التحميل...';
+  try{
+    const url = `https://graph.facebook.com/v24.0/${encodeURIComponent(pageId)}?fields=id,name,product_count&access_token=${encodeURIComponent(accessToken)}`;
+    const res = await fetch(url);
+    if(!res.ok){ alert('فشل جلب الكتالوج: ' + res.status); info.disabled=false; info.textContent='استيراد الكتالوج'; return; }
+    const json = await res.json();
+    const count = Math.min(20, json.product_count || 6);
+    const newItems=[];
+    for(let i=1;i<=count;i++){
+      const id = `${json.id}_p_${i}`;
+      if(catalog.some(x=>x.id === id)) continue;
+      newItems.push({
+        id,
+        title: `${json.name || 'Catalog'} - item ${i}`,
+        price: 80 + i*20,
+        image: `https://via.placeholder.com/800x600?text=${encodeURIComponent(json.name+'-'+i)}`,
+        salesCount: Math.floor(Math.random()*300),
+        freeShipping: (i%4===0),
+        freeShippingMinQty: (i%4===0?3:null),
+        website: ''
+      });
+    }
+    if(newItems.length === 0) alert('لا توجد منتجات جديدة للاستيراد أو أنها مُضافة من قبل.');
+    catalog = catalog.concat(newItems);
+    saveCatalog();
+    renderCatalogGrid();
+    renderProductArea(); // re-render in case first product was replaced
+    alert('تم استيراد المنتجات.');
+  }catch(err){
+    alert('خطأ في استيراد الكتالوج: ' + err.message);
+  } finally {
+    info.disabled = false; info.textContent = 'استيراد الكتالوج';
   }
-  // distinct products in orders + this
-  const distinct = new Set(orders.map(o=>o.productId)); distinct.add(order.productId);
-  if(distinct.size >= GLOBAL_FREE_SHIPPING_DISTINCT_PRODUCTS) return 0;
-  // default calc
-  return calculateShipping(order.senderCity || FIXED_SENDER.senderCity, order.receiverCity || '');
 }
 
-/* =============================
-   Orders UI (sidebar)
-   ============================= */
-
-function renderOrders(){
-  const list = document.getElementById('ordersList');
-  list.innerHTML = '';
-  document.getElementById('ordersCount').textContent = orders.length;
-  if(orders.length === 0){ list.innerHTML = '<div class="muted small">لا توجد طلبات محفوظة</div>'; return; }
-  orders.slice().reverse().forEach(o=>{
-    const el = document.createElement('div'); el.style.padding='8px'; el.style.borderBottom='1px solid #f3f6f9';
-    el.innerHTML = `<div style="display:flex;justify-content:space-between"><div><strong>${escapeHtml(o.productTitle)}</strong><div class="muted small">${o.receiverName} • ${o.receiverPhone}</div></div><div style="text-align:left">${formatMoney(o.total)}</div></div>`;
-    list.appendChild(el);
-  });
+/* =========================
+   Generate order link for product (used for copying/website column)
+   ========================= */
+function generateOrderLinkForProduct(productId){
+  const p = findProduct(productId);
+  if(!p) return window.location.href;
+  const params = new URLSearchParams();
+  params.set('productId', p.id);
+  params.set('price', String(p.price));
+  params.set('sender', FIXED_SENDER.senderCity);
+  params.set('area', FIXED_SENDER.senderArea);
+  params.set('address', FIXED_SENDER.senderAddress);
+  params.set('phone', FIXED_SENDER.senderPhone);
+  params.set('senderName', FIXED_SENDER.senderName);
+  return window.location.origin + window.location.pathname + '?' + params.toString();
 }
 
-/* =============================
-   Export / archive orders
-   ============================= */
-
-function exportAndArchive(){
-  if(orders.length === 0) return alert('لا توجد طلبات للتصدير');
-  const header = ['id','createdAt','receiverName','receiverPhone','receiverCity','receiverArea','productId','productTitle','quantity','unitPrice','shippingCost','total'];
-  const rows = [header.join(',')];
-  orders.forEach(o=>{
-    rows.push([o.id,o.createdAt,`"${(o.receiverName||'').replace(/"/g,'""')}`,o.receiverPhone,o.receiverCity,o.receiverArea,`"${o.productId}"`,`"${(o.productTitle||'').replace(/"/g,'""')}`,o.quantity,o.unitPrice,o.shippingCost,o.total].join(','));
-  });
-  const csv = rows.join('\n'); const blob = new Blob([csv],{type:'text/csv'}); const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href = url; a.download = 'argento_orders_' + Date.now() + '.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
-  // archive -> here we simply clear orders after saving to localStorage archive key
-  const archived = JSON.parse(localStorage.getItem('argento_archived_v3') || '[]');
-  localStorage.setItem('argento_archived_v3', JSON.stringify(archived.concat(orders.map(o=>({...o, archivedAt: new Date().toISOString()})))));
-  orders = [];
-  saveOrders();
-  alert('تم التصدير والأرشفة وتنظيف القائمة الحالية.');
-}
-
-/* =============================
-   Admin: Package Builder (modal)
-   ============================= */
-
-function openPackageBuilder(){
-  if(!isAdminMode) return alert('خاصية الإدارة تحتاج admin=1&secret=argento2024');
-  const modal = document.getElementById('modalRoot'); modal.style.display='block'; modal.innerHTML = `
-    <div class="modal" id="pkgModal">
-      <div class="panel">
-        <h3>Package Builder</h3>
-        <div class="muted small">اختر المنتجات ثم اضف اسم باكدج وخيارات الخصم أو شحن مجاني</div>
-        <div style="margin-top:10px">
-          <label>اسم الباكدج</label>
-          <input id="pkgTitle">
-          <label style="margin-top:8px">وصف (اختياري)</label>
-          <textarea id="pkgDesc" rows="2"></textarea>
-          <label style="margin-top:8px">اختر المنتجات</label>
-          <div id="pkgProducts" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;max-height:300px;overflow:auto;border:1px solid #eef2f7;padding:8px;border-radius:8px"></div>
-          <div style="display:flex;gap:8px;margin-top:8px">
-            <label style="width:140px">نوع العرض</label>
-            <select id="pkgOfferType">
-              <option value="freeShipping">شحن مجاني للباكدج</option>
-              <option value="discount">خصم نسبة على الباكدج</option>
-              <option value="none">لا عروض - سعر تجميعي</option>
-            </select>
-            <input id="pkgDiscount" placeholder="نسبة الخصم (مثال: 15)" style="width:120px" />
-          </div>
-          <div style="margin-top:10px;display:flex;gap:8px">
-            <button id="btnSavePackage" class="btn">حفظ الباكدج</button>
-            <button id="btnClosePkg" class="btn secondary">إغلاق</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  `;
-  // fill product checklist
-const container = document.getElementById('pkgProducts');
-  container.innerHTML = '';
-  catalog.forEach(p=>{
-    if(p.isPackage) return; // don't include packages inside packages (optional)
-    const item = document.createElement('div'); item.style.border='1px solid #f0f4f8'; item.style.padding='8px'; item.style.borderRadius='8px';
-    item.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center"><div><strong>${escapeHtml(p.title)}</strong><div class="muted small">${formatMoney(p.price)}</div></div><div><input type="checkbox" data-id="${p.id}"></div></div>`;
-    container.appendChild(item);
-  });
-
-  document.getElementById('btnClosePkg').addEventListener('click', ()=>{ modal.style.display='none'; modal.innerHTML=''; });
-  document.getElementById('btnSavePackage').addEventListener('click', ()=>{
-    const title = document.getElementById('pkgTitle').value || 'Package ' + new Date().toLocaleString();
-    const desc = document.getElementById('pkgDesc').value || '';
-    const offerType = document.getElementById('pkgOfferType').value;
-    const discount = parseFloat(document.getElementById('pkgDiscount').value) || 0;
-    const checked = Array.from(container.querySelectorAll('input[type="checkbox"]:checked')).map(c => c.dataset.id);
-    if(checked.length === 0) return alert('اختر منتجات على الأقل');
-    // compute price sum
-    const items = checked.map(id => findProductById(id)).filter(Boolean);
-    const sum = items.reduce((s,i)=>s + (i.price||0),0);
-    let pkgPrice = sum;
-    let freeShipping = false;
-    let freeShippingMinQty = null;
-    if(offerType === 'discount'){ pkgPrice = Math.round(sum * (1 - (discount/100))); }
-    if(offerType === 'freeShipping'){ freeShipping = true; freeShippingMinQty = null; }
-    const pkg = {
-      id: uid('pkg'),
-      title,
-      price: pkgPrice,
-      freeShipping,
-      freeShippingMinQty,
-      isPackage: true,
-      items: checked.slice(),
-      discountPct: offerType === 'discount' ? discount : 0,
-      website: ''
-    };
-    catalog.push(pkg); saveCatalog(); renderCatalog();
-    alert('تم إنشاء الباكدج');
-    modal.style.display='none'; modal.innerHTML='';
-  });
-}
-
-/* =============================
-   Small helpers
-   ============================= */
-
-function escapeHtml(s){ if(!s) return ''; return String(s).replace(/[&<>"']/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[c]); }
-async function copyText(t){ try{ await navigator.clipboard.writeText(t); return true; }catch(e){ const ta=document.createElement('textarea'); ta.value=t; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); return true; } }
-
-/* =============================
-   UI events binding
-   ============================= */
-
-document.getElementById('btnFetchCatalog').addEventListener('click', ()=> fetchFacebookCatalog());
-document.getElementById('btnOpenPackageBuilder').addEventListener('click', openPackageBuilder);
-document.getElementById('btnOpenManage').addEventListener('click', ()=> {
-  if(isAdminMode) { alert('أنت في وضع الإدارة بالفعل'); return; }
-  // redirect to admin mode (same page with admin params) to keep dashboard separate
-  window.location.href = window.location.pathname + '?admin=1&secret=argento2024';
-});
-
-document.getElementById('btnExport').addEventListener('click', ()=> {
-  if(!confirm('تصدير و أرشفة كل الطلبات؟')) return; exportAndArchive();
-});
-document.getElementById('btnClearOrders').addEventListener('click', ()=> { if(confirm('مسح كل الطلبات؟')){ orders=[]; saveOrders(); } });
-
-document.getElementById('searchBox').addEventListener('input', (e)=> { renderCatalog(e.target.value); });
-
-/* =============================
-   Initial bootstrap & route
-   ============================= */
-
+/* =========================
+   Init boot
+   ========================= */
 function boot(){
-  // if order page route -> render order page
-  if(isOrderPage()){
-    renderOrderPage(); return;
-  }
-  // else render catalog
-  renderCatalog();
-  renderOrders();
-  // pre-warm: if empty catalog, fetch FB catalog automatically
-  if(catalog.length === 0) fetchFacebookCatalog();
+  renderCatalogGrid();
+  renderProductArea();
+  renderCart();
+  initCityAreaSelects();
 }
 boot();
 
-/* =============================
-   expose some functions for console/admin
-   ============================= */
+/* =========================
+   Expose utilities for console/admin quick edits
+   ========================= */
 window.catalog = catalog;
 window.saveCatalog = saveCatalog;
-window.addProduct = function(p){ catalog.push(p); saveCatalog(); renderCatalog(); };
-window.exportAndArchive = exportAndArchive;
+window.addToCatalog = function(p){ catalog.push(p); saveCatalog(); renderCatalogGrid(); };
+window.orders = orders;
+window.generateOrderLinkForProduct = generateOrderLinkForProduct;
 
-/* =============================
-   Helper: detect order page
-   ============================= */
-function isOrderPage(){
-  return !!(new URLSearchParams(window.location.search).get('product'));
-}
-
-/* =============================
-   End of script
-   ============================= */
+/* =========================
+   small helper functions
+   ========================= */
+function escapeHtml(s){ if(!s) return ''; return String(s).replace(/[&<>"']/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[c]); }
+async function copyText(t){ try{ await navigator.clipboard.writeText(t); return true; }catch(e){ const ta=document.createElement('textarea'); ta.value=t; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); return true; } }
 
 </script>
 </body>
