@@ -1,0 +1,91 @@
+name: Fetch Facebook Catalogs
+
+on:
+  workflow_dispatch: {}        # استدعاء يدوي من Actions tab
+  schedule:
+    - cron: '0 2 * * *'        # تشغيل يومي عند 02:00 UTC (عدله حسب رغبتك)
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Set up jq (JSON cli)
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Fetch SUDII catalog
+        id: sudi
+        env:
+          FB_TOKEN: ${{ secrets.FBACCSESSTOKEN }}
+          CATALOG_ID: ${{ secrets.SUDIID }}
+        run: |
+          echo "Fetching catalog $CATALOG_ID ..."
+          url="https://graph.facebook.com/v24.0/$CATALOG_ID/products?limit=500&access_token=$FB_TOKEN"
+          http_status=$(curl -s -o response_sudi.json -w "%{http_code}" "$url")
+          echo "http_status=$http_status" >> $GITHUB_OUTPUT
+          if [ "$http_status" != "200" ]; then
+            echo "ERROR fetching SUDIID - status $http_status"
+            cat response_sudi.json || true
+            exit 1
+          fi
+          cat response_sudi.json | jq '.data' > sudi_products.json
+          echo "sudi_products_count=$(jq 'length' sudi_products.json)" >> $GITHUB_OUTPUT
+
+      - name: Fetch UNILEVER catalog
+        id: uni
+        env:
+          FB_TOKEN: ${{ secrets.FBACCSESSTOKEN }}
+          CATALOG_ID: ${{ secrets.UNILEVERID }}
+        run: |
+          echo "Fetching catalog $CATALOG_ID ..."
+          url="https://graph.facebook.com/v24.0/$CATALOG_ID/products?limit=500&access_token=$FB_TOKEN"
+          http_status=$(curl -s -o response_uni.json -w "%{http_code}" "$url")
+          echo "http_status=$http_status" >> $GITHUB_OUTPUT
+          if [ "$http_status" != "200" ]; then
+            echo "ERROR fetching UNILEVERID - status $http_status"
+            cat response_uni.json || true
+            exit 1
+          fi
+          cat response_uni.json | jq '.data' > uni_products.json
+          echo "uni_products_count=$(jq 'length' uni_products.json)" >> $GITHUB_OUTPUT
+
+      - name: Merge products and normalize
+        run: |
+          # Normalize minimal fields: id, name, price, image (attempt), product_link (if exists)
+          jq -s '[.[0] // [], .[1] // []] | add | map(
+            {
+              id: (.id // (if .retailer_id then ("fb-"+.retailer_id) else (.id // (("p_"+(now|tostring)))) end)),
+              title: (.name // ""),
+              price: ( (.price_amount // .retailer_price // .price) // 0 ) | tonumber,
+              currency: (.price_currency // "EGP"),
+              image: ( (.image_urls[0] // .image_url // .image // .thumbnail_url) // ""),
+              raw: .
+            }
+          )' sudi_products.json uni_products.json > catalog_merged.json || (echo "merge failed" && exit 1)
+
+          # optional: remove duplicates by title (case-insensitive)
+          jq 'reduce .[] as $item ({}; .[( ($item.title|ascii_downcase) )] = $item) | to_entries | map(.value)' catalog_merged.json > catalog_dedup.json || exit 1
+
+          # write final catalog file used by the site
+          jq '.' catalog_dedup.json > catalog.json
+          ls -l catalog.json
+          echo "Final products: $(jq 'length' catalog.json)"
+
+      - name: Commit & push updated catalog.json
+        env:
+          GIT_AUTHOR_NAME: "github-actions[bot]"
+          GIT_AUTHOR_EMAIL: "41898282+github-actions[bot]@users.noreply.github.com"
+        run: |
+          git config user.name "$GIT_AUTHOR_NAME"
+          git config user.email "$GIT_AUTHOR_EMAIL"
+          git add catalog.json || true
+          if git diff --staged --quiet; then
+            echo "No changes to catalog.json"
+          else
+            git commit -m "Update catalog.json from Facebook catalogs (auto)" || true
+            git push origin HEAD
+          fi
