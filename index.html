@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -120,7 +119,8 @@
         </div>
       </aside>
     </main>
-      <footer>
+
+    <footer>
       <div class="muted">روابط الطلبات تُولَّد أوتوماتيكياً ويمكن نسخها من زر في كل بطاقة منتج — لوحة الإدارة منفصلة.</div>
     </footer>
   </div>
@@ -143,7 +143,7 @@ const FIXED_SENDER = {
 };
 
 /* =========================
-   Full citiesData (مُدرج كما طلبت) 
+   Full citiesData (منكَّة داخل الملف) 
    ========================= */
 const citiesData = {
 "AinShams":["Gamal abd Al naser","Qubaa","Moasst Al zakaah","Al Arbeen we Al khamseen","Al Herafyeen","Masr El Gadida","Heliopolis","El Nozha","El Marg","Ain Shams"],
@@ -213,7 +213,7 @@ const citiesData = {
 "Qena":["Qus","Qift","Qena","New Qena","Naqada","Nagaa Hammadi","Dishna","Al Waqf"],
 "Sharqia":["Zagazig","Minya El Qamh","Mashtol Al Souq","Hihya","El Qurein","El Qanayat","El Ibrahimiya","Diyarb Negm","Bilbeis","Abu Hammad"],
 "Shorouk":["Madinaty","Future City (AL Mostakbal)","Badr City","Al Shorouk"],
-"Shoubara El Khima":["Umm Bayoumi","Musturad  2","Musturad  1","Mit  NEMA","El-Wehda","Basus","Bahtem","Asfour Crystal","Ahmed Oraby","Mantay","Abo El Gheet","Balaqs"],
+"Shoubara El Khima":["Umm Bayoumi","Musturad  2","Musturad  1","Mit NEMA","El-Wehda","Basus","Bahtem","Asfour Crystal","Ahmed Oraby","Mantay","Abo El Gheet","Balaqs"],
 "Sohag":["Tima","Tahta","Sohag","Shandawil","Saqultah","New Sohag","New Akhmim","Juhaynah West","Geheinah","El Kawtar","Aserat","Al Minshah","Al Maraghah","Akhmim"],
 "Suez":["Faisal","Suez","Port Taofik","Ganayen","Attaka","Arbaeen"],
 "Tanash":["Manshyt Elqanater","Imbaba","Bashtel","Awsim","Al Warak"],
@@ -222,226 +222,70 @@ const citiesData = {
 "10th of Ramadan City":["10th of Ramadan City","Neighborhoods 1 to 17","Neighborhoods 18 to 34","Neighborhoods 35 to 50","Neighborhoods 51 to 66","Neighborhoods 67 to 99","district 11","district 12","Andalus district","district 10","district 13","district 14","district 15","district 16","First Industrial Zone","Second Industrial Zone","Third Industrial Zone","district 28","district 29","district 30","district 31","district 32","district 33","Al-Shahabi Area","Sanyia Misr Al-Nour","Sanyia Misr Al-Hijaz","Al-Urduniya","Sidnawi"]
 };
 
+/* =========================
+   Translations mapping (جزء كبير من الترجمات المقدمة)
+   ========================= */
 const translations = {
-  /* --- Cities --- */
-  "AinShams": "عين شمس",
-  "Al-agamy": "العامرية / الإجمّعي",
-  "Alex": "الإسكندرية",
-  "Aswan": "أسوان",
-  "Asyut": "أسيوط",
-  "Badrashin": "بدرشين",
-  "Abu Tesht": "أبو تيط",
-  "Farshut": "فرشوط",
-  "Dar El-Salam": "دار السلام",
-  "Al Balena": "البلينا",
-  "Gerga": "جرجا",
-  "Banha": "بنها",
-  "Behira": "البحيرة",
-  "BeniSuef": "بني سويف",
-  "Helwan": "حلوان",
-  "Damietta": "دمياط",
-  "Dekernes": "دكرنس",
-  "Desouk": "دسوق",
-  "Dokki": "الدقي",
-  "Downtown": "وسط البلد",
-  "Abu Sinbil": "أبو سنبل",
-  "Administrative Capital": "العاصمة الإدارية",
-  "New Heliopolis City": "مدينة هليوبوليس الجديدة",
-  "Cairo Governorate Desert": "صحراء محافظة القاهرة",
-  "Zaafarana": "الزعفرانة",
-  "Shalateen": "شلاتين",
-  "Marsa Alam": "مرسى علم",
-  "Halaib": "حلايب",
-  "Sallum": "السلوم",
-  "Siwa Oasis": "واحة سيوة",
-  "Sidi Barrani": "سيدي براني",
-  "Farafra": "الفرافرة",
-  "Dakhla": "الداخلة",
-  "Kharga": "الخارجة",
-  "Sharm El-Sheikh": "شرم الشيخ",
-  "Abu Radis": "أبو رديس",
-  "Ain Sokhna": "العين السخنة",
-  "Faiyum": "الفيوم",
-  "Faqus": "فاقوس",
-  "Fardos": "فاردوس / الفردوس",
-  "Hadayk Ahram": "حدائق الأهرام",
-  "Haram": "الهرم",
-  "Hurghada": "الغردقة",
-  "Ismailia": "الإسماعيلية",
-  "Kafr El-Sheikh": "كفر الشيخ",
-  "Khanka": "الخانكة",
-  "Luxor": "الأقصر",
-  "Maadi": "المعادي",
-  "Mahala": "المحلة الكبرى",
-  "Mansoura": "المنصورة",
-  "Matamir": "المطّامير",
-  "Dayrout": "ديروط",
-  "Al Qusiyyah": "القوصية",
-  "Malawi": "ملوي",
-  "Dayr Mawas": "دير مواس",
-  "Menya": "المنيا",
-  "Monufia": "المنوفية",
-  "Nasr City": "مدينة نصر",
-  "New Cairo": "القاهرة الجديدة",
-  "Matrouh": "مطروح",
-  "North Coast": "الساحل الشمالي",
-  "Oct6th": "مدينة 6 أكتوبر",
-  "Port said": "بورسعيد",
-  "Qena": "قنا",
-  "Sharqia": "الشرقية",
-  "Shorouk": "الشروق",
-  "Shoubara El Khima": "شبرا الخيمة",
-  "Sohag": "سوهاج",
-  "Suez": "السويس",
-  "Tanash": "طنطاش / طناش",
-  "Tanta": "طنطا",
-  "Zayton": "الزيتون",
-  "10th of Ramadan City": "مدينة العاشر من رمضان",
-
-  /* --- Areas / neighbourhoods (الترجمة تحاول مطابقة النص حرفياً أو صوتياً) */
-  "Gamal abd Al naser": "جمال عبد الناصر",
-  "Qubaa": "القُبّاعـة / قُبَّة",
-  "Moasst Al zakaah": "مؤسسة الزكاة",
-  "Al Arbeen we Al khamseen": "الربعين والخمسين",
-  "Al Herafyeen": "الحرافيين",
-  "Masr El Gadida": "مصر الجديدة",
-  "Heliopolis": "هيليوبوليس / مصر الجديدة",
-  "El Nozha": "النزهة",
-  "El Marg": "المرج",
-  "Ain Shams": "عين شمس",
-  "Al ameriya": "العامرية",
-  "Borg al arab": "برج العرب",
-  "Qetaa at Tarik as Sahrawi": "قطعة طريق الصحرواي",
-  "Port al-Basal": "بورسعيد الباسل؟ (Port al-Basal)",
-  "El-Agamy": "العجمي",
-  "Ekeingy Maryout": "إكزنجى مريوط (تأويل)",
-  "Dekhela": "الدخيلة",
-  "Ad Daerah Al Gomrokeyah": "المنطقة الجمركية",
-  "Qism Sidi Gabir": "قسم سيدي جابر",
-  "Qism El-Raml": "قسم الرمل",
-  "Montaza 2 Qism Montaza": "المنتزه 2 - قسم المنتزه",
-  "Al Mamurah": "العامرية/المعمورة",
-  "Abu Qir": "أبو قير",
-  "New Tushka": "طُشْكى الجديدة",
-  "New Aswan": "أسوان الجديدة",
-  "Nasser City": "مدينة ناصر",
-  "Madinet Nasr an Nobah": "مدينة نصر النوبة",
-  "Kom Umbu": "كوم أمبو",
-  "Edfu": "إدفو",
-  "Draw": "دراو",
-  "Aswan Second": "أسوان الثانية",
-  "Aswan city": "مدينة أسوان",
-  "Al Gaafrah": "الجعفره",
-  "Sodfa": "صدفا",
-  "Sahel Selim": "ساحل سليم",
-  "New Asyut": "أسيوط الجديدة",
-  "Manfalut": "منفلوط",
-  "El-Ghanayem": "الغانيم",
-  "EL Fateh": "الفتح",
-  "Asyut Sharq": "أسيوط شرق",
-  "Asyut gharb": "أسيوط غرب",
-  "Al Maabdah": "المعبدة",
-  "Al Badari": "البداري",
-  "Abu Tij": "أبو تيج",
-  "Abnub": "أبنوب",
-  "Manil Shihah": "منيل شيحة",
-  "before Ayat": "قبل آيات",
-  "Badrashin Village": "قرية بدرشين",
-  "Ayat": "آيات",
-  "Al-Hawamidiyya": "الهوامدية",
-  "After Ayat": "بعد آيات",
-  "Abu AL Numros": "أبو النمرس",
-  "Mazghona": "مزغونة",
-  "Tukh": "طوخ",
-  "Shibin El Qanater": "شبين القناطر",
-  "Qalyub": "قليوب",
-  "Kafr Shukr": "كفر شكر",
-  "El Qanater El Khayreya": "القناطر الخيرية",
-  "Banha": "بنها",
-  "Shubrakhit": "شبرخيت",
-  "Rasheed": "راشيد (رشيد)",
-  "Mahmoudiyah": "المحمودية",
-  "Kom Hamada": "كوم حمادة",
-  "Kafr El Dawwar": "كفر الدوار",
-  "Itay Al Barud": "إيتاي البارود",
-  "Edku": "إدكو",
-  "Damanhour": "دمنهور",
-  "Badr": "بدر",
-  "Al Delengat": "الدلنجات",
-  "Abu Hummus": "أبو هُمّص",
-  "Sumusta": "سمسطا",
-  "Salah Salem": "صلاح سالم",
-  "New Beni Suef": "بني سويف الجديدة",
-  "Nasser": "ناصر",
-  "Ihnasiya": "الإهنِسية / إهناسيا",
-  "ELFAYOM ROAD": "طريق الفيوم",
-  "ELFASHN": "الفسْن","Biba": "ببا",
-  "Aziz Moqbel": "عزيز مقبل",
-  "Abd El-Salam Aref": "عبد السلام عارف",
-  "Atfeh": "أطفيح",
-  "Ras El Bar": "رأس البر",
-  "New Damietta": "دمياط الجديدة",
-  "Kafr Saad": "كفر سعد",
-  "Kafr El Battikh": "كفر البطيخ",
-  "Faraskur": "فارسكور",
-  "Damietta Port": "ميناء دمياط",
-  "Damietta": "دمياط",
-  "Shirbin": "شربين",
-  "Mit Salsil": "ميت سلسيل",
-  "Menyet El Nasr": "منية النصر",
-  "Mahallat Damanah": "محلة دمنه",
-  "El Matareya": "المطرية",
-  "El Manzala": "المنزلة",
-  "El Kurdi": "الكرُدي",
-  "El Gamaliya": "الجميلية",
-  "Dikirnis": "دكرنس",
-  "Bani Ebeid": "بني عبيد",
-  "Rahmaniya": "الرحمانية",
-  "Sidi Salem": "سيدي سالم",
-  "Qallin": "قلين",
-  "Metoubes": "مطوبس",
-  "Fuwwah": "فوة",
-  "Dokki": "الدقي",
-  "Zamalek": "الزمالك",
-  "Saftawy": "الصفاتوي",
-  "Mohandisen": "المهندسين",
-  "Manial": "المنيل",
-  "Kit Kat": "كيت كات",
-  "Elmotamedeya St.": "شارع المتعدية",
-  "Bragel": "براغيل",
-  "Bolak Al Dakrour": "بولاق الدكرور",
-  "Ard Elwa": "أرض اللواء",
-  "Al Agouzah": "الجزوزة / العجوزة",
-  "Ameer city": "أمير سيتي",
-  "Nahia El Bald": "ناحية البلد",
-  "Kafr Hakem": "كفر حكيم",
-  "Ezbet el saayda": "عزبة السعيدة",
-  "Shubra Masr": "شبرا مصر",
-  "Rod El Farag": "روض الفرج",
-  "Ramses": "رمسيس",
-  "Qasr El Nil": "قصر النيل",
-  "Garden City": "جاردن سيتي",
-  "Elsahel": "الساحل",
-  "El-Abaseya": "العباسية",
-  "El Zawya El Hamra": "الزاوية الحمراء",
-  "El Sharabiya": "الشرابية",
-  "El Sayeda Zeinab": "السيدة زينب",
-  "El Obra": "العبور",
-  "El Daher": "الظاهر",
-  "Bab El Sharia": "باب الشعرية",
-  "Ataba": "العتبة",
-  "Al Fagalah": "الفجالة",
-  "Al Azbakeya": "الأزبكية",
-  "Abo El Ela": "أبو العلا",
-  "Abdeen": "عبدهين / عبدين (Abdeen)",
-  "Elgamalya": "الجمالية",
-  "Eldrasa": "الدرّاسة",
-  "Ghamra": "الغمرّة",
-  "Bab El loq": "باب اللوق"
+  "AinShams":"عين شمس","Al-agamy":"العامرية / الإجمّعي","Alex":"الإسكندرية","Aswan":"أسوان","Asyut":"أسيوط",
+  "Badrashin":"بدرشين","Abu Tesht":"أبو تيط","Farshut":"فرشوط","Dar El-Salam":"دار السلام","Al Balena":"البلينا",
+  "Gerga":"جرجا","Banha":"بنها","Behira":"البحيرة","BeniSuef":"بني سويف","Helwan":"حلوان","Damietta":"دمياط",
+  "Dekernes":"دكرنس","Desouk":"دسوق","Dokki":"الدقي","Downtown":"وسط البلد","Abu Sinbil":"أبو سنبل",
+  "Administrative Capital":"العاصمة الإدارية","New Heliopolis City":"مدينة هليوبوليس الجديدة",
+  "Cairo Governorate Desert":"صحراء محافظة القاهرة","Zaafarana":"الزعفرانة","Shalateen":"شلاتين",
+  "Marsa Alam":"مرسى علم","Halaib":"حلايب","Sallum":"السلوم","Siwa Oasis":"واحة سيوة",
+  "Sidi Barrani":"سيدي براني","Farafra":"الفرافرة","Dakhla":"الداخلة","Kharga":"الخارجة",
+  "Sharm El-Sheikh":"شرم الشيخ","Abu Radis":"أبو رديس","Ain Sokhna":"العين السخنة","Faiyum":"الفيوم",
+  "Faqus":"فاقوس","Fardos":"فاردوس / الفردوس","Hadayk Ahram":"حدائق الأهرام","Haram":"الهرم",
+  "Hurghada":"الغردقة","Ismailia":"الإسماعيلية","Kafr El-Sheikh":"كفر الشيخ","Khanka":"الخانكة",
+  "Luxor":"الأقصر","Maadi":"المعادي","Mahala":"المحلة الكبرى","Mansoura":"المنصورة","Matamir":"المطّامير",
+  "Dayrout":"ديروط","Al Qusiyyah":"القوصية","Malawi":"ملوي","Dayr Mawas":"دير مواس","Menya":"المنيا",
+  "Monufia":"المنوفية","Nasr City":"مدينة نصر","New Cairo":"القاهرة الجديدة","Matrouh":"مطروح",
+  "North Coast":"الساحل الشمالي","Oct6th":"مدينة 6 أكتوبر","Port said":"بورسعيد","Qena":"قنا",
+  "Sharqia":"الشرقية","Shorouk":"الشروق","Shoubara El Khima":"شبرا الخيمة","Sohag":"سوهاج","Suez":"السويس",
+  "Tanash":"طنطاش / طناش","Tanta":"طنطا","Zayton":"الزيتون","10th of Ramadan City":"مدينة العاشر من رمضان",
+  /* areas examples (الترجمة تحاول مطابقة النص حرفياً أو صوتياً) */
+  "Gamal abd Al naser":"جمال عبد الناصر","Qubaa":"القُبّاعـة / قُبَّة","Moasst Al zakaah":"مؤسسة الزكاة",
+  "Al Arbeen we Al khamseen":"الربعين والخمسين","Al Herafyeen":"الحرافيين","Masr El Gadida":"مصر الجديدة",
+  "Heliopolis":"هيليوبوليس / مصر الجديدة","El Nozha":"النزهة","El Marg":"المرج","Ain Shams":"عين شمس",
+  "Al ameriya":"العامرية","Borg al arab":"برج العرب","Qetaa at Tarik as Sahrawi":"قطعة طريق الصحرواي",
+  "Port al-Basal":"Port al-Basal","El-Agamy":"العجمي","Ekeingy Maryout":"إكزنجى مريوط","Dekhela":"الدخيلة",
+  "Ad Daerah Al Gomrokeyah":"المنطقة الجمركية","Qism Sidi Gabir":"قسم سيدي جابر","Qism El-Raml":"قسم الرمل",
+  "Montaza 2 Qism Montaza":"المنتزه 2 - قسم المنتزه","Al Mamurah":"العامرية/المعمورة","Abu Qir":"أبو قير",
+  "New Tushka":"طُشْكى الجديدة","New Aswan":"أسوان الجديدة","Nasser City":"مدينة ناصر","Madinet Nasr an Nobah":"مدينة نصر النوبة",
+  "Kom Umbu":"كوم أمبو","Edfu":"إدفو","Draw":"دراو","Aswan Second":"أسوان الثانية","Aswan city":"مدينة أسوان",
+  "Al Gaafrah":"الجعفره","Sodfa":"صدفا","Sahel Selim":"ساحل سليم","New Asyut":"أسيوط الجديدة","Manfalut":"منفلوط",
+  "El-Ghanayem":"الغانيم","EL Fateh":"الفتح","Asyut Sharq":"أسيوط شرق","Asyut gharb":"أسيوط غرب","Al Maabdah":"المعبدة",
+  "Al Badari":"البداري","Abu Tij":"أبو تيج","Abnub":"أبنوب","Manil Shihah":"منيل شيحة","before Ayat":"قبل آيات",
+  "Badrashin Village":"قرية بدرشين","Ayat":"آيات","Al-Hawamidiyya":"الهوامدية","After Ayat":"بعد آيات","Abu AL Numros":"أبو النمرس",
+  "Mazghona":"مزغونة","Tukh":"طوخ","Shibin El Qanater":"شبين القناطر","Qalyub":"قليوب","Kafr Shukr":"كفر شكر",
+  "El Qanater El Khayreya":"القناطر الخيرية","Banha":"بنها","Shubrakhit":"شبرخيت","Rasheed":"راشيد (رشيد)",
+  "Mahmoudiyah":"المحمودية","Kom Hamada":"كوم حمادة","Kafr El Dawwar":"كفر الدوار","Itay Al Barud":"إيتاي البارود",
+  "Edku":"إدكو","Damanhour":"دمنهور","Badr":"بدر","Al Delengat":"الدلنجات","Abu Hummus":"أبو هُمّص",
+  "Sumusta":"سمسطا","Salah Salem":"صلاح سالم","New Beni Suef":"بني سويف الجديدة","Nasser":"ناصر","Ihnasiya":"الإهنِسية / إهناسيا",
+  "ELFAYOM ROAD":"طريق الفيوم","ELFASHN":"الفسْن","Biba":"ببا","Aziz Moqbel":"عزيز مقبل","Abd El-Salam Aref":"عبد السلام عارف",
+  "Atfeh":"أطفيح","Ras El Bar":"رأس البر","New Damietta":"دمياط الجديدة","Kafr Saad":"كفر سعد","Kafr El Battikh":"كفر البطيخ",
+  "Faraskur":"فارسكور","Damietta Port":"ميناء دمياط","Damietta":"دمياط","Shirbin":"شربين","Mit Salsil":"ميت سلسيل",
+  "Menyet El Nasr":"منية النصر","Mahallat Damanah":"محلة دمنه","El Matareya":"المطرية","El Manzala":"المنزلة","El Kurdi":"الكرُدي",
+  "El Gamaliya":"الجميلية","Dikirnis":"دكرنس","Bani Ebeid":"بني عبيد","Rahmaniya":"الرحمانية","Sidi Salem":"سيدي سالم",
+  "Qallin":"قلين","Metoubes":"مطوبس","Fuwwah":"فوة","Zamalek":"الزمالك","Saftawy":"الصفاتوي",
+  "Mohandisen":"المهندسين","Manial":"المنيل","Kit Kat":"كيت كات","Elmotamedeya St.":"شارع المتعدية","Bragel":"براغيل",
+  "Bolak Al Dakrour":"بولاق الدكرور","Ard Elwa":"أرض اللواء","Al Agouzah":"الجزوزة / العجوزة","Ameer city":"أمير سيتي",
+  "Nahia El Bald":"ناحية البلد","Kafr Hakem":"كفر حكيم","Ezbet el saayda":"عزبة السعيدة","Shubra Masr":"شبرا مصر",
+  "Rod El Farag":"روض الفرج","Ramses":"رمسيس","Qasr El Nil":"قصر النيل","Garden City":"جاردن سيتي","Elsahel":"الساحل",
+  "El-Abaseya":"العباسية","El Zawya El Hamra":"الزاوية الحمراء","El Sharabiya":"الشرابية","El Sayeda Zeinab":"السيدة زينب",
+  "El Obra":"العبور","El Daher":"الظاهر","Bab El Sharia":"باب الشعرية","Ataba":"العتبة","Al Fagalah":"الفجالة",
+  "Al Azbakeya":"الأزبكية","Abo El Ela":"أبو العلا","Abdeen":"عبدهين / عبدين (Abdeen)","Elgamalya":"الجمالية",
+  "Eldrasa":"الدرّاسة","Ghamra":"الغمرّة","Bab El loq":"باب اللوق"
+  /* يمكنك توسيع هذا الكائن بالترجمات المتبقية عند الحاجة */
 };
+
+/* =========================
+   State
+   ========================= */
 let catalog = JSON.parse(localStorage.getItem(STORE_KEYS.CATALOG) || 'null') || [];
 let orders = JSON.parse(localStorage.getItem(STORE_KEYS.ORDERS) || '[]');
 let cart = [];
+
 
 /* =========================
    Seed sample catalog if empty (so page works out-of-the-box)
@@ -534,7 +378,8 @@ function renderProductArea(){
     t.addEventListener('click', ()=> mainImg.src = src);
     thumbs.appendChild(t);
   });
-document.getElementById('btnAddCart').addEventListener('click', ()=>{
+
+  document.getElementById('btnAddCart').addEventListener('click', ()=>{
     const qty = Math.max(1, parseInt(document.getElementById('productQty').value) || 1);
     addToCart(product.id, qty);
   });
@@ -631,13 +476,9 @@ function renderCart(){
 
 /* =========================
    Validation: Address & Phone
-   - remove forbidden symbols from address (allow Arabic letters, numbers, space, comma, dot, dash, parentheses)
-   - phone must be exactly 11 digits (Egypt)
    ========================= */
 const addressInput = document.getElementById('customerAddress');
 addressInput.addEventListener('input', ()=>{
-  // allow Arabic letters \u0600-\u06FF, basic Latin letters, numbers, space, comma, dot, hyphen, parentheses
-  // remove characters not in allowed set
   const allowedRegex = /[^\u0600-\u06FF\u0750-\u077F\u0621-\u064A\u00C0-\u017F0-9\s\.,\-\(\)]/g;
   const val = addressInput.value;
   const clean = val.replace(allowedRegex, '');
@@ -646,7 +487,6 @@ addressInput.addEventListener('input', ()=>{
 
 const phoneInput = document.getElementById('customerPhone');
 phoneInput.addEventListener('input', ()=>{
-  // remove non-digits and limit to 11
   phoneInput.value = phoneInput.value.replace(/\D/g,'').slice(0,11);
 });
 
@@ -667,7 +507,6 @@ document.getElementById('btnSubmitOrder').addEventListener('click', ()=>{
   if(!address){ showValidation('أدخل العنوان بالتفصيل'); return; }
   if(cart.length === 0){ showValidation('السلة فارغة — أضف منتجات'); return; }
 
-  // build order items and compute totals
   const orderItems = cart.map(ci=>{
     const p = findProduct(ci.productId) || {};
     return {
@@ -681,7 +520,6 @@ document.getElementById('btnSubmitOrder').addEventListener('click', ()=>{
     };
   });
 
-  // shipping rule: if any product qualifies for free shipping by qty OR has freeShipping always -> shipping=0
   const anyFreeAlways = orderItems.some(it => it.freeShipping && !it.freeShippingMinQty);
   const anyFreeByQty = orderItems.some(it => it.freeShipping && it.freeShippingMinQty && it.qty >= it.freeShippingMinQty);
   let shippingCost = 0;
@@ -709,11 +547,9 @@ document.getElementById('btnSubmitOrder').addEventListener('click', ()=>{
     total
   };
 
-  // save
   orders.push(newOrder);
   saveOrders();
 
-  // clear cart and form
   cart = []; saveCart();
   document.getElementById('customerName').value=''; document.getElementById('customerPhone').value=''; document.getElementById('customerAddress').value='';
   document.getElementById('customerCity').selectedIndex = 0; document.getElementById('customerArea').innerHTML = '<option value="">اختر المنطقة</option>';
@@ -721,7 +557,6 @@ document.getElementById('btnSubmitOrder').addEventListener('click', ()=>{
   alert('تم إرسال الطلب وحفظه بنجاح. سيظهر في لوحة الإدارة.');
 });
 
-/* validation helper */
 function showValidation(msg='', ok=false){
   const el = document.getElementById('validationMsg');
   el.textContent = msg;
@@ -729,7 +564,7 @@ function showValidation(msg='', ok=false){
 }
 
 /* =========================
-   Shipping calculation (same simplified rules)
+   Shipping calculation
    ========================= */
 function calculateShipping(senderCity, receiverCity){
   const base = 80;
@@ -746,7 +581,7 @@ function calculateShipping(senderCity, receiverCity){
 }
 
 /* =========================
-   City/Area selects initialization using the integrated citiesData
+   City/Area selects initialization using the integrated citiesData & translations
    ========================= */
 function initCityAreaSelects(){
   const citySel = document.getElementById('customerCity');
@@ -764,6 +599,7 @@ function initCityAreaSelects(){
   });
 }
 
+/* =========================
    Generate order link for product
    ========================= */
 function generateOrderLinkForProduct(productId){
@@ -795,9 +631,7 @@ boot();
 window.catalog = catalog;
 window.orders = orders;
 
-/* =========================
-   save helpers (persist)
-   ========================= */
+/* save helpers */
 function saveCatalog(){ localStorage.setItem(STORE_KEYS.CATALOG, JSON.stringify(catalog)); }
 function saveOrders(){ localStorage.setItem(STORE_KEYS.ORDERS, JSON.stringify(orders)); }
 function saveCart(){ renderCart(); }
