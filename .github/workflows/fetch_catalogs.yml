@@ -1,69 +1,172 @@
-name: Fetch Facebook Catalogs
+name: Fetch Facebook Catalogs (robust & push-ready)
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 */6 * * *"   # يحدث الكتالوج كل 6 ساعات (اختياري)
+    - cron: '0 */6 * * *'
+
+permissions:
+  contents: write
 
 jobs:
   fetch:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      - name: Checkout repo (with credentials)
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          fetch-depth: 0
 
-    - name: Debug Secrets Presence
-      env:
-        FB_TOKEN: ${{ secrets.FBACCSESSTOKEN }}
-        CATALOG1: ${{ secrets.SUDIID }}
-        CATALOG2: ${{ secrets.UNILEVERID }}
-        CATALOG3: ${{ secrets.BUSSNISID }}
-      run: |
-        echo "Token present? $( [ -n "$FB_TOKEN" ] && echo YES || echo NO )"
-        echo "CATALOG1 length: ${#CATALOG1}"
-        echo "CATALOG2 length: ${#CATALOG2}"
-        echo "CATALOG3 length: ${#CATALOG3}"
+      - name: Setup tools
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y jq curl
 
-    - name: Create empty catalog file
-      run: echo "[]" > catalog.json
+      - name: Debug secrets presence
+        env:
+          FB_TOKEN: ${{ secrets.FBACCSESSTOKEN }}
+          SUDIID: ${{ secrets.SUDIID }}
+          UNILEVERID: ${{ secrets.UNILEVERID }}
+          BUSSNISID: ${{ secrets.BUSSNISID }}
+        run: |
+          echo "FB token present? $( [ -n "$FB_TOKEN" ] && echo YES || echo NO )"
+          echo "SUDIID length: ${#SUDIID}"
+          echo "UNILEVERID length: ${#UNILEVERID}"
+          echo "BUSSNISID length: ${#BUSSNISID}"
 
-    - name: Fetch catalogs
-      id: fetch_step
-      env:
-        FB_TOKEN: ${{ secrets.FBACCSESSTOKEN }}
-        CATALOG1: ${{ secrets.SUDIID }}
-        CATALOG2: ${{ secrets.UNILEVERID }}
-        CATALOG3: ${{ secrets.BUSSNISID }}
-      run: |
-        echo "Fetching all catalogs..."
+      - name: Fetch catalog helper (SUDI)
+        env:
+          FB_TOKEN: ${{ secrets.FBACCSESSTOKEN }}
+          CATALOG_ID: ${{ secrets.SUDIID }}
+        run: |
+          set -e
+          OUT="sudi_products.json"
+          echo "Fetching catalog: $CATALOG_ID"
+          cursor=""
+          rm -f response_tmp.json "$OUT"
+          # pagination loop
+          while true; do
+            url="https://graph.facebook.com/v24.0/$CATALOG_ID/products?limit=100&access_token=$FB_TOKEN"
+            if [ -n "$cursor" ]; then url="$url&after=$cursor"; fi
+            http_code=$(curl -s -w "%{http_code}" -o response_tmp.json "$url")
+            if [ "$http_code" != "200" ]; then
+              echo "ERROR HTTP $http_code for SUDIID"
+              cat response_tmp.json || true
+              echo "Creating empty $OUT"
+              echo "[]" > "$OUT"
+              break
+            fi
+            jq -c '.data[]' response_tmp.json 2>/dev/null >> tmp_sudi_lines || true
+            cursor=$(jq -r '.paging.cursors.after // empty' response_tmp.json)
+            if [ -z "$cursor" ]; then break; fi
+            sleep 1
+          done
+          if [ -f tmp_sudi_lines ]; then jq -s 'map(fromjson)' tmp_sudi_lines > "$OUT" || echo "[]" > "$OUT"; fi
+          ls -lh "$OUT"
+          jq '.[0:3]' "$OUT" || true
 
-        # function لتحميل كتالوج واحد
-        fetch_catalog () {
-          CID=$1
-          NAME=$2
+      - name: Fetch catalog helper (UNILEVER)
+        env:
+          FB_TOKEN: ${{ secrets.FBACCSESSTOKEN }}
+          CATALOG_ID: ${{ secrets.UNILEVERID }}
+        run: |
+          set -e
+          OUT="uni_products.json"
+          echo "Fetching catalog: $CATALOG_ID"
+          cursor=""
+          rm -f response_tmp.json "$OUT"
+          while true; do
+            url="https://graph.facebook.com/v24.0/$CATALOG_ID/products?limit=100&access_token=$FB_TOKEN"
+            if [ -n "$cursor" ]; then url="$url&after=$cursor"; fi
+            http_code=$(curl -s -w "%{http_code}" -o response_tmp.json "$url")
+            if [ "$http_code" != "200" ]; then
+              echo "ERROR HTTP $http_code for UNILEVERID"
+              cat response_tmp.json || true
+              echo "[]" > "$OUT"
+              break
+            fi
+            jq -c '.data[]' response_tmp.json 2>/dev/null >> tmp_uni_lines || true
+            cursor=$(jq -r '.paging.cursors.after // empty' response_tmp.json)
+            if [ -z "$cursor" ]; then break; fi
+            sleep 1
+          done
+          if [ -f tmp_uni_lines ]; then jq -s 'map(fromjson)' tmp_uni_lines > "$OUT" || echo "[]" > "$OUT"; fi
+          ls -lh "$OUT"
+          jq '.[0:3]' "$OUT" || true
 
-          if [ -z "$CID" ]; then
-            echo "Skipping $NAME (EMPTY ID)"
-            return
+      - name: Fetch catalog helper (BUSS)
+        env:
+          FB_TOKEN: ${{ secrets.FBACCSESSTOKEN }}
+          CATALOG_ID: ${{ secrets.BUSSNISID }}
+        run: |
+          set -e
+          OUT="buss_products.json"
+          echo "Fetching catalog: $CATALOG_ID"
+          cursor=""
+          rm -f response_tmp.json "$OUT"
+          while true; do
+            url="https://graph.facebook.com/v24.0/$CATALOG_ID/products?limit=100&access_token=$FB_TOKEN"
+            if [ -n "$cursor" ]; then url="$url&after=$cursor"; fi
+            http_code=$(curl -s -w "%{http_code}" -o response_tmp.json "$url")
+            if [ "$http_code" != "200" ]; then
+              echo "ERROR HTTP $http_code for BUSSNISID"
+              cat response_tmp.json || true
+              echo "[]" > "$OUT"
+              break
+            fi
+            jq -c '.data[]' response_tmp.json 2>/dev/null >> tmp_buss_lines || true
+            cursor=$(jq -r '.paging.cursors.after // empty' response_tmp.json)
+            if [ -z "$cursor" ]; then break; fi
+            sleep 1
+          done
+          if [ -f tmp_buss_lines ]; then jq -s 'map(fromjson)' tmp_buss_lines > "$OUT" || echo "[]" > "$OUT"; fi
+          ls -lh "$OUT"
+          jq '.[0:3]' "$OUT" || true
+
+      - name: Merge and produce catalog.json
+        run: |
+          set -e
+          # ensure files exist
+          for f in sudi_products.json uni_products.json buss_products.json; do
+            [ -f "$f" ] || echo "[]" > "$f"
+          done
+          jq -s '([.[0]//[], .[1]//[], .[2]//[]] | add) as $items |
+            $items | map({
+              id: (.id // .retailer_id // ""),
+              title: (.name // ""),
+              price: ((.price_amount // .retailer_price // .price // 0) | tonumber),
+              currency: (.price_currency // "EGP"),
+              image: (.image_urls[0] // .image_url // .image // .thumbnail_url // ""),
+              raw: .
+            })' sudi_products.json uni_products.json buss_products.json > catalog_merged.json || echo '[]' > catalog_merged.json
+          # dedupe by title (case-insensitive)
+          jq 'reduce .[] as $item ({}; .[($item.title|ascii_downcase)]=$item) | to_entries | map(.value)' catalog_merged.json > catalog.json
+          echo "Final count: $(jq 'length' catalog.json)"
+          ls -lh catalog.json
+          jq '.[0:10]' catalog.json || true
+
+      - name: Upload artifact (catalog.json)
+        uses: actions/upload-artifact@v4
+        with:
+          name: catalog-json
+          path: catalog.json
+
+      - name: Commit & push catalog.json (attempt)
+        env:
+          GIT_AUTHOR_NAME: "github-actions[bot]"
+          GIT_AUTHOR_EMAIL: "41898282+github-actions[bot]@users.noreply.github.com"
+        run: |
+          set -e
+          git config user.name "$GIT_AUTHOR_NAME"
+          git config user.email "$GIT_AUTHOR_EMAIL"
+          git add catalog.json || true
+          git status --porcelain
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: update catalog.json (auto) [skip ci]" || true
+            BRANCH="${GITHUB_REF#refs/heads/}"
+            echo "Pushing to $BRANCH"
+            git push origin "HEAD:$BRANCH"
           fi
-
-          echo "Fetching catalog $NAME with ID $CID"
-
-          curl -s "https://graph.facebook.com/v24.0/$CID/products?limit=500&access_token=$FB_TOKEN" \
-            -o "temp_$NAME.json"
-
-          echo "Merging $NAME ..."
-          jq -s '.[0] + .[1].data' catalog.json "temp_$NAME.json" > catalog_temp.json
-          mv catalog_temp.json catalog.json
-        }
-
-        fetch_catalog "$CATALOG1" "catalog1"
-        fetch_catalog "$CATALOG2" "catalog2"
-        fetch_catalog "$CATALOG3" "catalog3"
-
-    - name: Commit catalog.json
-      uses: stefanzweifel/git-auto-commit-action@v5
-      with:
-        commit_message: "updated catalog.json"
-        file_pattern: catalog.json
