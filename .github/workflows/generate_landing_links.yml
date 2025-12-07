@@ -28,22 +28,22 @@ jobs:
 
       - name: Create runner script
         run: |
-          cat > run_generate_links.py <<'PY'
-from importlib import import_module
-import sys, traceback
-try:
-    # try to import app and call generate_landing_links
-    mod = import_module('app')
-    func = getattr(mod, 'generate_landing_links', None)
-    if not func:
-        print("ERROR: generate_landing_links not found in app.py")
-        sys.exit(2)
-    changed, out = func(write_back=True)
-    print(f"CHANGED={changed};OUT={out}")
-except Exception:
-    traceback.print_exc()
-    sys.exit(3)
-PY
+          cat > run_generate_links.py <<'EOF'
+          from importlib import import_module
+          import sys, traceback
+          try:
+              # try to import app and call generate_landing_links
+              mod = import_module('app')
+              func = getattr(mod, 'generate_landing_links', None)
+              if not func:
+                  print("ERROR: generate_landing_links not found in app.py")
+                  sys.exit(2)
+              changed, out = func(write_back=True)
+              print(f"CHANGED={changed};OUT={out}")
+          except Exception:
+              traceback.print_exc()
+              sys.exit(3)
+          EOF
 
       - name: Run generator
         id: gen
