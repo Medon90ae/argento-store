@@ -644,7 +644,7 @@ CITY_TRANSLATIONS_AR_TO_EN = {
     "الوادي الجديد": "New Valley",
     
     # مدن
-    "الزقازيق": "Sharqia",
+    "الزقازيق": "Zagazig",
     "بنها": "Banha",
     "طنطا": "Tanta",
     "المحلة الكبرى": "El Mahalla El Kubra",
