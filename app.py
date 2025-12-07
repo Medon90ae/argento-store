@@ -275,7 +275,7 @@ def get_cities_areas():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 # ========== المسار 6: تحديث الكتالوج ==========
-@app.route('/admin/update-catalog', methods=['POST'])
+@app.route('/admin/update-catalog', methods=['GET', 'POST'])
 def update_catalog():
     """تحديث الكتالوج من فيسبوك."""
     try:
