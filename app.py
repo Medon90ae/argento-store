@@ -153,9 +153,7 @@ def create_links_html(products):
                         📋 نسخ الرابط
                     </button>
                 </div>
-        '''
-    
-    html += '''
+        
             </div>
         </div>
         
