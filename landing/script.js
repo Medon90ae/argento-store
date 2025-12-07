@@ -2,7 +2,255 @@
 const API_BASE_URL = 'https://speedafargento.com';
 let currentProduct = null;
 let currentShippingCost = 0;
+// ========== قراءة ملف Excel ==========
 
+async function loadCitiesFromExcel() {
+    try {
+        console.log('📂 جاري تحميل بيانات المدن من ملف Excel...');
+        
+        // مسار ملف Excel على GitHub Pages
+        const excelUrl = 'https://raw.githubusercontent.com/Medon90ae/argento-store/main/data/addresses.xlsx';
+        
+        // تحميل ملف Excel
+        const response = await fetch(excelUrl);
+        const arrayBuffer = await response.arrayBuffer();
+        
+        // قراءة ملف Excel باستخدام SheetJS
+        const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+        
+        // قراءة الورقة المطلوبة
+        const sheetName = workbook.SheetNames.find(name => 
+            name.includes('Speedaf') || name.includes('address')
+        ) || workbook.SheetNames[1] || workbook.SheetNames[0];
+        
+        const worksheet = workbook.Sheets[sheetName];
+        
+        // تحويل إلى JSON
+        const jsonData = XLSX.utils.sheet_to_json(worksheet);
+        
+        console.log(`✅ تم تحميل ${jsonData.length} صف من البيانات`);
+        
+        // معالجة البيانات
+        processExcelData(jsonData);
+        
+        // تعبئة قائمة المدن
+        populateCities();
+        
+    } catch (error) {
+        console.error('❌ خطأ في تحميل ملف Excel:', error);
+        // استخدام بيانات افتراضية إذا فشل التحميل
+        useFallbackData();
+        populateCities();
+    }
+}
+
+function processExcelData(jsonData) {
+    // مسح المتغيرات
+    citiesData = {};
+    areasData = {};
+    areaTranslations = {};
+    
+    // تخزين المدن الفريدة
+    const uniqueCities = new Set();
+    
+    jsonData.forEach(row => {
+        try {
+            // البحث عن أعمدة المدينة والمنطقة
+            let city = null;
+            let area = null;
+            
+            // البحث في جميع أعمدة الصف
+            for (const [key, value] of Object.entries(row)) {
+                const val = String(value).trim();
+                if (!val) continue;
+                
+                // محاولة التعرف على نوع البيانات
+                if (key.includes('City') || key.includes('city') || 
+                    key.includes('المدينة') || key.includes('المحافظة')) {
+                    city = val;
+                } else if (key.includes('Area') || key.includes('area') || 
+                          key.includes('المنطقة') || key.includes('Location')) {
+                    area = val;
+                }
+            }
+            
+            // إذا لم نتعرف، نستخدم القيمتين الأولتين
+            if (!city || !area) {
+                const values = Object.values(row).filter(v => v);
+                if (values.length >= 2) {
+                    city = String(values[0]).trim();
+                    area = String(values[1]).trim();
+                }
+            }
+            
+            if (!city || !area || city === 'undefined' || area === 'undefined') {
+                return;
+            }
+            
+            // تنظيف البيانات
+            city = cleanText(city);
+            area = cleanText(area);
+            
+            // حفظ المدينة الفريدة
+            uniqueCities.add(city);
+            
+            // إضافة المدينة إلى القائمة (الإنجليزية ← نفسها، سنترجم لاحقاً)
+            citiesData[city] = city; // مؤقتاً
+            
+            // إضافة المنطقة إلى المدينة
+            if (!areasData[city]) {
+                areasData[city] = [];
+            }
+            
+            if (!areasData[city].includes(area)) {
+                areasData[city].push(area);
+            }
+            
+            // حفظ ترجمة المنطقة
+            areaTranslations[area] = area; // مؤقتاً
+            
+        } catch (e) {
+            console.warn('⚠️ خطأ في معالجة صف:', row, e);
+        }
+    });
+    
+    console.log(`🏙️  تم معالجة ${uniqueCities.size} مدينة`);
+    
+    // ترتيب المناطق أبجدياً
+    for (const city in areasData) {
+        areasData[city].sort();
+    }
+    
+    // محاولة ترجمة أسماء المدن المعروفة
+    translateCityNames();
+}
+
+function cleanText(text) {
+    // إزالة المسافات الزائدة
+    return text.replace(/\s+/g, ' ').trim();
+}
+
+function translateCityNames() {
+    // قاموس ترجمة المدن المشهورة
+    const cityTranslations = {
+        'Sharqia': 'الشرقية',
+        'Cairo': 'القاهرة',
+        'Giza': 'الجيزة',
+        'Alexandria': 'الإسكندرية',
+        'Dakahlia': 'الدقهلية',
+        'Gharbia': 'الغربية',
+        'Monufia': 'المنوفية',
+        'Qalyubia': 'القليوبية',
+        'Behira': 'البحيرة',
+        'Ismailia': 'الإسماعيلية',
+        'Port Said': 'بورسعيد',
+        'Suez': 'السويس',
+        'Damietta': 'دمياط',
+        'Aswan': 'أسوان',
+        'Asyut': 'أسيوط',
+        'BeniSuef': 'بني سويف',
+        'Faiyum': 'الفيوم',
+        'Minya': 'المنيا',
+        'Qena': 'قنا',
+        'Red Sea': 'البحر الأحمر',
+        'New Valley': 'الوادي الجديد',
+        'Matrouh': 'مطروح',
+        'North Sinai': 'شمال سيناء',
+        'South Sinai': 'جنوب سيناء',
+        'Luxor': 'الأقصر',
+        'Sohag': 'سوهاج'
+    };
+    
+    // تحديث ترجمات المدن
+    const newCitiesData = {};
+    for (const [enCity, arCity] of Object.entries(cityTranslations)) {
+        if (citiesData[enCity]) {
+            newCitiesData[enCity] = arCity;
+        }
+    }
+    
+    // إضافة المدن التي لم يتم ترجمتها
+    for (const city in citiesData) {
+        if (!newCitiesData[city]) {
+            newCitiesData[city] = city;
+        }
+    }
+    
+    citiesData = newCitiesData;
+}
+
+function useFallbackData() {
+    console.log('🔄 استخدام البيانات الافتراضية...');
+    
+    citiesData = {
+        'Sharqia': 'الشرقية',
+        'Cairo': 'القاهرة',
+        'Giza': 'الجيزة',
+        'Alexandria': 'الإسكندرية'
+    };
+    
+    areasData = {
+        'Sharqia': ['Zagazig', 'Minya El Qamh', 'Mashtol Al Souq'],
+        'Cairo': ['Maadi', 'Nasr City', 'New Cairo'],
+        'Giza': ['Dokki', 'Mohandisen', 'Imbaba'],
+        'Alexandria': ['Sidi Gaber', 'El-Raml', 'Al Mamurah']
+    };
+    
+    areaTranslations = {
+        'Zagazig': 'الزقازيق',
+        'Maadi': 'المعادي',
+        'Nasr City': 'مدينة نصر'
+    };
+}
+
+function populateCities() {
+    const citySelect = document.getElementById('city');
+    citySelect.innerHTML = '<option value="">اختر المحافظة</option>';
+    
+    // ترتيب المدن أبجدياً حسب العربية
+    const sortedCities = Object.entries(citiesData)
+        .sort((a, b) => a[1].localeCompare(b[1]));
+    
+    sortedCities.forEach(([enName, arName]) => {
+        const option = document.createElement('option');
+        option.value = enName;        // الإنجليزية (للسرعة والشحن)
+        option.textContent = arName;  // العربية (للعرض)
+        option.setAttribute('data-arabic', arName);
+        citySelect.appendChild(option);
+    });
+}
+
+function updateAreasAndShipping() {
+    const citySelect = document.getElementById('city');
+    const areaSelect = document.getElementById('area');
+    const selectedCity = citySelect.value;
+    
+    areaSelect.innerHTML = '<option value="">اختر المنطقة</option>';
+    
+    if (selectedCity && areasData[selectedCity]) {
+        // ترتيب المناطق أبجدياً
+        const sortedAreas = areasData[selectedCity].sort();
+        
+        sortedAreas.forEach(area => {
+            const option = document.createElement('option');
+            option.value = area;  // الإنجليزية
+            
+            // ترجمة المنطقة للعربية إذا كانت متوفرة
+            const arabicArea = areaTranslations[area] || area;
+            option.textContent = arabicArea;
+            option.setAttribute('data-arabic', arabicArea);
+            
+            areaSelect.appendChild(option);
+        });
+        
+        areaSelect.disabled = false;
+    } else {
+        areaSelect.disabled = true;
+    }
+    
+    // تحديث الشحن
+    updateShippingCost();
+                }
 // خريطة مصاريف الشحن حسب المدينة
 const SHIPPING_RATES = {
     'Sharqia': 75, 'Cairo': 65, 'Giza': 65, 'Alexandria': 75,
@@ -29,7 +277,7 @@ document.addEventListener('DOMContentLoaded', function() {
     loadProductData(productId);
     
     // 2. تحميل قوائم المدن والمناطق من البيانات المحلية
-    loadCitiesAndAreas();
+    
     
     // 3. إعداد نموذج الطلب
     setupOrderForm();
@@ -95,32 +343,11 @@ function updateProductDisplay() {
 }
 
 // 3. تحميل قوائم المدن والمناطق
-function loadCitiesAndAreas() {
-    // استخدام البيانات المحلية مباشرة (المجلوبة من Excel)
-    citiesData = EGYPT_CITIES_EN_TO_AR;
-    areasData = EGYPT_CITY_AREAS;
-    
-    // تعبئة قائمة المدن
-    populateCities();
-}
+
 
 // 4. تعبئة قائمة المدن
-function populateCities() {
-    const citySelect = document.getElementById('city');
-    citySelect.innerHTML = '<option value="">اختر المحافظة</option>';
-    
-    // ترتيب المدن أبجدياً حسب العربية
-    const sortedCities = Object.entries(citiesData)
-        .sort((a, b) => a[1].localeCompare(b[1]));
-    
-    sortedCities.forEach(([enName, arName]) => {
-        const option = document.createElement('option');
-        option.value = enName;        // الإنجليزية (للسرعة والشحن)
-        option.textContent = arName;  // العربية (للعرض)
-        option.setAttribute('data-arabic', arName);
-        citySelect.appendChild(option);
-    });
-}
+
+
 
 // 5. تحديث قائمة المناطق
 function updateAreasAndShipping() {
