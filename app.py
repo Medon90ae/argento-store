@@ -1,4 +1,4 @@
-# app.py - التطبيق المركزي المبسط
+# app.py - المسارات المحدثة
 from flask import Flask, jsonify, request, render_template
 from flask_cors import CORS
 import json
@@ -7,7 +7,7 @@ from datetime import datetime
 import uuid
 
 app = Flask(__name__)
-CORS(app)  # للسماح لصفحات الهبوط بالاتصال
+CORS(app)
 
 # مسارات الملفات
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -18,12 +18,18 @@ ORDERS_FILE = os.path.join(BASE_DIR, 'data', 'orders.json')
 os.makedirs(os.path.join(BASE_DIR, 'data'), exist_ok=True)
 
 # ========== المسار 8: جلب المنتجات للروابط ==========
+# ========== المسار 8: جلب المنتجات للروابط ==========
 @app.route('/api/products-for-links')
 def get_products_for_links():
     """جلب المنتجات لعرض الروابط."""
     try:
         if not os.path.exists(CATALOG_FILE):
-            return jsonify({'success': False, 'error': 'الكتالوج غير موجود'}), 404
+            return jsonify({
+                'success': False, 
+                'error': 'الكتالوج غير موجود',
+                'products': [],
+                'count': 0
+            }), 404
         
         with open(CATALOG_FILE, 'r', encoding='utf-8') as f:
             catalog = json.load(f)
@@ -33,18 +39,29 @@ def get_products_for_links():
         return jsonify({
             'success': True,
             'products': products,
-            'count': len(products)
+            'count': len(products),
+            'last_updated': catalog.get('metadata', {}).get('last_updated', '')
         })
         
     except Exception as e:
-        return jsonify({'success': False, 'error': str(e)}), 500
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'products': [],
+            'count': 0
+        })
+# ========== المسار 7: إنشاء روابط صفحات الهبوط ==========
+@app.route('/admin/generate-landing-links', methods=['GET'])
 # ========== المسار 7: إنشاء روابط صفحات الهبوط ==========
 @app.route('/admin/generate-landing-links', methods=['GET'])
 def generate_landing_links():
     """إنشاء روابط صفحات الهبوط لجميع المنتجات."""
     try:
         if not os.path.exists(CATALOG_FILE):
-            return jsonify({'success': False, 'error': 'الكتالوج غير موجود'}), 404
+            return render_template('landing_links.html', 
+                                 error='الكتالوج غير موجود',
+                                 total_products=0,
+                                 products=[])
         
         with open(CATALOG_FILE, 'r', encoding='utf-8') as f:
             catalog = json.load(f)
@@ -52,18 +69,22 @@ def generate_landing_links():
         products = catalog.get('products', [])
         
         if not products:
-            return jsonify({'success': False, 'error': 'لا توجد منتجات'}), 404
+            return render_template('landing_links.html',
+                                 error='لا توجد منتجات في الكتالوج',
+                                 total_products=0,
+                                 products=[])
         
-        # إنشاء HTML مع جميع الروابط
-        html_content = create_links_html(products)
-        
-        return render_template('landing_links.html', 
-                             links_html=html_content,
-                             total_products=len(products))
+        return render_template('landing_links.html',
+                             products=products,
+                             total_products=len(products),
+                             last_updated=catalog.get('metadata', {}).get('last_updated', ''),
+                             error=None)
         
     except Exception as e:
-        return jsonify({'success': False, 'error': str(e)}), 500
-
+        return render_template('landing_links.html',
+                             error=f'خطأ: {str(e)}',
+                             total_products=0,
+                             products=[])
 def create_links_html(products):
     """إنشاء HTML مع روابط جميع المنتجات."""
     html = '''
@@ -163,7 +184,7 @@ def create_links_html(products):
         </script>
     </body>
     </html>
-    '''
+    
     
     return html
 
@@ -184,12 +205,17 @@ def get_merchants_count(products):
         merchants.add(product.get('merchant_id', ''))
     return ', '.join([get_merchant_name(m) for m in merchants if m])
 # ========== المسار 1: جلب منتج معين ==========
+# ========== المسار 1: جلب منتج معين ==========
 @app.route('/api/product/<product_id>', methods=['GET'])
 def get_product(product_id):
     """جلب بيانات منتج معين."""
     try:
         if not os.path.exists(CATALOG_FILE):
-            return jsonify({'success': False, 'error': 'الكتالوج غير موجود'}), 404
+            return jsonify({
+                'success': False, 
+                'error': 'الكتالوج غير موجود',
+                'suggestion': 'قم بتحديث الكتالوج أولاً من /admin/update-catalog'
+            }), 404
         
         with open(CATALOG_FILE, 'r', encoding='utf-8') as f:
             catalog = json.load(f)
@@ -203,11 +229,23 @@ def get_product(product_id):
                     'product': product
                 })
         
-        return jsonify({'success': False, 'error': 'المنتج غير موجود'}), 404
+        # إذا لم يوجد، حاول البحث بالـ retailer_id
+        for product in products:
+            if str(product.get('retailer_id')) == str(product_id):
+                return jsonify({
+                    'success': True,
+                    'product': product
+                })
+        
+        return jsonify({
+            'success': False, 
+            'error': f'المنتج غير موجود (ID: {product_id})',
+            'total_products': len(products),
+            'available_ids': [p.get('id') for p in products[:10]]
+        }), 404
         
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
-
 # ========== المسار 2: استقبال طلب جديد ==========
 @app.route('/api/order', methods=['POST'])
 def create_order():
@@ -441,6 +479,7 @@ def get_cities_areas():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 # ========== المسار 6: تحديث الكتالوج ==========
+# ========== المسار 6: تحديث الكتالوج ==========
 @app.route('/admin/update-catalog', methods=['GET', 'POST'])
 def update_catalog():
     """تحديث الكتالوج من فيسبوك."""
@@ -449,16 +488,22 @@ def update_catalog():
         
         result = sync_facebook_catalogs()
         
-        return jsonify({
-            'success': True,
-            'message': 'تم تحديث الكتالوج بنجاح',
-            'products_count': result.get('total_products', 0),
-            'updated_at': datetime.now().isoformat()
-        })
+        if result.get('success'):
+            return jsonify({
+                'success': True,
+                'message': 'تم تحديث الكتالوج بنجاح',
+                'products_count': result.get('total_products', 0),
+                'updated_at': datetime.now().isoformat()
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': result.get('error', 'خطأ غير معروف'),
+                'message': result.get('message', 'فشل تحديث الكتالوج')
+            }), 500
         
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
-
 # ========== وظائف مساعدة ==========
 def get_sender_info(merchant_id):
     """الحصول على بيانات الراسل لـ Speedaf."""
