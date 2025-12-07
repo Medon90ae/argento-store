@@ -855,14 +855,14 @@ AREA_TRANSLATIONS_AR_TO_EN = {
     "حدائق الأهرام": "Hadayk Ahram",
     "العمرانية": "Omrania",
     "أبو رواش": "Abou Rawash",
-        "منشية البكري": "Monshaat Al Bakkari",
+    "منشية البكري": "Monshaat Al Bakkari",
     "كيت كات": "Kit Kat",
     "المنيب": "Munib",
     "ترسة": "Tersa",
     "الطالبية": "El Talbeya",
     "المريوطية": "El Maryoutia",
     "الليثي": "Libyan",
-    "ساقية مكي": "Saqiyet Mekki"
+    "ساقية مكي": "Saqiyet Mekki"،
       # مناطق الإسكندرية
     "سيدي جابر": "Sidi Gaber",
     "الرمل": "El-Raml",
