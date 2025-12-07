@@ -862,7 +862,7 @@ AREA_TRANSLATIONS_AR_TO_EN = {
     "الطالبية": "El Talbeya",
     "المريوطية": "El Maryoutia",
     "الليثي": "Libyan",
-    "ساقية مكي": "Saqiyet Mekki"،
+    "ساقية مكي": "Saqiyet Mekki",
       # مناطق الإسكندرية
     "سيدي جابر": "Sidi Gaber",
     "الرمل": "El-Raml",
