@@ -16,7 +16,151 @@ ORDERS_FILE = os.path.join(BASE_DIR, 'data', 'orders.json')
 
 # تأكد من وجود مجلد data
 os.makedirs(os.path.join(BASE_DIR, 'data'), exist_ok=True)
+# ========== المسار 7: إنشاء روابط صفحات الهبوط ==========
+@app.route('/admin/generate-landing-links', methods=['GET'])
+def generate_landing_links():
+    """إنشاء روابط صفحات الهبوط لجميع المنتجات."""
+    try:
+        if not os.path.exists(CATALOG_FILE):
+            return jsonify({'success': False, 'error': 'الكتالوج غير موجود'}), 404
+        
+        with open(CATALOG_FILE, 'r', encoding='utf-8') as f:
+            catalog = json.load(f)
+        
+        products = catalog.get('products', [])
+        
+        if not products:
+            return jsonify({'success': False, 'error': 'لا توجد منتجات'}), 404
+        
+        # إنشاء HTML مع جميع الروابط
+        html_content = create_links_html(products)
+        
+        return render_template('landing_links.html', 
+                             links_html=html_content,
+                             total_products=len(products))
+        
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
 
+def create_links_html(products):
+    """إنشاء HTML مع روابط جميع المنتجات."""
+    html = '''
+    <!DOCTYPE html>
+    <html dir="rtl">
+    <head>
+        <meta charset="UTF-8">
+        <title>روابط صفحات الهبوط - Argento Store</title>
+        <style>
+            body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+            .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; }
+            h1 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+            .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; margin-top: 20px; }
+            .product-card { border: 1px solid #ddd; border-radius: 8px; padding: 15px; background: white; }
+            .product-image { width: 100%; height: 200px; object-fit: cover; border-radius: 5px; }
+            .product-title { font-weight: bold; margin: 10px 0; color: #2c3e50; }
+            .product-price { color: #e74c3c; font-size: 18px; margin: 5px 0; }
+            .landing-link { display: block; background: #3498db; color: white; padding: 10px; text-align: center; 
+                           border-radius: 5px; text-decoration: none; margin-top: 10px; }
+            .landing-link:hover { background: #2980b9; }
+            .copy-btn { background: #2ecc71; color: white; border: none; padding: 8px 15px; 
+                       border-radius: 5px; cursor: pointer; margin-top: 5px; }
+            .copy-btn:hover { background: #27ae60; }
+            .merchant-badge { background: #9b59b6; color: white; padding: 3px 8px; border-radius: 3px; 
+                            font-size: 12px; display: inline-block; margin: 5px 0; }
+            .search-box { margin: 20px 0; padding: 10px; width: 100%; border: 1px solid #ddd; border-radius: 5px; }
+            .stats { background: #ecf0f1; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>🎯 روابط صفحات الهبوط للمنتجات</h1>
+            
+            <div class="stats">
+                <h3>📊 الإحصائيات:</h3>
+                <p>إجمالي المنتجات: <strong>''' + str(len(products)) + '''</strong></p>
+                <p>التجار: <strong>''' + get_merchants_count(products) + '''</strong></p>
+                <p>آخر تحديث: <strong>''' + datetime.now().strftime("%Y-%m-%d %H:%M") + '''</strong></p>
+            </div>
+            
+            <input type="text" id="searchBox" class="search-box" placeholder="🔍 ابحث عن منتج بالاسم أو التاجر..." onkeyup="searchProducts()">
+            
+            <div class="product-grid" id="productGrid">
+    '''
+    
+    for product in products:
+        product_id = product.get('id', '')
+        product_name = product.get('name', product.get('title', 'منتج بدون اسم'))
+        product_price = product.get('price', 0)
+        product_image = product.get('image_url', 'https://via.placeholder.com/300x200/2c3e50/ecf0f1?text=Argento+Store')
+        merchant_id = product.get('merchant_id', 'غير معروف')
+        merchant_name = get_merchant_name(merchant_id)
+        
+        landing_url = f'https://medon90ae.github.io/argento-store/landing/?product_id={product_id}'
+        
+        html += f'''
+                <div class="product-card" data-name="{product_name.lower()}" data-merchant="{merchant_name.lower()}">
+                    <img src="{product_image}" alt="{product_name}" class="product-image">
+                    <div class="product-title">{product_name}</div>
+                    <div class="product-price">{product_price} جنيه</div>
+                    <div class="merchant-badge">{merchant_name}</div>
+                    <a href="{landing_url}" target="_blank" class="landing-link">
+                        🛒 فتح صفحة الطلب
+                    </a>
+                    <button class="copy-btn" onclick="copyToClipboard('{landing_url}')">
+                        📋 نسخ الرابط
+                    </button>
+                </div>
+        '''
+    
+    html += '''
+            </div>
+        </div>
+        
+        <script>
+            function searchProducts() {
+                const searchTerm = document.getElementById('searchBox').value.toLowerCase();
+                const products = document.querySelectorAll('.product-card');
+                
+                products.forEach(product => {
+                    const name = product.getAttribute('data-name');
+                    const merchant = product.getAttribute('data-merchant');
+                    
+                    if (name.includes(searchTerm) || merchant.includes(searchTerm)) {
+                        product.style.display = 'block';
+                    } else {
+                        product.style.display = 'none';
+                    }
+                });
+            }
+            
+            function copyToClipboard(text) {
+                navigator.clipboard.writeText(text).then(() => {
+                    alert('✅ تم نسخ الرابط: ' + text);
+                });
+            }
+        </script>
+    </body>
+    </html>
+    '''
+    
+    return html
+
+def get_merchant_name(merchant_id):
+    """الحصول على اسم التاجر."""
+    merchants = {
+        'SUDIID': 'Azúcar',
+        'CASTELPHARMA': 'كاستيل فارما',
+        'FOFO': 'Fofo',
+        'UNILEVERID': 'يونيليفر'
+    }
+    return merchants.get(merchant_id, merchant_id)
+
+def get_merchants_count(products):
+    """عدد التجار المختلفين."""
+    merchants = set()
+    for product in products:
+        merchants.add(product.get('merchant_id', ''))
+    return ', '.join([get_merchant_name(m) for m in merchants if m])
 # ========== المسار 1: جلب منتج معين ==========
 @app.route('/api/product/<product_id>', methods=['GET'])
 def get_product(product_id):
