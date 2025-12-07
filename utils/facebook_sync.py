@@ -7,47 +7,41 @@ import requests
 from datetime import datetime
 import time
 
+# في utils/facebook_sync.py
 def sync_facebook_catalogs():
-    """
-    المزامنة الرئيسية: جلب جميع الكتالوجات من فيسبوك.
+    catalog_ids = [
+        'SUDIID',           # Azúcar
+        'CASTELPHARMA',     # كاستيل فارما
+        'FOFO',             # Fofo
+        'UNILEVERID'        # يونيليفر
+    ]
     
-    Returns:
-        dict: نتائج المزامنة
-    """
-    print("🔍 بدء مزامنة كتالوجات فيسبوك...")
+    all_products = []
     
-    try:
-        # الحصول على مفاتيح API من متغيرات البيئة
-        access_token = os.environ.get('FBACCSESSTOKEN')
-        
-        if not access_token:
-            return {
-                'success': False,
-                'error': 'مفتاح فيسبوك غير موجود في متغيرات البيئة'
-            }
-        
-        # قائمة معرفات الكتالوجات من متغيرات البيئة
-        catalog_ids = get_catalog_ids_from_env()
-        
-        if not catalog_ids:
-            return {
-                'success': False,
-                'error': 'لا توجد معرفات كتالوجات في متغيرات البيئة'
-            }
-        
-        # جلب المنتجات من كل كتالوج
-        all_products = []
-        catalog_stats = {}
-        
-        for catalog_name, catalog_id in catalog_ids.items():
-            print(f"📦 جلب كتالوج: {catalog_name} ({catalog_id})")
-            
-            products = fetch_catalog_products(catalog_id, access_token, catalog_name)
-            
-            if products:
-                all_products.extend(products)
-                catalog_stats[catalog_name] = {
-                    
+    for catalog_id in catalog_ids:
+        try:
+            products = get_facebook_catalog_products(catalog_id)
+            for product in products:
+                product['merchant_id'] = catalog_id
+                product['merchant_name'] = get_merchant_name(catalog_id)
+            all_products.extend(products)
+        except Exception as e:
+            print(f"خطأ في كتالوج {catalog_id}: {e}")
+    
+    # حفظ جميع المنتجات
+    save_data = {
+        'metadata': {
+            'total_products': len(all_products),
+            'last_updated': datetime.now().isoformat(),
+            'catalogs': catalog_ids
+        },
+        'products': all_products
+    }
+    
+    with open(CATALOG_FILE, 'w', encoding='utf-8') as f:
+        json.dump(save_data, f, ensure_ascii=False, indent=2)
+    
+    return {'total_products': len(all_products)}
 def get_catalog_ids_from_env():
     """
     الحصول على معرفات الكتالوجات من متغيرات البيئة.
