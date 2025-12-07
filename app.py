@@ -17,35 +17,123 @@ ORDERS_FILE = 'data/orders.json'
 # تأكد من وجود مجلد data
 os.makedirs('data', exist_ok=True)
 
-# ========== المسار 1: جلب منتج معين ==========
-@app.route('/api/product/<product_id>', methods=['GET'])
-def get_product(product_id):
-    """جلب بيانات منتج معين."""
+
+# ========== المسارات الجديدة للوحة التحكم ==========
+
+@app.route('/api/dashboard-stats')
+def dashboard_stats():
+    """جلب إحصائيات اللوحة."""
     try:
-        # تحميل الكتالوج المخبأ
+        # عد الطلبات
+        total_orders = 0
+        pending_orders = 0
+        confirmed_orders = 0
+        
+        if os.path.exists(ORDERS_FILE):
+            with open(ORDERS_FILE, 'r', encoding='utf-8') as f:
+                orders = json.load(f)
+                total_orders = len(orders)
+                pending_orders = len([o for o in orders if o.get('status') == 'pending'])
+                confirmed_orders = len([o for o in orders if o.get('status') == 'confirmed'])
+        
+        # عد المنتجات
+        total_products = 0
         if os.path.exists(CATALOG_FILE):
             with open(CATALOG_FILE, 'r', encoding='utf-8') as f:
                 catalog = json.load(f)
-        else:
-            return jsonify({'error': 'الكتالوج غير متوفر'}), 404
+                total_products = catalog.get('metadata', {}).get('total_products', 0)
         
-        # البحث عن المنتج
-        for product in catalog:
-            if str(product.get('id')) == product_id or str(product.get('retailer_id')) == product_id:
-                # تحديد التاجر بناءً على معرف الكتالوج
-                merchant_info = get_merchant_info(product.get('catalog_id', ''))
-                
-                # إضافة معلومات التاجر
-                product['merchant_name'] = merchant_info['name']
-                product['merchant_id'] = merchant_info['id']
-                product['merchant_phone'] = merchant_info['phone']
-                
-                return jsonify({'product': product})
-        
-        return jsonify({'error': 'المنتج غير موجود'}), 404
+        return jsonify({
+            'success': True,
+            'total_orders': total_orders,
+            'pending_orders': pending_orders,
+            'confirmed_orders': confirmed_orders,
+            'total_products': total_products,
+            'exportable_orders': pending_orders + confirmed_orders
+        })
         
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/orders')
+def get_orders():
+    """جلب جميع الطلبات."""
+    try:
+        orders = []
+        if os.path.exists(ORDERS_FILE):
+            with open(ORDERS_FILE, 'r', encoding='utf-8') as f:
+                orders = json.load(f)
+        
+        # ترتيب من الأحدث للأقدم
+        orders.sort(key=lambda x: x.get('created_at', ''), reverse=True)
+        
+        return jsonify({
+            'success': True,
+            'orders': orders,
+            'count': len(orders)
+        })
+        
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/order/<order_id>')
+def get_order(order_id):
+    """جلب طلب محدد."""
+    try:
+        if not os.path.exists(ORDERS_FILE):
+            return jsonify({'success': False, 'error': 'لا توجد طلبات'}), 404
+        
+        with open(ORDERS_FILE, 'r', encoding='utf-8') as f:
+            orders = json.load(f)
+        
+        for order in orders:
+            if order.get('order_id') == order_id:
+                return jsonify({'success': True, 'order': order})
+        
+        return jsonify({'success': False, 'error': 'الطلب غير موجود'}), 404
+        
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/sync-status')
+def sync_status():
+    """حالة مزامنة الكتالوج."""
+    try:
+        from utils.facebook_sync import check_sync_status
+        status = check_sync_status()
+        return jsonify(status)
+    except Exception as e:
+        return jsonify({'synced': False, 'message': str(e)})
+
+@app.route('/api/order/<order_id>/status', methods=['POST'])
+def update_order_status(order_id):
+    """تحديث حالة الطلب."""
+    try:
+        if not os.path.exists(ORDERS_FILE):
+            return jsonify({'success': False, 'error': 'لا توجد طلبات'}), 404
+        
+        with open(ORDERS_FILE, 'r', encoding='utf-8') as f:
+            orders = json.load(f)
+        
+        updated = False
+        for order in orders:
+            if order.get('order_id') == order_id:
+                order['status'] = request.json.get('status', 'pending')
+                order['updated_at'] = datetime.now().isoformat()
+                updated = True
+                break
+        
+        if updated:
+            with open(ORDERS_FILE, 'w', encoding='utf-8') as f:
+                json.dump(orders, f, ensure_ascii=False, indent=2)
+            
+            return jsonify({'success': True, 'message': 'تم تحديث الحالة'})
+        else:
+            return jsonify({'success': False, 'error': 'الطلب غير موجود'}), 404
+            
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+# ========== المسار 1: جلب منتج معين ==========
 
 # ========== المسار 2: استقبال طلب جديد ==========
 @app.route('/api/order', methods=['POST'])
