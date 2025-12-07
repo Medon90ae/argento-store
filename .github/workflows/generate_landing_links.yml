@@ -1,6 +1,5 @@
 name: Generate Landing Links
 
-# تشغيل يدوي من واجهة GitHub Actions
 on:
   workflow_dispatch:
 
@@ -14,7 +13,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          persist-credentials: true  # يسمح بالدفع باستخدام GITHUB_TOKEN
+          persist-credentials: true
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -30,11 +29,16 @@ jobs:
       - name: Run generate_landing_links
         id: gen
         run: |
-          python - <<'PY'
-from app import generate_landing_links
+          python - <<'PYCODE'
+import sys
+try:
+    from app import generate_landing_links
+except Exception as e:
+    print("IMPORT_ERROR:", e)
+    sys.exit(2)
 changed, out = generate_landing_links(write_back=True)
 print(f"CHANGED={changed};OUT={out}")
-PY
+PYCODE
 
       - name: Show repo status
         run: git status --porcelain && ls -la data || true
@@ -44,7 +48,6 @@ PY
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data/catalog_cache.json || true
-          # Only commit if there are changes
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
