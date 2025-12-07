@@ -16,6 +16,28 @@ ORDERS_FILE = os.path.join(BASE_DIR, 'data', 'orders.json')
 
 # تأكد من وجود مجلد data
 os.makedirs(os.path.join(BASE_DIR, 'data'), exist_ok=True)
+
+# ========== المسار 8: جلب المنتجات للروابط ==========
+@app.route('/api/products-for-links')
+def get_products_for_links():
+    """جلب المنتجات لعرض الروابط."""
+    try:
+        if not os.path.exists(CATALOG_FILE):
+            return jsonify({'success': False, 'error': 'الكتالوج غير موجود'}), 404
+        
+        with open(CATALOG_FILE, 'r', encoding='utf-8') as f:
+            catalog = json.load(f)
+        
+        products = catalog.get('products', [])
+        
+        return jsonify({
+            'success': True,
+            'products': products,
+            'count': len(products)
+        })
+        
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
 # ========== المسار 7: إنشاء روابط صفحات الهبوط ==========
 @app.route('/admin/generate-landing-links', methods=['GET'])
 def generate_landing_links():
