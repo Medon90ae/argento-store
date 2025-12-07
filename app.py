@@ -282,6 +282,12 @@ def home():
         }
     })
 
+@app.route('/admin/update-catalog', methods=['POST'])
+def update_catalog():
+    from utils.facebook_sync import sync_facebook_catalogs
+    result = sync_facebook_catalogs()
+    return jsonify(result)
+
 # ========== تشغيل التطبيق ==========
 if __name__ == '__main__':
     # في Railway، استمع على المنفذ المحدد في متغير البيئة
