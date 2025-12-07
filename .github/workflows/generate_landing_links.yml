@@ -26,19 +26,28 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           pip install python-slugify
 
-      - name: Run generate_landing_links
-        id: gen
+      - name: Create runner script
         run: |
-          python - <<'PYCODE'
-import sys
+          cat > run_generate_links.py <<'PY'
+from importlib import import_module
+import sys, traceback
 try:
-    from app import generate_landing_links
-except Exception as e:
-    print("IMPORT_ERROR:", e)
-    sys.exit(2)
-changed, out = generate_landing_links(write_back=True)
-print(f"CHANGED={changed};OUT={out}")
-PYCODE
+    # try to import app and call generate_landing_links
+    mod = import_module('app')
+    func = getattr(mod, 'generate_landing_links', None)
+    if not func:
+        print("ERROR: generate_landing_links not found in app.py")
+        sys.exit(2)
+    changed, out = func(write_back=True)
+    print(f"CHANGED={changed};OUT={out}")
+except Exception:
+    traceback.print_exc()
+    sys.exit(3)
+PY
+
+      - name: Run generator
+        id: gen
+        run: python run_generate_links.py
 
       - name: Show repo status
         run: git status --porcelain && ls -la data || true
