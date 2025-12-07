@@ -18,39 +18,41 @@
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             color: #333;
             line-height: 1.6;
+            padding: 20px;
         }
         
         .container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
         }
         
         .header {
+            background: linear-gradient(to right, #3498db, #2ecc71);
+            color: white;
+            padding: 30px;
             text-align: center;
-            margin-bottom: 30px;
-            padding: 20px;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
         
         .header h1 {
-            color: #2c3e50;
-            font-size: 2.2em;
+            font-size: 2.5em;
             margin-bottom: 10px;
         }
         
-        .header h1 i {
-            color: #3498db;
-            margin-left: 10px;
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
         }
         
         .stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 30px;
+            gap: 20px;
+            padding: 25px;
+            background: #f8f9fa;
         }
         
         .stat-card {
@@ -67,39 +69,40 @@
         }
         
         .stat-value {
-            font-size: 2.5em;
+            font-size: 2.8em;
             font-weight: bold;
             color: #2c3e50;
             display: block;
+            line-height: 1;
         }
         
         .stat-label {
             color: #7f8c8d;
             font-size: 1em;
-        }
-        
-        .products-container {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-top: 10px;
         }
         
         .controls {
-            margin-bottom: 25px;
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
+            padding: 25px;
+            background: white;
+            border-bottom: 1px solid #eee;
         }
         
         .search-box {
-            flex: 1;
-            min-width: 300px;
-            padding: 12px 20px;
+            width: 100%;
+            padding: 15px 20px;
             border: 2px solid #3498db;
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 1.1em;
             font-family: 'Cairo', sans-serif;
+            margin-bottom: 15px;
+        }
+        
+        .filters {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
         }
         
         .filter-btn {
@@ -109,64 +112,99 @@
             padding: 12px 20px;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 1em;
             font-family: 'Cairo', sans-serif;
-            transition: background 0.3s;
+            font-size: 1em;
+            transition: all 0.3s;
         }
         
         .filter-btn:hover {
             background: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .filter-btn.active {
+            background: #2ecc71;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
         }
         
         .export-btn {
-            background: #2ecc71;
+            background: #e74c3c;
             color: white;
             border: none;
-            padding: 12px 20px;
+            padding: 15px 25px;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 1em;
             font-family: 'Cairo', sans-serif;
-            transition: background 0.3s;
+            font-size: 1.1em;
+            flex: 1;
+            transition: all 0.3s;
         }
         
         .export-btn:hover {
-            background: #27ae60;
+            background: #c0392b;
+            transform: translateY(-2px);
+        }
+        
+        .refresh-btn {
+            background: #f39c12;
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Cairo', sans-serif;
+            font-size: 1.1em;
+            flex: 1;
+            transition: all 0.3s;
+        }
+        
+        .refresh-btn:hover {
+            background: #d68910;
+            transform: translateY(-2px);
+        }
+        
+        .products-container {
+            padding: 25px;
         }
         
         .products-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
         }
         
         .product-card {
-            border: 1px solid #e0e0e0;
-            border-radius: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
             overflow: hidden;
             transition: all 0.3s;
             background: white;
         }
         
         .product-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
             border-color: #3498db;
         }
         
         .product-image {
             width: 100%;
-            height: 200px;
+            height: 220px;
             object-fit: cover;
             background: #f8f9fa;
         }
         
         .product-info {
-            padding: 15px;
+            padding: 20px;
         }
         
         .product-title {
-            font-size: 1.2em;
+            font-size: 1.3em;
             font-weight: bold;
             color: #2c3e50;
             margin-bottom: 10px;
@@ -177,7 +215,7 @@
         
         .product-price {
             color: #e74c3c;
-            font-size: 1.3em;
+            font-size: 1.5em;
             font-weight: bold;
             margin: 10px 0;
         }
@@ -185,17 +223,18 @@
         .merchant-badge {
             background: #9b59b6;
             color: white;
-            padding: 5px 10px;
-            border-radius: 5px;
+            padding: 8px 15px;
+            border-radius: 20px;
             font-size: 0.9em;
             display: inline-block;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
         }
         
         .product-id {
             color: #7f8c8d;
-            font-size: 0.8em;
-            margin-bottom: 10px;
+            font-size: 0.85em;
+            margin-bottom: 15px;
+            font-family: monospace;
         }
         
         .links-container {
@@ -203,65 +242,85 @@
             gap: 10px;
             margin-top: 15px;
         }
-        
-        .landing-link {
-            flex: 1;
+                .landing-link {
+            flex: 2;
             background: #3498db;
             color: white;
             text-decoration: none;
-            padding: 10px;
-            border-radius: 5px;
+            padding: 12px;
+            border-radius: 8px;
             text-align: center;
             font-weight: bold;
-            transition: background 0.3s;
+            transition: all 0.3s;
         }
         
         .landing-link:hover {
             background: #2980b9;
+            transform: translateY(-2px);
         }
         
         .copy-btn {
+            flex: 1;
             background: #f39c12;
             color: white;
             border: none;
-            padding: 10px 15px;
-            border-radius: 5px;
+            padding: 12px;
+            border-radius: 8px;
             cursor: pointer;
             font-weight: bold;
-            transition: background 0.3s;
+            transition: all 0.3s;
         }
         
         .copy-btn:hover {
             background: #d68910;
+            transform: translateY(-2px);
         }
         
         .error-message {
             background: #e74c3c;
             color: white;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
+            padding: 20px;
+            border-radius: 10px;
             text-align: center;
+            margin: 20px;
         }
         
-        .success-message {
-            background: #2ecc71;
+        .error-message a {
             color: white;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            text-align: center;
+            text-decoration: underline;
+            font-weight: bold;
         }
         
         .loading {
             text-align: center;
-            padding: 40px;
+            padding: 60px;
             color: #7f8c8d;
         }
         
         .loading i {
-            font-size: 2em;
-            margin-bottom: 10px;
+            font-size: 3em;
+            margin-bottom: 20px;
+            color: #3498db;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px;
+            color: #7f8c8d;
+        }
+        
+        .empty-state i {
+            font-size: 4em;
+            margin-bottom: 20px;
+            color: #95a5a6;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            color: #7f8c8d;
+            border-top: 1px solid #eee;
         }
         
         @media (max-width: 768px) {
@@ -269,16 +328,20 @@
                 grid-template-columns: 1fr;
             }
             
-            .controls {
+            .filters {
                 flex-direction: column;
             }
             
-            .search-box {
-                min-width: 100%;
+            .filter-btn {
+                width: 100%;
             }
             
             .header h1 {
                 font-size: 1.8em;
+            }
+            
+            .stat-value {
+                font-size: 2.2em;
             }
         }
     </style>
@@ -293,8 +356,8 @@
         {% if error %}
         <div class="error-message">
             <i class="fas fa-exclamation-circle"></i> {{ error }}
-            <br>
-            <small><a href="/admin/update-catalog" style="color: white; text-decoration: underline;">اضغط هنا لتحديث الكتالوج</a></small>
+            <br><br>
+            <a href="/admin/update-catalog">اضغط هنا لتحديث الكتالوج</a>
         </div>
         {% endif %}
         
@@ -304,64 +367,99 @@
                 <span class="stat-label">إجمالي المنتجات</span>
             </div>
             <div class="stat-card">
-                <span class="stat-value" id="totalMerchants">{{ products|map(attribute='merchant_id')|unique|list|length }}</span>
+                <span class="stat-value" id="totalMerchants">{{ total_merchants }}</span>
                 <span class="stat-label">عدد التجار</span>
             </div>
             <div class="stat-card">
-                <span class="stat-value" id="lastUpdated">{% if last_updated %}✅{% else %}❌{% endif %}</span>
-                <span class="stat-label">آخر تحديث</span>
+                <span class="stat-value">{% if last_updated %}✅{% else %}❌{% endif %}</span>
+                <span class="stat-label">حالة الكتالوج</span>
             </div>
-            <div class="stat-card">
-                <span class="stat-value">{{ (products|sum(attribute='price')|int) }}</span>
-                <span class="stat-label">إجمالي القيمة</span>
+                        <div class="stat-card">
+                <span class="stat-value">{{ products|sum(attribute='price')|int }}</span>
+                <span class="stat-label">إجمالي القيمة (ج)</span>
             </div>
         </div>
         
-        <div class="products-container">
-            {% if products %}
-            <div class="controls">
-                <input type="text" id="searchBox" class="search-box" placeholder="🔍 ابحث عن منتج بالاسم أو التاجر...">
-                
-                <button class="filter-btn" onclick="filterProducts('all')">
-                    <i class="fas fa-filter"></i> الكل
+        {% if products %}
+        <div class="controls">
+            <input type="text" id="searchBox" class="search-box" placeholder="🔍 ابحث عن منتج بالاسم أو التاجر أو السعر..." autocomplete="off">
+            
+            <div class="filters">
+                <button class="filter-btn active" data-filter="all">
+                    <i class="fas fa-layer-group"></i> الكل
                 </button>
                 
-                {% set merchants = products|map(attribute='merchant_id')|unique %}
+                {% set merchants = [] %}
+                {% for product in products %}
+                    {% if product.merchant_id not in merchants %}
+                        {% set _ = merchants.append(product.merchant_id) %}
+                    {% endif %}
+                {% endfor %}
+                
                 {% for merchant in merchants %}
-                <button class="filter-btn" onclick="filterByMerchant('{{ merchant }}')">
+                <button class="filter-btn" data-filter="{{ merchant }}">
                     <i class="fas fa-store"></i> {{ merchant }}
                 </button>
                 {% endfor %}
                 
-                <button class="export-btn" onclick="exportToCSV()">
-                    <i class="fas fa-download"></i> تصدير CSV
+                <button class="filter-btn" data-filter="price_asc">
+                    <i class="fas fa-sort-amount-up"></i> الأرخص أولاً
+                </button>
+                
+                <button class="filter-btn" data-filter="price_desc">
+                    <i class="fas fa-sort-amount-down"></i> الأعلى سعراً
                 </button>
             </div>
             
+            <div class="action-buttons">
+                <button class="export-btn" onclick="exportToCSV()">
+                    <i class="fas fa-file-csv"></i> تصدير جميع الروابط (CSV)
+                </button>
+                <button class="refresh-btn" onclick="window.location.reload()">
+                    <i class="fas fa-sync-alt"></i> تحديث الصفحة
+                </button>
+            </div>
+        </div>
+        
+        <div class="products-container">
             <div class="products-grid" id="productsGrid">
                 {% for product in products %}
                 <div class="product-card" 
                      data-name="{{ product.name|lower }}" 
                      data-merchant="{{ product.merchant_id|lower }}"
-                     data-price="{{ product.price }}">
+                     data-price="{{ product.price }}"
+                     data-merchant-id="{{ product.merchant_id }}">
                     
-                    <img src="{{ product.image_url or 'https://via.placeholder.com/320x200/2c3e50/ecf0f1?text=' + product.name|truncate(20) }}" 
+                    <img src="{{ product.image_url if product.image_url else 'https://via.placeholder.com/350x220/2c3e50/ecf0f1?text=' + product.name|truncate(20, true, '...') }}" 
                          alt="{{ product.name }}" 
                          class="product-image"
-                         onerror="this.src='https://via.placeholder.com/320x200/2c3e50/ecf0f1?text=Argento+Store'">
+                         onerror="this.src='https://via.placeholder.com/350x220/2c3e50/ecf0f1?text=Argento+Store'">
                     
                     <div class="product-info">
                         <div class="product-title">{{ product.name }}</div>
-                        <div class="product-price">{{ product.price|int }} جنيه</div>
-                        <div class="merchant-badge">{{ product.merchant_name or product.merchant_id }}</div>
-                        <div class="product-id">#{{ product.id }}</div>
+                        <div class="product-price">{{ product.price|int if product.price is number else 0 }} ج</div>
+                        
+                        {% if product.merchant_id %}
+                        <div class="merchant-badge">
+                            <i class="fas fa-tag"></i> 
+                            {% if product.merchant_id == 'SUDIID' %}Azúcar
+                            {% elif product.merchant_id == 'CASTELPHARMA' %}كاستيل فارما
+                            {% elif product.merchant_id == 'FOFO' %}Fofo
+                            {% elif product.merchant_id == 'UNILEVERID' %}يونيليفر
+                            {% else %}{{ product.merchant_id }}{% endif %}
+                        </div>
+                        {% endif %}
+                        
+                        <div class="product-id">
+                            <i class="fas fa-hashtag"></i> {{ product.id }}
+                        </div>
                         
                         <div class="links-container">
                             {% set landing_url = 'https://medon90ae.github.io/argento-store/landing/?product_id=' + product.id|string %}
                             <a href="{{ landing_url }}" target="_blank" class="landing-link">
-                                <i class="fas fa-external-link-alt"></i> فتح
+                                <i class="fas fa-external-link-alt"></i> فتح صفحة الطلب
                             </a>
-                            <button class="copy-btn" onclick="copyLink('{{ landing_url }}')">
+                            <button class="copy-btn" onclick="copyLink('{{ landing_url }}', '{{ product.name }}')">
                                 <i class="fas fa-copy"></i> نسخ
                             </button>
                         </div>
@@ -369,84 +467,187 @@
                 </div>
                 {% endfor %}
             </div>
-            {% else %}
-            <div class="loading">
-                <i class="fas fa-box-open"></i>
-                <h3>لا توجد منتجات</h3>
-                <p>قم بتحديث الكتالوج أولاً للحصول على المنتجات</p>
-                <a href="/admin/update-catalog" style="color: #3498db;">تحديث الكتالوج الآن</a>
-            </div>
-            {% endif %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-box-open"></i>
+            <h2>لا توجد منتجات</h2>
+            <p>يبدو أن الكتالوج فارغ أو لم يتم تحميله بعد</p>
+            <br>
+            <a href="/admin/update-catalog" style="color: #3498db; font-weight: bold; font-size: 1.1em;">
+                <i class="fas fa-sync-alt"></i> تحديث الكتالوج الآن
+            </a>
+        </div>
+        {% endif %}
+        
+        <div class="footer">
+            <p>© 2024 Argento Store - يتم تحديث الصفحة تلقائياً عند تحديث الكتالوج</p>
+            <p>عدد المنتجات: {{ total_products }} | آخر تحديث: {% if last_updated %}{{ last_updated|replace('T', ' ') }}{% else %}غير متاح{% endif %}</p>
         </div>
     </div>
 
     <script>
+        // جميع المنتجات
+        let allProducts = {{ products|tojson|safe }};
+        let currentFilter = 'all';
+        
         // تصفية المنتجات حسب البحث
         function filterProducts() {
             const searchTerm = document.getElementById('searchBox').value.toLowerCase();
-            const products = document.querySelectorAll('.product-card');
+            const productsGrid = document.getElementById('productsGrid');
             
-            products.forEach(product => {
-                const name = product.getAttribute('data-name');
-                const merchant = product.getAttribute('data-merchant');
-                const price = product.getAttribute('data-price');
+            if (!productsGrid) return;
+            
+            const productCards = productsGrid.querySelectorAll('.product-card');
+            let visibleCount = 0;
+            
+            productCards.forEach(card => {
+                const name = card.getAttribute('data-name');
+                const merchant = card.getAttribute('data-merchant');
+                const price = card.getAttribute('data-price');
+                const merchantId = card.getAttribute('data-merchant-id');
                 
-                if (name.includes(searchTerm) || 
-                    merchant.includes(searchTerm) || 
-                    price.includes(searchTerm)) {
-                    product.style.display = 'block';
-                } else {
-                    product.style.display = 'none';
+                let shouldShow = true;
+                
+                // تطبيق البحث
+                if (searchTerm) {
+                    shouldShow = name.includes(searchTerm) || 
+                                merchant.includes(searchTerm) || 
+                                price.includes(searchTerm) ||
+                                merchantId.toLowerCase().includes(searchTerm);
                 }
+                                // تطبيق التصفية الحالية
+                if (shouldShow && currentFilter !== 'all') {
+                    if (currentFilter === 'price_asc' || currentFilter === 'price_desc') {
+                        // سيتم إعادة الترتيب لاحقاً
+                    } else if (currentFilter !== merchantId) {
+                        shouldShow = false;
+                    }
+                }
+                
+                card.style.display = shouldShow ? 'block' : 'none';
+                if (shouldShow) visibleCount++;
             });
+            
+            // إعادة ترتيب حسب السعر إذا لزم الأمر
+            if (currentFilter === 'price_asc' || currentFilter === 'price_desc') {
+                sortProductsByPrice();
+            }
+            
+            // تحديث العداد
+            updateProductCount(visibleCount);
         }
         
-        // تصفية حسب التاجر
-        function filterByMerchant(merchantId) {
-            const products = document.querySelectorAll('.product-card');
+        // تحديث عداد المنتجات
+        function updateProductCount(count) {
+            const counter = document.getElementById('totalProducts');
+            if (counter) {
+                counter.textContent = count;
+            }
+        }
+        
+        // ترتيب المنتجات حسب السعر
+        function sortProductsByPrice() {
+            const productsGrid = document.getElementById('productsGrid');
+            if (!productsGrid) return;
             
-            products.forEach(product => {
-                const merchant = product.getAttribute('data-merchant');
-                
-                if (merchantId === 'all' || merchant === merchantId.toLowerCase()) {
-                    product.style.display = 'block';
-                } else {
-                    product.style.display = 'none';
+            const productCards = Array.from(productsGrid.querySelectorAll('.product-card'));
+            
+            // إخفاء جميع البطاقات أولاً
+            productCards.forEach(card => {
+                if (card.style.display !== 'none') {
+                    card.style.order = '0';
                 }
+            });
+            
+            // ترتيب البطاقات المرئية حسب السعر
+            const visibleCards = productCards.filter(card => card.style.display !== 'none');
+            
+            visibleCards.sort((a, b) => {
+                const priceA = parseFloat(a.getAttribute('data-price')) || 0;
+                const priceB = parseFloat(b.getAttribute('data-price')) || 0;
+                
+                if (currentFilter === 'price_asc') {
+                    return priceA - priceB;
+                } else {
+                    return priceB - priceA;
+                }
+            });
+            
+            // تعيين order جديد
+            visibleCards.forEach((card, index) => {
+                card.style.order = index + 1;
             });
         }
         
         // نسخ الرابط
-        function copyLink(url) {
+        function copyLink(url, productName) {
             navigator.clipboard.writeText(url).then(() => {
-                alert('✅ تم نسخ الرابط:\n' + url);
+                showNotification(`✅ تم نسخ رابط "${productName.substring(0, 30)}..."`);
             }).catch(err => {
-                alert('❌ خطأ في النسخ: ' + err);
+                showNotification('❌ خطأ في النسخ: ' + err);
             });
+        }
+        
+        // إشعار
+        function showNotification(message) {
+            // إزالة أي إشعار سابق
+            const oldNotification = document.querySelector('.notification');
+            if (oldNotification) {
+                oldNotification.remove();
+            }
+            
+            // إنشاء إشعار جديد
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #2ecc71;
+                color: white;
+                padding: 15px 25px;
+                border-radius: 10px;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+                z-index: 1000;
+                font-family: 'Cairo', sans-serif;
+                font-weight: bold;
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // إزالة الإشعار بعد 3 ثوان
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
         }
         
         // تصدير إلى CSV
         function exportToCSV() {
-            const products = {{ products|tojson|safe }};
-            
-            if (!products.length) {
-                alert('❌ لا توجد منتجات للتصدير');
+            if (!allProducts.length) {
+                showNotification('❌ لا توجد منتجات للتصدير');
                 return;
             }
             
             let csvContent = "data:text/csv;charset=utf-8,";
             
             // العنوان
-            csvContent += "اسم المنتج,السعر,التاجر,معرف المنتج,رابط صفحة الهبوط\n";
+            csvContent += "معرف المنتج,اسم المنتج,السعر,التاجر,رابط صفحة الهبوط\n";
             
             // البيانات
-            products.forEach(product => {
+            allProducts.forEach(product => {
                 const landingUrl = `https://medon90ae.github.io/argento-store/landing/?product_id=${product.id}`;
+                const merchantName = product.merchant_id === 'SUDIID' ? 'Azúcar' :
+                                   product.merchant_id === 'CASTELPHARMA' ? 'كاستيل فارما' :
+                                   product.merchant_id === 'FOFO' ? 'Fofo' :
+                                   product.merchant_id === 'UNILEVERID' ? 'يونيليفر' : product.merchant_id;
+                
                 const row = [
-                    `"${product.name}"`,
-                    product.price,
-                    `"${product.merchant_name || product.merchant_id}"`,
                     product.id,
+                    `"${product.name.replace(/"/g, '""')}"`,
+                    product.price || 0,
+                    `"${merchantName}"`,
                     landingUrl
                 ].join(',');
                 
@@ -456,23 +657,43 @@
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "landing_links_" + new Date().toISOString().slice(0,10) + ".csv");
+            link.setAttribute("download", `landing_links_${new Date().toISOString().slice(0,10)}.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
             
-            alert(`✅ تم تصدير ${products.length} منتج`);
+            showNotification(`✅ تم تصدير ${allProducts.length} منتج`);
         }
         
-        // أحداث
-        document.getElementById('searchBox').addEventListener('input', filterProducts);
-        
-        // رسالة ترحيب
-        console.log('🚀 صفحة روابط المنتجات جاهزة!');
-        
-        {% if products %}
-        console.log(`📊 تم تحميل {{ products|length }} منتج`);
-        {% endif %}
+        // إعداد الأحداث
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchBox = document.getElementById('searchBox');
+            if (searchBox) {
+                searchBox.addEventListener('input', filterProducts);
+            }
+            
+            // إعداد أحداث أزرار التصفية
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // إزالة النشاط من جميع الأزرار
+                    document.querySelectorAll('.filter-btn').forEach(b => {
+                        b.classList.remove('active');
+                    });
+                    
+                    // إضافة النشاط للزر المضغوط
+                    this.classList.add('active');
+                    
+                    // تحديث التصفية الحالية
+                    currentFilter = this.getAttribute('data-filter');
+                    
+                    // تطبيق التصفية
+                    filterProducts();
+                });
+            });
+            
+            console.log('🚀 صفحة روابط المنتجات جاهزة!');
+            console.log(`📊 تم تحميل ${allProducts.length} منتج`);
+        });
     </script>
 </body>
-    </html>
+</html>
