@@ -211,7 +211,7 @@ def get_order(order_id):
         
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
-      @app.route('/api/sync-status')
+@app.route('/api/sync-status')
 def sync_status():
     """حالة مزامنة الكتالوج."""
     try:
