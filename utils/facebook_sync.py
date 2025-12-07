@@ -47,36 +47,7 @@ def sync_facebook_catalogs():
             if products:
                 all_products.extend(products)
                 catalog_stats[catalog_name] = {
-                    'id': catalog_id,
-                    'product_count': len(products),
-                    'last_sync': datetime.now().isoformat()
-                }
-            
-            # انتظر قليلاً بين الطلبات لتجنب Rate Limit
-            time.sleep(1)
-        
-        # حفظ البيانات في الملف المحلي
-        if all_products:
-            save_products_to_file(all_products, catalog_stats)
-        
-        # تحديث ملف التجار
-        update_merchants_file(catalog_stats)
-        
-        return {
-            'success': True,
-            'total_products': len(all_products),
-            'catalogs': catalog_stats,
-            'timestamp': datetime.now().isoformat()
-        }
-        
-    except Exception as e:
-        error_msg = f"خطأ في مزامنة فيسبوك: {str(e)}"
-        print(f"❌ {error_msg}")
-        return {
-            'success': False,
-            'error': error_msg
-        }
-
+                    
 def get_catalog_ids_from_env():
     """
     الحصول على معرفات الكتالوجات من متغيرات البيئة.
