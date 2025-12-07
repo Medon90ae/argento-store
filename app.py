@@ -261,14 +261,14 @@ def get_cities_areas():
     try:
         from config import (
             CITY_TRANSLATIONS_AR_TO_EN,
-            AREA_TRANSLATIONS_AR_TO_EN,
+            OFFICIAL_CITY_AREA_PAIRS,
             OFFICIAL_CITIES_AREAS
         )
         
         return jsonify({
             'cities': CITY_TRANSLATIONS_AR_TO_EN,
-            'areas': AREA_TRANSLATIONS_AR_TO_EN,
-            'city_areas': OFFICIAL_CITIES_AREAS
+            'areas': OFFICIAL_CITIES_AREAS,
+            'city_areas': OFFICIAL_CITY_AREA_PAIRS
         })
         
     except Exception as e:
