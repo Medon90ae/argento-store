@@ -146,21 +146,38 @@ CATALOG_SENDERS = {
 def load_city_area_dict():
     """Load city to areas mapping from addresses.xlsx"""
     global CITY_AREA_DICT
+    CITY_AREA_DICT = defaultdict(list)
     if os.path.exists('addresses.xlsx'):
-        wb = load_workbook('addresses.xlsx')
-        if 'Speedaf standard address data' in wb.sheetnames:
-            sheet = wb['Speedaf standard address data']
-            CITY_AREA_DICT = defaultdict(list)
-            header = [cell.value for cell in sheet[1] if cell.value]
-            if 'City' in header and 'Area' in header:
-                city_idx = header.index('City')
-                area_idx = header.index('Area')
-                for row in sheet.iter_rows(min_row=2):
-                    city = row[city_idx].value
-                    area = row[area_idx].value
-                    if city and area:
-                        CITY_AREA_DICT[city.strip()].append(area.strip())
+        try:
+            wb = load_workbook('addresses.xlsx')
+            if 'Speedaf standard address data' in wb.sheetnames:
+                sheet = wb['Speedaf standard address data']
+                header = [cell.value for cell in sheet[1] if cell.value]
+                print(f"Header found: {header}")
+                if 'City' in header and 'Area' in header:
+                    city_idx = header.index('City')
+                    area_idx = header.index('Area')
+                    for row in sheet.iter_rows(min_row=2):
+                        city = row[city_idx].value
+                        area = row[area_idx].value
+                        if city and area:
+                            city_key = str(city).strip()
+                            area_value = str(area).strip()
+                            if area_value not in CITY_AREA_DICT[city_key]:
+                                CITY_AREA_DICT[city_key].append(area_value)
+                else:
+                    print("City or Area column not found in header")
+            else:
+                print("Sheet 'Speedaf standard address data' not found")
+        except Exception as e:
+            print(f"Error loading addresses.xlsx: {e}")
+    else:
+        print("addresses.xlsx file not found")
+    
     print(f"Loaded {len(CITY_AREA_DICT)} cities with areas")
+    # Debug: print first few cities
+    if CITY_AREA_DICT:
+        print("Sample cities:", list(CITY_AREA_DICT.keys())[:5])
 
 def load_catalog():
     """Load products from first valid catalog file"""
@@ -280,11 +297,20 @@ def find_product_by_slug(slug):
             return p
     return None
 
-def calculate_order(product, quantity, offer=None):
+def calculate_order(product, quantity, customer_city=None, offer=None):
     """Calculate prices with offers and shipping"""
     price_per = product['price']
     subtotal = price_per * quantity
-    shipping_applied = 0 if product.get('free_shipping') else product['shipping_price']
+    
+    # Calculate shipping based on customer city
+    if product.get('free_shipping'):
+        shipping_applied = 0
+    elif customer_city and customer_city in SHIPPING_PRICES:
+        shipping_applied = SHIPPING_PRICES[customer_city]
+    else:
+        # Fallback to product's default shipping price
+        shipping_applied = product.get('shipping_price', 50.0)
+    
     discount = 0
     offer = product.get('offers', [])[-1] if not offer else offer  # latest if none specified
     if offer:
@@ -378,12 +404,16 @@ def api_products():
 @app.route('/landing/<slug>')
 def product_landing(slug):
     product = find_product_by_slug(slug)
+    print(f"Product found: {product is not None}")
+    print(f"City areas dict size: {len(CITY_AREA_DICT)}")
+    print(f"Sample city areas: {dict(list(CITY_AREA_DICT.items())[:3])}")
+    
     if product:
-        return render_template('product_landing.html', product=product, city_areas=CITY_AREA_DICT)
+        return render_template('product_landing.html', product=product, city_areas=dict(CITY_AREA_DICT))
     # Fallback
     products, _ = load_catalog()
     if products:
-        return render_template('product_landing.html', product=products[0], city_areas=CITY_AREA_DICT)
+        return render_template('product_landing.html', product=products[0], city_areas=dict(CITY_AREA_DICT))
     return render_template('index.html', products=[])
 
 @app.route('/api/landing_order', methods=['POST'])
@@ -421,7 +451,8 @@ def landing_order():
         if not product:
             return jsonify({'error': 'المنتج غير موجود'}), 400
 
-        subtotal, discount, shipping_applied, total = calculate_order(product, quantity)
+        customer_city = customer.get('city')
+        subtotal, discount, shipping_applied, total = calculate_order(product, quantity, customer_city)
 
         order = {
             'id': str(uuid.uuid4()),

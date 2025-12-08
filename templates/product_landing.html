@@ -14,8 +14,8 @@
             <p>{{ product.description }}</p>
             <div class="price-banners">
                 <div id="subtotal" class="banner">الإجمالي: {{ product.price }} {{ product.currency }}</div>
-                <div id="shipping" class="banner">{{ "شحن مجاني" if product.free_shipping else "الشحن: " + product.shipping_price|string + " " + product.currency }}</div>
-                <div id="total" class="banner">الإجمالي النهائي: {{ product.price + (0 if product.free_shipping else product.shipping_price) }} {{ product.currency }}</div>
+                <div id="shipping" class="banner">الشحن: اختر المدينة {{ product.currency }}</div>
+                <div id="total" class="banner">الإجمالي النهائي: {{ product.price }} {{ product.currency }}</div>
             </div>
         </div>
         <form id="order-form" action="{{ url_for('landing_order') }}" method="POST">
@@ -30,7 +30,7 @@
                 <input type="tel" name="customer[phone]" placeholder="رقم الهاتف" required>
                 <select id="receiver-city" name="customer[city]" required>
                     <option value="">اختيار المدينة</option>
-                    {% for city in city_areas %}
+                    {% for city in city_areas.keys() %}
                     <option value="{{ city }}">{{ city }}</option>
                     {% endfor %}
                 </select>
@@ -45,17 +45,107 @@
         </form>
     </section>
     <script>
-        const cityAreas = {{ city_areas | tojson }};
-        const pricePer = {{ product.price | tojson }};
-        const shippingPrice = {{ product.shipping_price | tojson }};
-        const freeShipping = {{ product.free_shipping | tojson }};
-        const currency = "{{ product.currency }}";
+        // Initialize variables with default values
+        let cityAreas = {};
+        let productPrice = 0;
+        let productShippingPrice = 0;
+        let productFreeShipping = false;
+        let currency = '';
+        
+        // Safely assign template variables
+        try {
+            cityAreas = JSON.parse('{{ city_areas | tojson }}');
+            productPrice = parseFloat('{{ product.price }}');
+            productShippingPrice = parseFloat('{{ product.shipping_price }}');
+            productFreeShipping = '{{ product.free_shipping }}' === 'True';
+            currency = '{{ product.currency }}';
+        } catch (e) {
+            console.error('Error initializing variables:', e);
+        }
+
+        // Shipping prices by city (same as backend)
+        const SHIPPING_PRICES = {
+            'AinShams': 65,
+            'Al-agamy': 75,
+            'Alex': 75,
+            'Aswan': 130,
+            'Asyut': 95,
+            'Badrashin': 75,
+            'Abu Tesht': 75,
+            'Farshut': 75,
+            'Dar El-Salam': 65,
+            'Al Balena': 95,
+            'Gerga': 95,
+            'Banha': 75,
+            'Behira': 75,
+            'BeniSuef': 95,
+            'Helwan': 65,
+            'Damietta': 75,
+            'Dekernes': 75,
+            'Desouk': 75,
+            'Dokki': 65,
+            'Downtown': 65,
+            'Abu Sinbil': 130,
+            'Administrative Capital': 65,
+            'New Heliopolis City': 65,
+            'Cairo Governorate Desert': 65,
+            'Zaafarana': 130,
+            'Shalateen': 130,
+            'Marsa Alam': 130,
+            'Halaib': 130,
+            'Sallum': 130,
+            'Siwa Oasis': 130,
+            'Sidi Barrani': 130,
+            'Farafra': 130,
+            'Dakhla': 75,
+            'Kharga': 130,
+            'Sharm El-Sheikh': 130,
+            'Abu Radis': 130,
+            'Ain Sokhna': 85,
+            'Faiyum': 95,
+            'Faqus': 75,
+            'Fardos': 65,
+            'Faisal': 65,
+            'Haram': 65,
+            'Hurghada': 130,
+            'Ismailia': 85,
+            'Kafr El-Sheikh': 75,
+            'Khanka': 65,
+            'Luxor': 130,
+            'Maadi': 65,
+            'Mahala': 75,
+            'Mansoura': 75,
+            'Matamir': 65,
+            'Dayrout': 95,
+            'Al Qusiyyah': 130,
+            'Malawi': 130,
+            'Dayr Mawas': 130,
+            'Menya': 95,
+            'Moharram Bek': 75,
+            'Monufia': 75,
+            'Nasr City': 65,
+            'New Cairo': 65,
+            'Matrouh': 130,
+            'North Coast': 130,
+            'Oct6th': 65,
+            'Port said': 85,
+            'Qena': 130,
+            'Sharqia': 75,
+            'Shorouk': 65,
+            'Shoubara El Khima': 65,
+            'Sohag': 95,
+            'Suez': 85,
+            'Tanash': 65,
+            'Tanta': 75,
+            'Zayton': 65,
+            '10th of Ramadan City': 75
+        };
 
         function updateAreas(selectCity, selectArea) {
             const city = selectCity.value;
             selectArea.innerHTML = '<option value="">اختيار المنطقة</option>';
             if (cityAreas[city]) {
-                cityAreas[city].forEach(area => {
+                cityAreas[city].forEach(function(area) {
                     const option = document.createElement('option');
                     option.value = area;
                     option.textContent = area;
@@ -64,13 +154,22 @@
             }
         }
 
+        function getShippingPrice(city) {
+            if (productFreeShipping) return 0;
+            if (city && SHIPPING_PRICES[city]) {
+                return SHIPPING_PRICES[city];
+            }
+            return productShippingPrice; // fallback to default
+        }
+
         function updatePriceBanner() {
             const quantity = parseInt(document.getElementById('quantity').value) || 1;
-            const subtotal = pricePer * quantity;
-            const shippingApplied = freeShipping ? 0 : shippingPrice;
+            const selectedCity = document.getElementById('receiver-city').value;
+            const subtotal = productPrice * quantity;
+            const shippingApplied = getShippingPrice(selectedCity);
             const total = subtotal + shippingApplied;
             document.getElementById('subtotal').textContent = `الإجمالي: ${subtotal.toFixed(2)} ${currency}`;
-            document.getElementById('shipping').textContent = `${freeShipping ? "شحن مجاني" : "الشحن: " + shippingPrice.toFixed(2) + " " + currency }`;
+            document.getElementById('shipping').textContent = `${productFreeShipping ? "شحن مجاني" : "الشحن: " + shippingApplied.toFixed(2) + " " + currency }`;
             document.getElementById('total').textContent = `الإجمالي النهائي: ${total.toFixed(2)} ${currency}`;
         }
 
@@ -78,7 +177,11 @@
         document.getElementById('receiver-city').addEventListener('change', function() {
             const receiverArea = document.getElementById('receiver-area');
             updateAreas(this, receiverArea);
+            updatePriceBanner(); // Update price when city changes
         });
+        
+        // Initialize price banner on page load
+        updatePriceBanner();
         document.getElementById('order-form').addEventListener('submit', function(e) {
             e.preventDefault();
             const formData = new FormData(this);
