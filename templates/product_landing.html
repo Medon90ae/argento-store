@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ product.title }} - صفحة الهبوط</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <section class="landing">
+        <div class="product-hero">
+            <img src="{{ product.image_url }}" alt="{{ product.title }}">
+            <h1>{{ product.title }}</h1>
+            <p>{{ product.description }}</p>
+            <div class="price-banners">
+                <div id="subtotal" class="banner">الإجمالي: {{ product.price }} {{ product.currency }}</div>
+                <div id="shipping" class="banner">{{ "شحن مجاني" if product.free_shipping else "الشحن: " + product.shipping_price|string + " " + product.currency }}</div>
+                <div id="total" class="banner">الإجمالي النهائي: {{ product.price + (0 if product.free_shipping else product.shipping_price) }} {{ product.currency }}</div>
+            </div>
+        </div>
+        <form id="order-form" action="{{ url_for('landing_order') }}" method="POST">
+            <input type="hidden" name="product_id" value="{{ product.id }}">
+            <label for="quantity">الكمية:</label>
+            <input type="number" id="quantity" name="quantity" min="1" value="1">
+
+            <fieldset>
+                <legend>معلومات المرسل (اختياري)</legend>
+                <input type="text" name="customer[sender][name]" placeholder="اسم المرسل">
+                <input type="tel" name="customer[sender][phone]" placeholder="هاتف المرسل">
+                <select id="sender-city" name="customer[sender][city]">
+                    <option value="">اختيار المدينة</option>
+                    {% for city in city_areas %}
+                    <option value="{{ city }}">{{ city }}</option>
+                    {% endfor %}
+                </select>
+                <select id="sender-area" name="customer[sender][area]">
+                    <option value="">اختيار المنطقة</option>
+                </select>
+                <input type="text" name="customer[sender][address]" placeholder="عنوان المرسل">
+                <input type="email" name="customer[sender][email]" placeholder="ايميل المرسل">
+            </fieldset>
+
+            <fieldset>
+                <legend>معلومات المستلم</legend>
+                <input type="text" name="customer[name]" placeholder="اسمك" required>
+                <input type="tel" name="customer[phone]" placeholder="رقم الهاتف" required>
+                <select id="receiver-city" name="customer[city]" required>
+                    <option value="">اختيار المدينة</option>
+                    {% for city in city_areas %}
+                    <option value="{{ city }}">{{ city }}</option>
+                    {% endfor %}
+                </select>
+                <select id="receiver-area" name="customer[area]" required>
+                    <option value="">اختيار المنطقة</option>
+                </select>
+                <input type="text" name="customer[address]" placeholder="العنوان" required>
+                <input type="email" name="customer[email]" placeholder="البريد الإلكتروني">
+            </fieldset>
+
+            <button type="submit" class="btn">اطلب الآن</button>
+        </form>
+    </section>
+    <script>
+        const cityAreas = {{ city_areas | tojson }};
+        const pricePer = {{ product.price | tojson }};
+        const shippingPrice = {{ product.shipping_price | tojson }};
+        const freeShipping = {{ product.free_shipping | tojson }};
+        const currency = "{{ product.currency }}";
+
+        function updateAreas(selectCity, selectArea) {
+            const city = selectCity.value;
+            selectArea.innerHTML = '<option value="">اختيار المنطقة</option>';
+            if (cityAreas[city]) {
+                cityAreas[city].forEach(area => {
+                    const option = document.createElement('option');
+                    option.value = area;
+                    option.textContent = area;
+                    selectArea.appendChild(option);
+                });
+            }
+        }
+
+        function updatePriceBanner() {
+            const quantity = parseInt(document.getElementById('quantity').value) || 1;
+            const subtotal = pricePer * quantity;
+            const shippingApplied = freeShipping ? 0 : shippingPrice;
+            const total = subtotal + shippingApplied;
+            document.getElementById('subtotal').textContent = `الإجمالي: ${subtotal.toFixed(2)} ${currency}`;
+            document.getElementById('shipping').textContent = `${freeShipping ? "شحن مجاني" : "الشحن: " + shippingPrice.toFixed(2) + " " + currency }`;
+            document.getElementById('total').textContent = `الإجمالي النهائي: ${total.toFixed(2)} ${currency}`;
+        }
+
+        document.getElementById('quantity').addEventListener('input', updatePriceBanner);
+        document.getElementById('sender-city').addEventListener('change', function() {
+            const senderArea = document.getElementById('sender-area');
+            updateAreas(this, senderArea);
+        });
+        document.getElementById('receiver-city').addEventListener('change', function() {
+            const receiverArea = document.getElementById('receiver-area');
+            updateAreas(this, receiverArea);
+        });
+        document.getElementById('order-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const data = {};
+            for (let [key, value] of formData.entries()) {
+                if (key.includes('[')) {
+                    const keys = key.split('[').map(k => k.replace(']', ''));
+                    let obj = data;
+                    for (let i = 0; i < keys.length - 1; i++) {
+                        if (!obj[keys[i]]) obj[keys[i]] = {};
+                        obj = obj[keys[i]];
+                    }
+                    obj[keys[keys.length - 1]] = value;
+                } else {
+                    data[key] = value;
+                }
+            }
+            fetch('/api/landing_order', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            }).then(res => res.json()).then(r => {
+                if (r.ok) {
+                    alert('تم الطلب بنجاح، رقم الطلب: ' + r.order_id);
+                    this.reset();
+                } else {
+                    alert('خطأ: ' + r.error);
+                }
+            }).catch(err => alert('خطأ في الإرسال'));
+        });
+    </script>
+</body>
+</html>

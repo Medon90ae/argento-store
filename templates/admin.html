@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة - لوحة التحكم</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>لوحة التحكم للمتجر</h1>
+        <nav>
+            <a href="/">العودة إلى المتجر</a>
+        </nav>
+    </header>
+    <main>
+        <section class="stats">
+            <h2>الإحصائيات</h2>
+            <div class="stat">
+                <h3>عدد الطلبات الكلي</h3>
+                <p>{{ stats.total_orders }}</p>
+            </div>
+            <div class="stat">
+                <h3>طلبات اليوم</h3>
+                <p>{{ stats.today_orders }}</p>
+            </div>
+            <div class="stat">
+                <h3>مبيعات اليوم</h3>
+                <p>{{ stats.today_sales | round(2) }} ج.م</p>
+            </div>
+            <div class="stat">
+                <h3>عدد المنتجات</h3>
+                <p>{{ stats.total_products }}</p>
+            </div>
+            <div class="stat">
+                <h3>منتجات شحن مجاني</h3>
+                <p>{{ stats.free_shipping_products }}</p>
+            </div>
+        </section>
+
+        <section class="products-admin">
+            <h2>إدارة المنتجات</h2>
+            <button id="update-products-btn" class="btn">تحديث المنتجات من كتالوجات Facebook</button>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>العنوان</th>
+                        <th>السعر</th>
+                        <th>سعر الشحن</th>
+                        <th>شحن مجاني</th>
+                        <th>الرابط</th>
+                        <th>حفظ</th>
+                    </tr>
+                </thead>
+                <tbody id="products-table">
+                    {% for product in products %}
+                    <tr data-id="{{ product.id }}">
+                        <td>{{ product.id }}</td>
+                        <td><input type="text" value="{{ product.title }}" name="title"></td>
+                        <td><input type="number" step="0.01" value="{{ product.price }}" name="price"></td>
+                        <td><input type="number" step="0.01" value="{{ product.shipping_price }}" name="shipping_price"></td>
+                        <td><input type="checkbox" {% if product.free_shipping %}checked{% endif %} name="free_shipping"></td>
+                        <td><a href="{{ product.website }}" target="_blank">رابط</a></td>
+                        <td><button class="save-product-btn btn">حفظ</button></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+
+        <section class="orders">
+            <h2>أحدث الطلبات</h2>
+            <button id="archive-orders-btn" class="btn">أرشفة وإعادة ضبط الطلبات</button>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>التاريخ</th>
+                        <th>المنتج</th>
+                        <th>العميل</th>
+                        <th>الإجمالي</th>
+                        <th>الحالة</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr>
+                        <td>{{ order.id }}</td>
+                        <td>{{ order.created_at }}</td>
+                        <td>{{ order.product.title }}</td>
+                        <td>{{ order.customer.name }} ({{ order.customer.phone }})</td>
+                        <td>{{ order.total }}</td>
+                        <td>{{ order.status }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    </main>
+    <script>
+        document.getElementById('update-products-btn').addEventListener('click', function() {
+            if (confirm('هل تريد تحديث المنتجات من كتالوجات Facebook؟')) {
+                fetch('/api/update_catalog', {
+                    method: 'POST',
+                    headers: {'Authorization': 'Bearer admin123'}  // use env var
+                }).then(res => res.json()).then(data => {
+                    alert('تم التحديث: ' + JSON.stringify(data));
+                    location.reload();
+                }).catch(err => alert('خطأ: ' + err));
+            }
+        });
+
+        document.getElementById('archive-orders-btn').addEventListener('click', function() {
+            if (confirm('هل تريد أرشفة الطلبات وإعادة ضبط؟')) {
+                fetch('/api/archive_orders', {method: 'POST'}).then(res => res.json()).then(data => {
+                    alert('تم الأرشفة: ' + JSON.stringify(data));
+                }).catch(err => alert('خطأ في الأرشفة'));
+            }
+        });
+
+        document.querySelectorAll('.save-product-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const row = this.closest('tr');
+                const id = row.dataset.id;
+                const data = {
+                    title: row.querySelector('input[name="title"]').value,
+                    price: parseFloat(row.querySelector('input[name="price"]').value),
+                    shipping_price: parseFloat(row.querySelector('input[name="shipping_price"]').value),
+                    free_shipping: row.querySelector('input[name="free_shipping"]').checked,
+                };
+                fetch('/api/update_product', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({id, ...data})
+                }).then(res => res.json()).then(r => {
+                    alert(r.ok ? 'تم الحفظ' : 'خطأ: ' + r.error);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

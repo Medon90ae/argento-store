@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المتجر - المنتجات</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>متجرنا</h1>
+        <nav>
+            <a href="/">المنتجات</a>
+            <a href="/admin?token={{ request.args.get('token', '') }}">إدارة</a>
+        </nav>
+    </header>
+    <main>
+        <section class="products">
+            {% if products %}
+                {% for product in products %}
+                <div class="product-card">
+                    <img src="{{ product.image_url }}" alt="{{ product.title }}">
+                    <h3>{{ product.title }}</h3>
+                    <p>{{ product.description | truncate(100) }}</p>
+                    <p>السعر: {{ product.price }} {{ product.currency }}</p>
+                    <a href="{{ url_for('product_landing', slug=product.website.split('/')[-1]) }}" class="btn">عرض التفاصيل</a>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p>لا توجد منتجات متاحة حالياً.</p>
+            {% endif %}
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2025 المتجر</p>
+    </footer>
+</body>
+</html>
