@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم - متجرنا</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <section class="admin">
+        <header class="admin-header">
+            <h1>لوحة التحكم</h1>
+            <nav>
+                <a href="/" class="btn">عرض المتجر</a>
+                <a href="/admin?token={{ request.args.get('token') or '' }}" class="btn">إدارة الطلبات</a>
+            </nav>
+        </header>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>إجمالي الطلبات</h3>
+                <p class="stat-number">{{ stats.total_orders }}</p>
+            </div>
+            <div class="stat-card">
+                <h3>طلبات اليوم</h3>
+                <p class="stat-number">{{ stats.today_orders }}</p>
+            </div>
+            <div class="stat-card">
+                <h3>مبيعات اليوم</h3>
+                <p class="stat-number">{{ stats.today_sales }} {{ 'جنيه' }}</p>
+            </div>
+            <div class="stat-card">
+                <h3>إجمالي المنتجات</h3>
+                <p class="stat-number">{{ stats.total_products }}</p>
+            </div>
+        </div>
+
+        <div class="admin-actions">
+            <button onclick="updateCatalog()" class="btn">تحديث الكتالوج</button>
+            <button onclick="archiveOrders()" class="btn">أرشفة الطلبات</button>
+        </div>
+
+        <div class="products-section">
+            <h2>المنتجات المتاحة</h2>
+            <div class="products-grid">
+                {% for product in products %}
+                <div class="product-card">
+                    <img src="{{ product.image_url }}" alt="{{ product.title }}">
+                    <h3>{{ product.title }}</h3>
+                    <p class="price">{{ product.price }} {{ product.currency }}</p>
+                    <div class="product-actions">
+                        <a href="{{ product.website }}" class="btn">عرض المنتج</a>
+                        <button onclick="editProduct('{{ product.id }}')" class="btn">تعديل</button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <script>
+        function updateCatalog() {
+            fetch('/api/update_catalog', {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer {{ request.args.get("token") or "" }}',
+                    'Content-Type': 'application/json'
+                }
+            }).then(res => res.json()).then(r => {
+                if (r.ok) {
+                    alert('تم تحديث الكتالوج بنجاح! إجمالي المنتجات: ' + r.total);
+                    location.reload();
+                } else {
+                    alert('خطأ في التحديث: ' + r.message);
+                }
+            }).catch(err => alert('خطأ في الاتصال'));
+        }
+
+        function archiveOrders() {
+            if (confirm('هل أنت متأكد من أرشفة الطلبات الحالية؟')) {
+                fetch('/api/archive_orders', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer {{ request.args.get("token") or "" }}',
+                        'Content-Type': 'application/json'
+                    }
+                }).then(res => res.json()).then(r => {
+                    if (r.ok) {
+                        alert('تم أرشفة الطلبات بنجاح!');
+                        location.reload();
+                    } else {
+                        alert('خطأ في الأرشفة: ' + r.error);
+                    }
+                }).catch(err => alert('خطأ في الاتصال'));
+            }
+        }
+
+        function editProduct(productId) {
+            const newPrice = prompt('أدخل السعر الجديد:');
+            if (newPrice && !isNaN(newPrice)) {
+                fetch('/api/update_product', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer {{ request.args.get("token") or "" }}',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        id: productId,
+                        price: parseFloat(newPrice)
+                    })
+                }).then(res => res.json()).then(r => {
+                    if (r.ok) {
+                        alert('تم تحديث المنتج بنجاح!');
+                        location.reload();
+                    } else {
+                        alert('خطأ في التحديث: ' + r.error);
+                    }
+                }).catch(err => alert('خطأ في الاتصال'));
+            }
+        }
+    </script>
+</body>
+</html>

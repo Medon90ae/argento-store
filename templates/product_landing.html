@@ -23,22 +23,6 @@
             <label for="quantity">الكمية:</label>
             <input type="number" id="quantity" name="quantity" min="1" value="1">
 
-            <fieldset>
-                <legend>معلومات المرسل (اختياري)</legend>
-                <input type="text" name="customer[sender][name]" placeholder="اسم المرسل">
-                <input type="tel" name="customer[sender][phone]" placeholder="هاتف المرسل">
-                <select id="sender-city" name="customer[sender][city]">
-                    <option value="">اختيار المدينة</option>
-                    {% for city in city_areas %}
-                    <option value="{{ city }}">{{ city }}</option>
-                    {% endfor %}
-                </select>
-                <select id="sender-area" name="customer[sender][area]">
-                    <option value="">اختيار المنطقة</option>
-                </select>
-                <input type="text" name="customer[sender][address]" placeholder="عنوان المرسل">
-                <input type="email" name="customer[sender][email]" placeholder="ايميل المرسل">
-            </fieldset>
 
             <fieldset>
                 <legend>معلومات المستلم</legend>
@@ -91,10 +75,6 @@
         }
 
         document.getElementById('quantity').addEventListener('input', updatePriceBanner);
-        document.getElementById('sender-city').addEventListener('change', function() {
-            const senderArea = document.getElementById('sender-area');
-            updateAreas(this, senderArea);
-        });
         document.getElementById('receiver-city').addEventListener('change', function() {
             const receiverArea = document.getElementById('receiver-area');
             updateAreas(this, receiverArea);

@@ -20,14 +20,128 @@ FB_ACCESS_TOKEN = os.getenv('FBACCSESSTOKEN', 'your_access_token_here')
 ADMIN_TOKEN = os.getenv('ADMIN_TOKEN', 'admin123')
 
 BUSINESS_CATALOGS = {
-    'CASTELPHARMA': 'CASTELPHARMA',  # replace with actual IDs
-    'FOFO': 'FOFO',
-    'SUDIID': 'SUDIID',
-    'UNILEVERID': 'UNILEVERID',
+    'CASTELPHARMA': '1341574140528980',  # castel pharma
+    'FOFO': '1816910538949001',  # fofo
+    'SUDIID': '1767558300630702',  # Azucar sudi
+    'UNILEVERID': '1605226514252142',  # argento UNILEVER
 }
 
 # Global city_area dict
 CITY_AREA_DICT = {}
+
+# Shipping prices by city
+SHIPPING_PRICES = {
+    'AinShams': 65,
+    'Al-agamy': 75,
+    'Alex': 75,
+    'Aswan': 130,
+    'Asyut': 95,
+    'Badrashin': 75,
+    'Abu Tesht': 75,
+    'Farshut': 75,
+    'Dar El-Salam': 65,
+    'Al Balena': 95,
+    'Gerga': 95,
+    'Banha': 75,
+    'Behira': 75,
+    'BeniSuef': 95,
+    'Helwan': 65,
+    'Damietta': 75,
+    'Dekernes': 75,
+    'Desouk': 75,
+    'Dokki': 65,
+    'Downtown': 65,
+    'Abu Sinbil': 130,
+    'Administrative Capital': 65,
+    'New Heliopolis City': 65,
+    'Cairo Governorate Desert': 65,
+    'Zaafarana': 130,
+    'Shalateen': 130,
+    'Marsa Alam': 130,
+    'Halaib': 130,
+    'Sallum': 130,
+    'Siwa Oasis': 130,
+    'Sidi Barrani': 130,
+    'Farafra': 130,
+    'Dakhla': 75,
+    'Kharga': 130,
+    'Sharm El-Sheikh': 130,
+    'Abu Radis': 130,
+    'Ain Sokhna': 85,
+    'Faiyum': 95,
+    'Faqus': 75,
+    'Fardos': 65,
+    'Faisal': 65,
+    'Haram': 65,
+    'Hurghada': 130,
+    'Ismailia': 85,
+    'Kafr El-Sheikh': 75,
+    'Khanka': 65,
+    'Luxor': 130,
+    'Maadi': 65,
+    'Mahala': 75,
+    'Mansoura': 75,
+    'Matamir': 65,
+    'Dayrout': 95,
+    'Al Qusiyyah': 130,
+    'Malawi': 130,
+    'Dayr Mawas': 130,
+    'Menya': 95,
+    'Moharram Bek': 75,
+    'Monufia': 75,
+    'Nasr City': 65,
+    'New Cairo': 65,
+    'Matrouh': 130,
+    'North Coast': 130,
+    'Oct6th': 65,
+    'Port said': 85,
+    'Qena': 130,
+    'Sharqia': 75,
+    'Shorouk': 65,
+    'Shoubara El Khima': 65,
+    'Sohag': 95,
+    'Suez': 85,
+    'Tanash': 65,
+    'Tanta': 75,
+    'Zayton': 65,
+    '10th of Ramadan City': 75
+}
+
+# Fixed sender data for each catalog
+CATALOG_SENDERS = {
+    'SUDIID': {
+        'name': 'Azucar Sharqia',
+        'city': 'Zagazig',
+        'area': 'حي الزهور',
+        'address': 'حي الزهور',
+        'phone': '+20 10 17549330',
+        'email': ''
+    },
+    'UNILEVERID': {
+        'name': 'argento Sharqia',
+        'city': 'Zagazig',
+        'area': 'حي الزهور',
+        'address': 'حي الزهور',
+        'phone': '01055688136',
+        'email': ''
+    },
+    'FOFO': {
+        'name': 'fofo Sharqia',
+        'city': 'Zagazig',
+        'area': 'شارع العصلوجي',
+        'address': 'شارع العصلوجي',
+        'phone': '+20 12 12137256',
+        'email': ''
+    },
+    'CASTELPHARMA': {
+        'name': 'castel pharma Sharqia',
+        'city': 'Zagazig',
+        'area': 'شارع فلل الجامعه',
+        'address': 'شارع فلل الجامعه',
+        'phone': '',
+        'email': ''
+    }
+}
 
 def load_city_area_dict():
     """Load city to areas mapping from addresses.xlsx"""
@@ -90,11 +204,16 @@ def fetch_facebook_products(catalog_id, access_token):
         'access_token': access_token
     }
     response = requests.get(url, params=params)
+    print(f"Response for {catalog_id}: {response.status_code}")
     if response.status_code == 200:
         data = response.json()
-        return [p for p in data.get('data', []) if p.get('availability') in ['available', None]]
+        print(f"Raw data from {catalog_id}: {data}")
+        all_products = data.get('data', [])
+        available_products = [p for p in all_products if p.get('availability') in ['available', 'in stock', None]]
+        print(f"Total products: {len(all_products)}, Available: {len(available_products)}")
+        return available_products
     else:
-        print(f"Failed to fetch {catalog_id}: {response.status_code}")
+        print(f"Failed to fetch {catalog_id}: {response.status_code} - {response.text}")
         return []
 
 def update_catalogs():
@@ -108,13 +227,27 @@ def update_catalogs():
             pid = p.get('id')
             if pid not in seen_ids:
                 seen_ids.add(pid)
+                # Handle price parsing - Facebook returns price as string like "EGP550.00"
+                price_str = p.get('price', '0')
+                if isinstance(price_str, str):
+                    # Extract numeric value from string like "EGP550.00" or "EGP1,970.00"
+                    import re
+                    price_match = re.search(r'[\d,]+\.?\d*', price_str.replace(',', ''))
+                    price_value = float(price_match.group()) if price_match else 0.0
+                    # Extract currency from string
+                    currency_match = re.search(r'[A-Z]{3}', price_str)
+                    currency = currency_match.group() if currency_match else 'EGP'
+                else:
+                    price_value = 0.0
+                    currency = 'EGP'
+                
                 all_products.append({
                     'id': pid,
                     'sku': f"{name}-{pid}",
                     'title': p.get('name', ''),
                     'description': p.get('description', ''),
-                    'price': float(p.get('price', {}).get('amount', '0')),
-                    'currency': p.get('price', {}).get('currency', 'EGP'),
+                    'price': price_value,
+                    'currency': currency,
                     'brand': p.get('brand', ''),
                     'image_url': p.get('image_url', ''),
                     'shipping_price': 50.0,  # default
@@ -255,58 +388,121 @@ def product_landing(slug):
 
 @app.route('/api/landing_order', methods=['POST'])
 def landing_order():
-    data = request.get_json() or request.form.to_dict()
-    product_id = data.get('product_id')
-    quantity = int(data.get('quantity', 1))
-    customer = data.get('customer', {})
+    try:
+        # Parse JSON data
+        if request.is_json:
+            data = request.get_json()
+        else:
+            # Try to parse form data as JSON
+            data = request.form.to_dict()
+            if 'customer' in data and isinstance(data['customer'], str):
+                import ast
+                try:
+                    data['customer'] = ast.literal_eval(data['customer'])
+                except:
+                    pass
+
+        product_id = data.get('product_id')
+        quantity = int(data.get('quantity', 1))
+        customer = data.get('customer', {})
+
+        # Validate required fields
+        if not product_id:
+            return jsonify({'error': 'معرف المنتج مطلوب'}), 400
+        
+        if not customer.get('name'):
+            return jsonify({'error': 'اسم المستلم مطلوب'}), 400
+        
+        if not customer.get('phone'):
+            return jsonify({'error': 'هاتف المستلم مطلوب'}), 400
+
+        products, _ = load_catalog()
+        product = next((p for p in products if str(p.get('id', '')) == str(product_id)), None)
+        if not product:
+            return jsonify({'error': 'المنتج غير موجود'}), 400
+
+        subtotal, discount, shipping_applied, total = calculate_order(product, quantity)
+
+        order = {
+            'id': str(uuid.uuid4()),
+            'created_at': datetime.datetime.utcnow().isoformat(),
+            'product': {k: v for k, v in product.items() if k in ['id', 'title', 'price']},
+            'quantity': quantity,
+            'subtotal': subtotal,
+            'discount': discount,
+            'shipping': shipping_applied,
+            'total': total,
+            'status': 'new',
+            'customer': customer,
+            'raw': data
+        }
+
+        # Load existing orders
+        if os.path.exists('data/orders.json'):
+            try:
+                with open('data/orders.json', 'r', encoding='utf-8') as f:
+                    orders = json.load(f)
+                if not isinstance(orders, list):
+                    orders = []
+            except Exception as e:
+                print(f"Error loading orders: {e}")
+                orders = []
+        else:
+            orders = []
+
+        # Insert at top
+        orders.insert(0, order)
+
+        # Save orders
+        try:
+            with open('data/orders.json', 'w', encoding='utf-8') as f:
+                json.dump(orders, f, ensure_ascii=False, indent=2)
+        except Exception as e:
+            print(f"Error saving orders: {e}")
+            return jsonify({'error': 'فشل حفظ الطلب'}), 500
+
+        # Add to Excel (non-blocking)
+        try:
+            add_order_to_excel(order)
+        except Exception as e:
+            print(f"Error adding to Excel: {e}")
+            # Don't fail the request if Excel fails
+
+        return jsonify({'ok': True, 'order_id': order['id']})
+
+    except Exception as e:
+        print(f"Error in landing_order: {e}")
+        return jsonify({'error': f'خطأ في المعالجة: {str(e)}'}), 500
+
+@app.route('/dashboard')
+def dashboard():
+    token = request.args.get('token') or request.cookies.get('admin_token')
+    if token != ADMIN_TOKEN:
+        return jsonify({'error': 'Admin access denied'}), 403
 
     products, _ = load_catalog()
-    product = next((p for p in products if str(p.get('id', '')) == str(product_id)), None)
-    if not product:
-        return jsonify({'error': 'Product not found'}), 400
-
-    subtotal, discount, shipping_applied, total = calculate_order(product, quantity)
-
-    order = {
-        'id': str(uuid.uuid4()),
-        'created_at': datetime.datetime.utcnow().isoformat(),
-        'product': {k: v for k, v in product.items() if k in ['id', 'title', 'price']},
-        'quantity': quantity,
-        'subtotal': subtotal,
-        'discount': discount,
-        'shipping': shipping_applied,
-        'total': total,
-        'status': 'new',
-        'customer': customer,
-        'raw': data
-    }
-
-    # Load existing orders
     if os.path.exists('data/orders.json'):
         try:
             with open('data/orders.json', 'r', encoding='utf-8') as f:
                 orders = json.load(f)
-            if not isinstance(orders, list):
-                orders = []
         except:
             orders = []
     else:
         orders = []
 
-    # Insert at top
-    orders.insert(0, order)
+    today = datetime.datetime.utcnow().date().isoformat()
+    today_orders = [o for o in orders if o.get('created_at', '').startswith(today)]
+    today_sales = sum(float(o.get('total', 0)) for o in today_orders)
 
-    # Save orders
-    try:
-        with open('data/orders.json', 'w', encoding='utf-8') as f:
-            json.dump(orders, f, ensure_ascii=False, indent=2)
-    except Exception as e:
-        print(f"Error saving orders: {e}")
+    stats = {
+        'total_orders': len(orders),
+        'today_orders': len(today_orders),
+        'today_sales': today_sales,
+        'total_products': len(products),
+        'free_shipping_products': len([p for p in products if p.get('free_shipping')])
+    }
 
-    # Add to Excel
-    add_order_to_excel(order)
-
-    return jsonify({'ok': True, 'order_id': order['id']})
+    return render_template('dashboard.html', stats=stats, products=products)
 
 @app.route('/admin')
 def admin():

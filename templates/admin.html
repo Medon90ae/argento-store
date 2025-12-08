@@ -11,6 +11,7 @@
         <h1>لوحة التحكم للمتجر</h1>
         <nav>
             <a href="/">العودة إلى المتجر</a>
+            <a href="/dashboard?token={{ request.args.get('token') or '' }}">لوحة التحكم</a>
         </nav>
     </header>
     <main>
